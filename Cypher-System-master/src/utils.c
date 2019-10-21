@@ -6,13 +6,35 @@ int UTILS_compare(const char *str1, const char *str2, int size)
     for (i = 0; i < size; i++) if (str1[i] != str2[i]) return 1;
     return 0;
 }
+int UTILS_sizeOf(const char *str){
+    int j = 0;
+    int i= 0;
+    
+    while(j != 1){
+        if( str[i] == '\0' || str[i]== ' '){
+            j = 1;
+        }
+        i++;
+    }
+    i--;
+    return i;
+}
 
 int UTILS_compareCaseInsensitive(const char *str1, const char* str2)
 {
-    int size = sizeof(*str1);
-    int i;
-    for (i = 0; i < size; i++) if (str1[i] != str2[i] && str1[i]!= str2[i]-33) return i;
-    return 0;
+    int size1 = UTILS_sizeOf(str1);
+    int size2 = UTILS_sizeOf(str2);
+    int size = (size1 < size2) ? size1 : size2; 
+    int i;  
+    size1=0;
+    for (i = 0; i < size; i++) {
+        if (str1[i] != str2[i] && str1[i]!= str2[i]-32){
+            
+            size1= 1;
+        }
+    }
+    return size1;
+
 }
 
 char** UTILS_str_split(char* a_str, const char a_delim)

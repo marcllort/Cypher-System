@@ -13,14 +13,16 @@ int MANAGER_manageCommand(char *str1)
     paraules = UTILS_str_split(str1, ' ');
     if (paraules)
     {
+        printf("1\n");
         if (UTILS_compareCaseInsensitive(EXIT, paraules[0]) == 0)
         {
             /* FUNCIO PER ALLIBERAR MEMORIA I SORTIR */
             freeMemory();
+            printf("EXIT CONSEGUIT\n");
             //return 0;
         }else if (UTILS_compareCaseInsensitive(CONNECT, paraules[0]) == 0)
         {
-            
+            printf("2\n");
             /* FUNCIO PER INICIAR CONNEXIO AMB PORT */
         }else if (UTILS_compareCaseInsensitive(SAY, paraules[0]) == 0)
         {
@@ -38,10 +40,24 @@ int MANAGER_manageCommand(char *str1)
                 /* SHOW CONNECTIONS */
             }else
             {
-                /* SHOW AUDIOS */
+              if (UTILS_compareCaseInsensitive(AUDIOS, paraules[1]) == 0)
+                {
+                    if(paraules[2]){
+                        /* SHOW AUDIOS */
+                        printf("A");
+                    }else{
+                        printf("error");
+                    }
+                    
+                }else{
+                    //MISSATGE ERROR
+                }  
             }
         
+        }else{
+            //MISSATGE ERROR
         }
+
         
         free(paraules);   
     }
