@@ -4,6 +4,8 @@
 #define NUM_ARGS            2
 #define ERR_INVALID_ARGS    "Error, parámetros incorrectos\n"
 
+void MAIN_registerSignal();
+void MAIN_freeMemory();
 
 int main(int argc, char **argv) {
 
@@ -13,12 +15,24 @@ int main(int argc, char **argv) {
     }
 
     NETWORK_init(argv[1]);
+    MAIN_registerSignal();
     char cadena[100];
     int i;
     int n;
-    n=read(0,cadena,100);
-    i = MANAGER_manageCommand(cadena);
-
-
+    while (1)
+    {
+        n=read(0,cadena,100);
+        i = MANAGER_manageCommand(cadena);
+    }
+    
     return 0;
+}
+
+void MAIN_registerSignal()
+{
+    signal(SIGINT, MAIN_freeMemory);
+}
+
+void MAIN_freeMemory(){
+    MANAGER_freeMemory();
 }

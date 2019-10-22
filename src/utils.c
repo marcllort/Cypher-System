@@ -1,17 +1,25 @@
 #include "../libs/utils.h"
 
+// String comparator
 int UTILS_compare(const char *str1, const char *str2, int size)
 {
     int i;
-    for (i = 0; i < size; i++) if (str1[i] != str2[i]) return 1;
+    for (i = 0; i < size; i++)
+        if (str1[i] != str2[i])
+            return 1;
     return 0;
 }
-int UTILS_sizeOf(const char *str){
+
+// String sizeOf
+int UTILS_sizeOf(const char *str)
+{
     int j = 0;
-    int i= 0;
-    
-    while(j != 1){
-        if( str[i] == '\0' || str[i]== ' '){
+    int i = 0;
+
+    while (j != 1)
+    {
+        if (str[i] == '\0' || str[i] == ' ')
+        {
             j = 1;
         }
         i++;
@@ -20,29 +28,32 @@ int UTILS_sizeOf(const char *str){
     return i;
 }
 
-int UTILS_compareCaseInsensitive(const char *str1, const char* str2)
+// String comparator, case Insensitive
+int UTILS_compareCaseInsensitive(const char *str1, const char *str2)
 {
     int size1 = UTILS_sizeOf(str1);
     int size2 = UTILS_sizeOf(str2);
-    int size = (size1 < size2) ? size1 : size2; 
-    int i;  
-    size1=0;
-    for (i = 0; i < size; i++) {
-        if (str1[i] != str2[i] && str1[i]!= str2[i]-32){
-            
-            size1= 1;
+    int size = (size1 < size2) ? size1 : size2;
+    int i;
+    size1 = 0;
+    for (i = 0; i < size; i++)
+    {
+        if (str1[i] != str2[i] && str1[i] != str2[i] - 32)
+        {
+
+            size1 = 1;
         }
     }
     return size1;
-
 }
 
-char** UTILS_str_split(char* a_str, const char a_delim)
+// String splitter by delimiter
+char **UTILS_str_split(char *a_str, const char a_delim)
 {
-    char** result    = 0;
-    size_t count     = 0;
-    char* tmp        = a_str;
-    char* last_comma = 0;
+    char **result = 0;
+    size_t count = 0;
+    char *tmp = a_str;
+    char *last_comma = 0;
     char delim[2];
     delim[0] = a_delim;
     delim[1] = 0;
@@ -65,12 +76,12 @@ char** UTILS_str_split(char* a_str, const char a_delim)
        knows where the list of returned strings ends. */
     count++;
 
-    result = malloc(sizeof(char*) * count);
+    result = malloc(sizeof(char *) * count);
 
     if (result)
     {
-        size_t idx  = 0;
-        char* token = strtok(a_str, delim);
+        size_t idx = 0;
+        char *token = strtok(a_str, delim);
 
         while (token)
         {
@@ -83,4 +94,72 @@ char** UTILS_str_split(char* a_str, const char a_delim)
     }
 
     return result;
+}
+
+// String number checker, returns true (1) if it's a number
+int UTILS_valid_digit(char *ip_str)
+{
+    while (*ip_str)
+    {
+        if (*ip_str >= '0' && *ip_str <= '9'){
+            ++ip_str;
+        }    
+        else{
+            printf("no va:  %s\n", ip_str);
+            return 0; 
+        }
+    }
+    return 1;
+}
+
+// String IP checker, returns true (1) if it's a valid IP
+int UTILS_ip_checker(char *ip_str)
+{
+    int i, num, dots = 0;
+    char *ptr;
+
+    if (ip_str == NULL)
+    {
+        return 0;
+    }
+
+    ptr = strtok(ip_str, IP_DELIM); //Split String by delimiter
+
+    if (ptr == NULL)
+    {
+        return 0;
+    }
+
+    while (ptr)
+    {
+
+        // Check if is a valid digit
+        if (!UTILS_valid_digit(ptr))
+        {
+            return 0;
+        }
+        // Transform to number
+        num = atoi(ptr);
+
+        // Check if it's between the valid values
+        if (num >= 0 && num <= 255)
+        {
+            ptr = strtok(NULL, IP_DELIM);   // By passing null, you get next part of the string in the ptr
+            if (ptr != NULL)
+            {
+                ++dots;
+            }
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    // Check number of dots found while parsing, must be 3 to be valid
+    if (dots != 3)
+    {
+        return 0;
+    }
+    return 1;
 }

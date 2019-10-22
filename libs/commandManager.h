@@ -20,6 +20,6 @@
 #define SAY "SAY"
 
 int MANAGER_manageCommand(char *str1);
-void MANAGER_registerSignal();
+void MANAGER_freeMemory();
 
 #endif 

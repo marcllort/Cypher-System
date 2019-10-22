@@ -1,71 +1,125 @@
 #include "../libs/commandManager.h"
-#include <stdio.h>
 
 
-void freeMemory(){
-    //Alliberar la memòria pertinent
-}
 
-int MANAGER_manageCommand(char *str1)
+int MANAGER_manageCommand(char *inputString)
 {
-    char** paraules;
+    char **words;
 
-    paraules = UTILS_str_split(str1, ' ');
-    if (paraules)
+    words = UTILS_str_split(inputString, ' ');
+    if (words)
     {
-        printf("1\n");
-        if (UTILS_compareCaseInsensitive(EXIT, paraules[0]) == 0)
+
+        if (UTILS_compareCaseInsensitive(EXIT, words[0]) == 0)
         {
             /* FUNCIO PER ALLIBERAR MEMORIA I SORTIR */
-            freeMemory();
-            printf("EXIT CONSEGUIT\n");
+            MANAGER_freeMemory();
+            printf("TEST: Disconnecting Trinity...\n");
+            raise(SIGINT);
             //return 0;
-        }else if (UTILS_compareCaseInsensitive(CONNECT, paraules[0]) == 0)
+        }
+        else if (UTILS_compareCaseInsensitive(CONNECT, words[0]) == 0)
         {
-            printf("2\n");
-            /* FUNCIO PER INICIAR CONNEXIO AMB PORT */
-        }else if (UTILS_compareCaseInsensitive(SAY, paraules[0]) == 0)
-        {
-            /* code */
-        }else if (UTILS_compareCaseInsensitive(BROADCAST, paraules[0]) == 0)
-        {
-            /* code */
-        }else if (UTILS_compareCaseInsensitive(DOWNLOAD, paraules[0]) == 0)
-        {
-            /* code */
-        }else if (UTILS_compareCaseInsensitive(SHOW, paraules[0]) == 0)
-        {
-            if (UTILS_compareCaseInsensitive(CONNECTIONS, paraules[1]) == 0)
-            {
-                /* SHOW CONNECTIONS */
-            }else
-            {
-              if (UTILS_compareCaseInsensitive(AUDIOS, paraules[1]) == 0)
-                {
-                    if(paraules[2]){
-                        /* SHOW AUDIOS */
-                        printf("A");
-                    }else{
-                        printf("error");
-                    }
-                    
-                }else{
-                    //MISSATGE ERROR
-                }  
+            //words[1]="1443";                                         //Si descomentes aixo, si que funciona correctament
+            if (words[1] && UTILS_valid_digit(words[1]))        //Problema aqui, la funcio esta funcionanrt be si li paso "4567", pero amb el valor del teu split falla nose perq, crec q deu tenir algun espai o potrser el \0, nose
+            {                                                   // Mai entra a la funcio perq sempre retorna 0
+                printf("TEST: CONNECTING TO X\n");
             }
-        
-        }else{
-            //MISSATGE ERROR
+            else
+            {
+                printf("TEST: ERROR CONNECT, MISSING PARAMETER\n");
+            }
+        }
+        else if (UTILS_compareCaseInsensitive(SAY, words[0]) == 0)
+        {
+            if (words[1])
+            {
+                if (words[2])
+                {
+                    printf("TEST: SAYING Y TO X\n");
+                }
+                else
+                {
+                    printf("TEST: ERROR CONNECT, MISSING TEXT\n");
+                }
+            }
+            else
+            {
+                printf("TEST: ERROR SAY, MISSING PARAMETERS\n");
+            }
+        }
+        else if (UTILS_compareCaseInsensitive(BROADCAST, words[0]) == 0)
+        {
+            if (words[1])
+            {
+                printf("TEST: BROADCASTING Y\n");
+            }
+            else
+            {
+                printf("TEST: ERROR BROADCAST, MISSING TEXT\n");
+            }
+        }
+        else if (UTILS_compareCaseInsensitive(DOWNLOAD, words[0]) == 0)
+        {
+            if (words[1])
+            {
+                if (words[2])
+                {
+                    printf("TEST: DOWNLOADING X'S AUDIO Y\n");
+                }
+                else
+                {
+                    printf("TEST: ERROR DONWLOAD, MISSING AUDIO FILE\n");
+                }
+            }
+            else
+            {
+                printf("TEST: ERROR DOWNLOAD, MISSING PARAMETERS\n");
+            }
+        }
+        else if (UTILS_compareCaseInsensitive(SHOW, words[0]) == 0)
+        {
+            if (!words[1])
+            {
+                printf("TEST: UNKNOWN SHOW COMMAND\n");
+            }
+            else if (UTILS_compareCaseInsensitive(CONNECTIONS, words[1]) == 0)
+            {
+                printf("TEST: SHOWING CONNECTIONS\n");
+            }
+            else
+            {
+
+                if (UTILS_compareCaseInsensitive(AUDIOS, words[1]) == 0)
+                {
+                    if (words[2])
+                    {
+                        printf("TEST: SHOWING X'S AUDIOS\n");
+                    }
+                    else
+                    {
+                        printf("TEST: ERROR AUDIO, MISSING USER\n");
+                    }
+                }
+                else
+                {
+                    printf("TEST: UNKNOWN SHOW COMMAND\n");
+                }
+            }
+        }
+        else
+        {
+            printf("TEST: UNKNOWN COMMAND\n");
         }
 
-        
-        free(paraules);   
+        free(words);
     }
-    return 1;  
+    return 1;
 }
-void MANAGER_registerSignal(){
-    signal(SIGINT, freeMemory);
+void MANAGER_freeMemory()
+{
+    //Alliberar la memòria pertinent
+
+    printf("TEST: FREE MEMORY \n");
+    exit(1);
 }
-
-
-
