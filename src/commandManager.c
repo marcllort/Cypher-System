@@ -20,13 +20,16 @@ int MANAGER_manageCommand(char *inputString)
         }
         else if (UTILS_compareCaseInsensitive(CONNECT, words[0]) == 0)
         {
-            //words[1]="1443";                                         //Si descomentes aixo, si que funciona correctament
-            if (words[1] && UTILS_valid_digit(words[1]))        //Problema aqui, la funcio esta funcionanrt be si li paso "4567", pero amb el valor del teu split falla nose perq, crec q deu tenir algun espai o potrser el \0, nose
-            {                                                  // Mai entra a la funcio perq sempre retorna 0
-                int num = atoi("123");
+            if (words[1] && UTILS_valid_digit(words[1]))        
+            {
+                                                                
+                int size = UTILS_sizeOf(words[1]);
+                words[1][size-1]='\0'; 
                 
-                printf("TEST: CONNECTING TO X\n");
-                printf("NUMERO: %d", num);
+
+                int num = atoi(words[1]);
+                
+                printf("TEST: CONNECTING TO %d\n", num);
             }
             else
             {
