@@ -99,15 +99,19 @@ char **UTILS_str_split(char *a_str, const char a_delim)
 // String number checker, returns true (1) if it's a number
 int UTILS_valid_digit(char *ip_str)
 {
-    while (*ip_str)
+    int size = UTILS_sizeOf(ip_str);
+    int i=0;
+    while (size<i)
     {
+        printf("CARACTER: %c\n", *ip_str);
         if (*ip_str >= '0' && *ip_str <= '9'){
             ++ip_str;
         }    
         else{
-            printf("no va:  %s\n", ip_str);
+            printf("no va:  %c\n", *ip_str);
             return 0; 
         }
+        i++;
     }
     return 1;
 }

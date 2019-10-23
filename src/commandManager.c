@@ -22,8 +22,11 @@ int MANAGER_manageCommand(char *inputString)
         {
             //words[1]="1443";                                         //Si descomentes aixo, si que funciona correctament
             if (words[1] && UTILS_valid_digit(words[1]))        //Problema aqui, la funcio esta funcionanrt be si li paso "4567", pero amb el valor del teu split falla nose perq, crec q deu tenir algun espai o potrser el \0, nose
-            {                                                   // Mai entra a la funcio perq sempre retorna 0
+            {                                                  // Mai entra a la funcio perq sempre retorna 0
+                int num = atoi("123");
+                
                 printf("TEST: CONNECTING TO X\n");
+                printf("NUMERO: %d", num);
             }
             else
             {
