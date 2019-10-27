@@ -23,10 +23,6 @@ char** UTILS_str_split(char* a_str, const char a_delim);
 int UTILS_valid_digit(char *ip_str);
 int UTILS_ip_checker(char *ip_str) ;
 int UTILS_sizeOf(const char *str);
-void UTILS_initArray(Array *a, size_t initialSize);
-void UTILS_insertArray(Array *a, int element);
-void UTILS_freeArray(Array *a);
-int UTILS_getSizeArray(Array *a);
 
 
 #endif 

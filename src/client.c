@@ -1,8 +1,5 @@
 #include "../libs/client.h"
 
-
-
-
 int CLIENT_checkPorts(Config config)
 {
 
@@ -10,8 +7,7 @@ int CLIENT_checkPorts(Config config)
     int port = config.cypherStartPort;
     int endPort = config.cypherEndPort;
     int availableConnections = 0;
-    Array availPorts;
-    UTILS_initArray(&availPorts, 0);
+    int availPorts[10];
 
     struct sockaddr_in s_addr;
     int socket_conn = -1;
@@ -41,8 +37,8 @@ int CLIENT_checkPorts(Config config)
             }
             else
             {
+                availPorts[availableConnections] = port;
                 availableConnections++;
-                //UTILS_insertArray(&availPorts, port);
             }
             port++;
         }
@@ -52,17 +48,13 @@ int CLIENT_checkPorts(Config config)
     int bytes = sprintf(buff, MSG_AVAIL_CONN, availableConnections);
     write(1, buff, bytes);
 
-    /*printf("%d",availPorts.used );
-
-    for (size_t i = 0; i < availPorts.used-1; i++)
+    for (size_t i = 0; i < availableConnections; i++)
     {
-        bytes = sprintf(buff, "%d", availPorts.array[i]);
+        bytes = sprintf(buff, "%d\n", availPorts[i]);
         write(1, buff, bytes);
-    }*/
-    
+    }
 
     return socket_conn;
 }
-
 
 //fer funcio de FREE
