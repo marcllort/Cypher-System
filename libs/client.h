@@ -23,7 +23,7 @@
 #define TESTING "Testing...\n"
 #define MSG_ERR_SOCKET "Error durante la creacion del socket.\n"
 #define MSG_CONNECTED "%d connected: %s\n"
-
+#define UNKNOWN_CONNECTION "Couldn't send message. Unknown connection %s\n"
 
 typedef struct {
   int port;

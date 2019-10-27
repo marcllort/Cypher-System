@@ -36,9 +36,6 @@ int CLIENT_checkPorts(Config config)
 
             if (connect(socket_conn, (void *)&s_addr, sizeof(s_addr)) < 0)
             {
-                //char buff[128];
-                //int bytes = sprintf(buff, MSG_ERR_CONN, port);
-                //write(1, buff, bytes);
                 close(socket_conn);
                 socket_conn = -1;
             }
@@ -58,8 +55,9 @@ int CLIENT_checkPorts(Config config)
 
     int trobat = 0;
     for (size_t i = 0; i < availableConnections; i++)
-    {   
+    {
         trobat = 0;
+        LLISTABID_vesInici(&servers);
         //if esta a la llista, printa port i nom, sino el port sol
         if (LLISTABID_buida(servers))
         {
@@ -162,8 +160,38 @@ char *CLIENT_get_message(int fd, char delimiter)
 
 int CLIENT_sayMessage(char *user, char *message)
 {
+    int trobat = 0;
+    LLISTABID_vesInici(&servers);
+    char buff[128];
+    int bytes;
+
+    while (!LLISTABID_final(servers) && !trobat)
+    {
+        Element server = LLISTABID_consulta(servers);
+        if (strcmp(server.name, user) == 0) //strcmp("prova", user) serveix per provar el say, si fas connect i despres say prova sallefest, funciona
+        {
+
+            bytes = sprintf(buff, "%s\n", message);
+            write(server.socketfd, buff, bytes);
+            trobat = 1;
+        }
+        else
+        {
+            LLISTABID_avanca(&servers);
+        }
+    }
+    if (!trobat)
+    {
+        bytes = sprintf(buff, UNKNOWN_CONNECTION, user);
+        write(1, buff, bytes);
+    }
 
     //fer un write i ja, primer a partir del username, buscar el socket al q cal enviar
 }
 
+// cal comprovar el cas de: connect, show connections, connect a un altre server show connections -- he provat algo similar i semblava fallar el 2n connect, pero podria ser fallo del srever del lab
+
 //fer funcio de FREE
+
+// mirar de fer algunes funcions privades per client.c repeteixo molt codi, en el cas de saymessage estic fent el mateix q a checkports, que es buscar, aixo hauria de ser una funcio
+// tmb estic fent el mateix a check ports i a connect, casi tota la funcio de connect hauria de ser una funcio a part q rebi ip i port, i ferla servir a connect i a checkports

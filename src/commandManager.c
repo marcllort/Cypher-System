@@ -74,6 +74,7 @@ int MANAGER_manageCommand(char *inputString)
                 if (words[2])
                 {
                     write(1, SAY_MSG, strlen(SAY_MSG));
+                    CLIENT_sayMessage(words[1], words[2]);
                 }
                 else
                 {
