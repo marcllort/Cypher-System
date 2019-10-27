@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
 
     Config config = CONFIG_load(argv[1]);
     MANAGER_setConfig(config);
-
+    CLIENT_initClient();
     NETWORK_init(config);
     MAIN_registerSignal();
     char cadena[100];

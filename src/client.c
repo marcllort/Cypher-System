@@ -1,5 +1,12 @@
 #include "../libs/client.h"
 
+Llista servers;
+
+int CLIENT_initClient()
+{
+    servers = LLISTABID_crea();
+}
+
 int CLIENT_checkPorts(Config config)
 {
 
@@ -47,12 +54,40 @@ int CLIENT_checkPorts(Config config)
     char buff[128];
     int bytes = sprintf(buff, MSG_AVAIL_CONN, availableConnections);
     write(1, buff, bytes);
+    LLISTABID_vesInici(&servers);
 
+    int trobat = 0;
     for (size_t i = 0; i < availableConnections; i++)
-    {
+    {   
+        trobat = 0;
         //if esta a la llista, printa port i nom, sino el port sol
-        bytes = sprintf(buff, "%d\n", availPorts[i]);
-        write(1, buff, bytes);
+        if (LLISTABID_buida(servers))
+        {
+            bytes = sprintf(buff, "%d\n", availPorts[i]);
+            write(1, buff, bytes);
+        }
+        else
+        {
+            while (!LLISTABID_final(servers) && !trobat)
+            {
+                Element server = LLISTABID_consulta(servers);
+                if (server.port == availPorts[i])
+                {
+                    bytes = sprintf(buff, "%d %s\n", availPorts[i], server.name);
+                    write(1, buff, bytes);
+                    trobat = 1;
+                }
+                else
+                {
+                    LLISTABID_avanca(&servers);
+                }
+            }
+            if (!trobat)
+            {
+                bytes = sprintf(buff, "%d\n", availPorts[i]);
+                write(1, buff, bytes);
+            }
+        }
     }
 
     return socket_conn;
@@ -60,7 +95,7 @@ int CLIENT_checkPorts(Config config)
 
 int CLIENT_connectPort(Config config, int connectPort)
 {
-    Server newServer;
+    Element newServer;
     char *ip = config.cypherIP;
 
     struct sockaddr_in s_addr;
@@ -99,8 +134,7 @@ int CLIENT_connectPort(Config config, int connectPort)
     int bytes = sprintf(buff, MSG_CONNECTED, newServer.port, newServer.name);
     write(1, buff, bytes);
 
-
-    // Només falta guardar en una estructura de dades (LLista/MAP) on posem la relacio. estreuctura ja esta creada, es server, cal posarlo a la llista nomes
+    LLISTABID_inserirDarrere(&servers, newServer);
 
     return newServer.socketfd;
 }
@@ -130,8 +164,6 @@ int CLIENT_sayMessage(char *user, char *message)
 {
 
     //fer un write i ja, primer a partir del username, buscar el socket al q cal enviar
- 
-
 }
 
 //fer funcio de FREE

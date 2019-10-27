@@ -15,6 +15,7 @@
 
 #include "config.h"
 #include "utils.h"
+#include "list.h"
 
 
 #define MSG_ERR_CONN "Puerto %d Cerrado\n"
@@ -34,5 +35,6 @@ int CLIENT_checkPorts(Config config);
 int CLIENT_sayMessage(char* user, char* message);
 int CLIENT_connectPort(Config config, int connectPort);
 char *CLIENT_get_message(int fd, char delimiter);
+int CLIENT_initClient();
 
 #endif //_CLIENT_H
