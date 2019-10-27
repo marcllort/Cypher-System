@@ -23,7 +23,15 @@
 #define MSG_ERR_SOCKET "Error durante la creacion del socket.\n"
 
 
-int CLIENT_checkPorts(Config config);
+typedef struct {
+  int port;
+  char* name;
+  int socketfd;
+} Server;
 
+int CLIENT_checkPorts(Config config);
+int CLIENT_sayMessage(char* user, char* message, int socketfd);
+int CLIENT_connectPort(Config config, int connectPort);
+char *CLIENT_get_message(int fd, char delimiter);
 
 #endif //_CLIENT_H

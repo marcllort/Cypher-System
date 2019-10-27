@@ -55,9 +55,12 @@ int MANAGER_manageCommand(char *inputString)
                 int size = UTILS_sizeOf(words[1]);
                 words[1][size - 1] = '\0';
 
-                int num = atoi(words[1]);
+                int port = atoi(words[1]);
+                
 
                 write(1, CONNECT_MSG, strlen(CONNECT_MSG));
+
+                CLIENT_connectPort(config, port);
             }
             else
             {

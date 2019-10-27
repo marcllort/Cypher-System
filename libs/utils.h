@@ -11,11 +11,7 @@
 
 #define IP_DELIM "."
 
-typedef struct {
-  int *array;
-  size_t used;
-  size_t size;
-} Array;
+
 
 int UTILS_compare(const char *str1, const char *str2, int size);
 int UTILS_compareCaseInsensitive(const char *str1, const char* str2);
