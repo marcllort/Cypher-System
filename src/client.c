@@ -50,6 +50,7 @@ int CLIENT_checkPorts(Config config)
 
     for (size_t i = 0; i < availableConnections; i++)
     {
+        //if esta a la llista, printa port i nom, sino el port sol
         bytes = sprintf(buff, "%d\n", availPorts[i]);
         write(1, buff, bytes);
     }
@@ -79,34 +80,29 @@ int CLIENT_connectPort(Config config, int connectPort)
 
         if (connect(socket_conn, (void *)&s_addr, sizeof(s_addr)) < 0)
         {
-            //char buff[128];
             write(1, MSG_ERR_CONN, sizeof(MSG_ERR_CONN));
-            //int bytes = sprintf(buff, "errno says: %s\n", strerror(errno)); // molt útil
-            //write(1, buff, bytes);
             close(socket_conn);
             socket_conn = -1;
         }
     }
 
-    
-
     newServer.port = connectPort;
     newServer.socketfd = socket_conn;
+
+    //Per provar amb server sessio lab 4 -- envio nom al server
+    char *name = CLIENT_get_message(0, '\n');
+    write(socket_conn, name, strlen(name));
+
+    newServer.name = CLIENT_get_message(socket_conn, '\n');
+
     char buff[128];
-    int bytes = sprintf(buff, "socketfd: %d\n", newServer.socketfd);
+    int bytes = sprintf(buff, MSG_CONNECTED, newServer.port, newServer.name);
     write(1, buff, bytes);
 
-    char* name = CLIENT_get_message(0, '\n');
-	write(socket_conn, name, strlen(name));
-    
 
-    char* question = CLIENT_get_message(socket_conn, '\n');
-    write(1, question, strlen(question));
+    // Només falta guardar en una estructura de dades (LLista/MAP) on posem la relacio. estreuctura ja esta creada, es server, cal posarlo a la llista nomes
 
-    //newServer.name = CLIENT_get_message(socket_conn, '\n');
-    //printf("%s", newServer.name);
-
-    return socket_conn;
+    return newServer.socketfd;
 }
 
 char *CLIENT_get_message(int fd, char delimiter)
@@ -130,8 +126,12 @@ char *CLIENT_get_message(int fd, char delimiter)
     return msg;
 }
 
-int CLIENT_sayMessage(char *user, char *message, int socketfd)
+int CLIENT_sayMessage(char *user, char *message)
 {
+
+    //fer un write i ja, primer a partir del username, buscar el socket al q cal enviar
+ 
+
 }
 
 //fer funcio de FREE
