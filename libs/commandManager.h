@@ -8,7 +8,10 @@
 #include <assert.h>
 #include <signal.h>
 
+
 #include "utils.h"
+#include "config.h"
+#include "client.h"
 
 #define SHOW "SHOW"
 #define CONNECTIONS "CONNECTIONS"
@@ -19,6 +22,7 @@
 #define EXIT "EXIT"
 #define SAY "SAY"
 
+int MANAGER_setConfig(Config newConfig);
 int MANAGER_manageCommand(char *str1);
 void MANAGER_freeMemory();
 

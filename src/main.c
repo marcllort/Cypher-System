@@ -14,7 +14,10 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    NETWORK_init(argv[1]);
+    Config config = CONFIG_load(argv[1]);
+    MANAGER_setConfig(config);
+
+    NETWORK_init(config);
     MAIN_registerSignal();
     char cadena[100];
     int i;
