@@ -21,8 +21,9 @@ Config CONFIG_load(char* filename) {
 
     IO_readUntil(fd, &(config.username), '\n');
     
+    
     IO_readUntil(fd, &(config.audioFolder), '\n');
-
+    
     IO_readUntil(fd, &(config.myIP), '\n');
 
     IO_readUntil(fd, &temp, '\n');

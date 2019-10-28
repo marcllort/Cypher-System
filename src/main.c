@@ -24,6 +24,8 @@ int main(int argc, char **argv) {
     int n;
     while (1)
     {
+         
+        n = UTILS_printName(config);
         n=read(0,cadena,100);
         i = MANAGER_manageCommand(cadena);
     }

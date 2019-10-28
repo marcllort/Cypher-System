@@ -168,3 +168,14 @@ int UTILS_ip_checker(char *ip_str)
     return 1;
 }
 
+int UTILS_printName(Config config){
+
+    
+
+    char buff[128];
+     int n= sprintf(buff, " a %s $", CONFIG_getUsername(config));
+     write(1, buff, n);
+     printf(": aa");
+    return n;
+}
+

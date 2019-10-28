@@ -5,6 +5,7 @@ Llista servers;
 int CLIENT_initClient()
 {
     servers = LLISTABID_crea();
+    return 1;
 }
 
 int CLIENT_checkPorts(Config config)
@@ -185,7 +186,7 @@ int CLIENT_sayMessage(char *user, char *message)
         bytes = sprintf(buff, UNKNOWN_CONNECTION, user);
         write(1, buff, bytes);
     }
-
+    return 1;
     //fer un write i ja, primer a partir del username, buscar el socket al q cal enviar
 }
 
