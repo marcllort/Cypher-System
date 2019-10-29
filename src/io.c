@@ -30,9 +30,9 @@ long IO_readUntil(int fd, char **data, char delimiter)
     if (!bytes) {
         *data = (char*)realloc((void*)*data, ++size);
     }
-
-    (*data)[size - 1] = 0;
-
+    
+    (*data)[size - 2] = '\0';
+    
     return size;
 }
 
