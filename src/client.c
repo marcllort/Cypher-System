@@ -8,46 +8,26 @@ int CLIENT_initClient()
     return 1;
 }
 
-#define BUFSIZE 128
+char *CLIENT_get_message(int fd, char delimiter)
+{
+    char *msg = (char *)malloc(1);
+    char current;
+    int i = 0;
 
-/*int CLIENT_checkPorts(char* buffer) {
-    //char *cmd = "./show_connections.sh 8000 8010";
-   
+    while (read(fd, &current, 1) > 0)
+    {
 
-    //int size = sprintf(buffer, "./show_connections.sh %d %d", port, endPort);
+        msg[i] = current;
+        msg = (char *)realloc(msg, ++i + 1);
 
-    char buf[BUFSIZE];
-    FILE *fp;
-    
-
-    if ((fp = popen(buffer, "r")) == NULL) {
-        printf("Error opening pipe!\n");
-        return -1;
-    }
-    int fd = fileno(fp);
-
-    char* buff;
-    char* openPort;
-
-    IO_readUntil(fd, &buff, ' ');
-    free(buff);
-    IO_readUntil(fd, &openPort, ' ');
-    write(1, openPort, sizeof(openPort));
-    IO_readUntil(fd, &buff, '\n');
-    free(buff);
-
-    
-
-    if(pclose(fp))  {
-        //printf("Command not found or exited with error status\n");
-        return -1;
+        if (current == delimiter)
+            break;
     }
 
-    return 0;
-}*/
+    msg[i] = '\0';
 
-
-
+    return msg;
+}
 
 int CLIENT_checkPorts(Config config)
 {
@@ -164,9 +144,11 @@ int CLIENT_connectPort(Config config, int connectPort)
     newServer.port = connectPort;
     newServer.socketfd = socket_conn;
 
-    //Per provar amb server sessio lab 4 -- envio nom al server
+    // Per provar amb server sessio lab 4 -- envio nom al server
     char *name = CLIENT_get_message(0, '\n');
     write(socket_conn, name, strlen(name));
+    // Cal borrar fins aqui
+
 
     newServer.name = CLIENT_get_message(socket_conn, '\n');
 
@@ -177,27 +159,6 @@ int CLIENT_connectPort(Config config, int connectPort)
     LLISTABID_inserirDarrere(&servers, newServer);
 
     return newServer.socketfd;
-}
-
-char *CLIENT_get_message(int fd, char delimiter)
-{
-    char *msg = (char *)malloc(1);
-    char current;
-    int i = 0;
-
-    while (read(fd, &current, 1) > 0)
-    {
-
-        msg[i] = current;
-        msg = (char *)realloc(msg, ++i + 1);
-
-        if (current == delimiter)
-            break;
-    }
-
-    msg[i] = '\0';
-
-    return msg;
 }
 
 int CLIENT_sayMessage(char *user, char *message)
@@ -213,8 +174,17 @@ int CLIENT_sayMessage(char *user, char *message)
         if (strcmp(server.name, user) == 0) //strcmp("prova", user) serveix per provar el say, si fas connect i despres say prova sallefest, funciona
         {
 
+            Packet packet;
             bytes = sprintf(buff, "%s\n", message);
-            write(server.socketfd, buff, bytes);
+
+            packet.type = 0x01;
+            packet.header = "[MSG]";
+            packet.lenght = bytes;
+            packet.data = buff;
+
+            void *ptr = &packet;
+
+            write(server.socketfd, ptr, bytes);     //Cal provar si funciona, fent cast desde el server
             trobat = 1;
         }
         else
@@ -231,8 +201,10 @@ int CLIENT_sayMessage(char *user, char *message)
     //fer un write i ja, primer a partir del username, buscar el socket al q cal enviar
 }
 
-int CLIENT_freeMemory(){
+int CLIENT_freeMemory()
+{
 
+    return 0;
 }
 
 // cal comprovar el cas de: connect, show connections, connect a un altre server show connections -- he provat algo similar i semblava fallar el 2n connect, pero podria ser fallo del srever del lab
@@ -241,3 +213,39 @@ int CLIENT_freeMemory(){
 
 // mirar de fer algunes funcions privades per client.c repeteixo molt codi, en el cas de saymessage estic fent el mateix q a checkports, que es buscar, aixo hauria de ser una funcio
 // tmb estic fent el mateix a check ports i a connect, casi tota la funcio de connect hauria de ser una funcio a part q rebi ip i port, i ferla servir a connect i a checkports
+
+/*int CLIENT_checkPorts(char* buffer) {
+    //char *cmd = "./show_connections.sh 8000 8010";
+   
+
+    //int size = sprintf(buffer, "./show_connections.sh %d %d", port, endPort);
+
+    char buf[BUFSIZE];
+    FILE *fp;
+    
+
+    if ((fp = popen(buffer, "r")) == NULL) {
+        printf("Error opening pipe!\n");
+        return -1;
+    }
+    int fd = fileno(fp);
+
+    char* buff;
+    char* openPort;
+
+    IO_readUntil(fd, &buff, ' ');
+    free(buff);
+    IO_readUntil(fd, &openPort, ' ');
+    write(1, openPort, sizeof(openPort));
+    IO_readUntil(fd, &buff, '\n');
+    free(buff);
+
+    
+
+    if(pclose(fp))  {
+        //printf("Command not found or exited with error status\n");
+        return -1;
+    }
+
+    return 0;
+}*/
