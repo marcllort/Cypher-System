@@ -15,7 +15,7 @@
 
 Config config;
 
-int NETWORK_init(char *filename);
+int NETWORK_init(Config config);
 int NETWORK_close();
 
 

@@ -100,16 +100,18 @@ char **UTILS_str_split(char *a_str, const char a_delim)
 int UTILS_valid_digit(char *ip_str)
 {
     int size = UTILS_sizeOf(ip_str);
-    int i=0;
-    while (size<i)
+    int i = 0;
+    while (size < i)
     {
         printf("CARACTER: %c\n", *ip_str);
-        if (*ip_str >= '0' && *ip_str <= '9'){
+        if (*ip_str >= '0' && *ip_str <= '9')
+        {
             ++ip_str;
-        }    
-        else{
+        }
+        else
+        {
             printf("no va:  %c\n", *ip_str);
-            return 0; 
+            return 0;
         }
         i++;
     }
@@ -119,7 +121,7 @@ int UTILS_valid_digit(char *ip_str)
 // String IP checker, returns true (1) if it's a valid IP
 int UTILS_ip_checker(char *ip_str)
 {
-    int i, num, dots = 0;
+    int num, dots = 0;
     char *ptr;
 
     if (ip_str == NULL)
@@ -148,7 +150,7 @@ int UTILS_ip_checker(char *ip_str)
         // Check if it's between the valid values
         if (num >= 0 && num <= 255)
         {
-            ptr = strtok(NULL, IP_DELIM);   // By passing null, you get next part of the string in the ptr
+            ptr = strtok(NULL, IP_DELIM); // By passing null, you get next part of the string in the ptr
             if (ptr != NULL)
             {
                 ++dots;
@@ -166,4 +168,27 @@ int UTILS_ip_checker(char *ip_str)
         return 0;
     }
     return 1;
+}
+
+int UTILS_printName(Config config)
+{
+
+    char buff[128];
+    int n = sprintf(buff, "$%s: ", CONFIG_getUsername(config));
+    write(1, buff, n);
+
+    return n;
+}
+
+void UTILS_removeChar(char *str, char garbage)
+{
+
+    char *src, *dst;
+    for (src = dst = str; *src != '\0'; src++)
+    {
+        *dst = *src;
+        if (*dst != garbage)
+            dst++;
+    }
+    *dst = '\0';
 }
