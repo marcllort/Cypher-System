@@ -5,6 +5,7 @@
 #define CONNECT_ERROR "TEST: ERROR CONNECT, MISSING PARAMETER\n"
 
 #define SAY_MSG "TEST: SAYING Y TO X\n"
+#define SAY_ERROR_MESS "TEST: ERROR MISSING COMMAS \n"
 #define SAY_ERROR "TEST: ERROR CONNECT, MISSING TEXT\n"
 #define SAY_ERROR_2 "TEST: ERROR SAY, MISSING PARAMETERS\n"
 
@@ -25,7 +26,8 @@
 
 Config config;
 
-int MANAGER_setConfig(Config newConfig){
+int MANAGER_setConfig(Config newConfig)
+{
     config = newConfig;
     return 1;
 }
@@ -56,7 +58,6 @@ int MANAGER_manageCommand(char *inputString)
                 words[1][size - 1] = '\0';
 
                 int port = atoi(words[1]);
-                
 
                 write(1, CONNECT_MSG, strlen(CONNECT_MSG));
 
@@ -73,8 +74,22 @@ int MANAGER_manageCommand(char *inputString)
             {
                 if (words[2])
                 {
-                    write(1, SAY_MSG, strlen(SAY_MSG));
-                    CLIENT_sayMessage(words[1], words[2]);
+                    if (words[2][0] == '"' && words[2][UTILS_sizeOf(words[2]) - 2] == '"')
+                    {
+                        UTILS_removeChar(words[2], '"');
+
+                        write(1, SAY_MSG, strlen(SAY_MSG));
+
+                        char buff[128];
+                        int bytes = sprintf(buff, "%s \n", words[2]);
+                        write(1, buff, bytes);
+
+                        CLIENT_sayMessage(words[1], words[2]);
+                    }
+                    else
+                    {
+                        write(1, SAY_ERROR_MESS, strlen(SAY_ERROR_MESS));
+                    }
                 }
                 else
                 {
