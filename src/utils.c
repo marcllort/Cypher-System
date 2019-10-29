@@ -173,9 +173,9 @@ int UTILS_printName(Config config){
     
 
     char buff[128];
-     int n= sprintf(buff, " a %s $", CONFIG_getUsername(config));
+     int n= sprintf(buff, "$ %s: ", CONFIG_getUsername(config));
      write(1, buff, n);
-     printf(": aa");
+    
     return n;
 }
 
