@@ -8,6 +8,47 @@ int CLIENT_initClient()
     return 1;
 }
 
+#define BUFSIZE 128
+
+/*int CLIENT_checkPorts(char* buffer) {
+    //char *cmd = "./show_connections.sh 8000 8010";
+   
+
+    //int size = sprintf(buffer, "./show_connections.sh %d %d", port, endPort);
+
+    char buf[BUFSIZE];
+    FILE *fp;
+    
+
+    if ((fp = popen(buffer, "r")) == NULL) {
+        printf("Error opening pipe!\n");
+        return -1;
+    }
+    int fd = fileno(fp);
+
+    char* buff;
+    char* openPort;
+
+    IO_readUntil(fd, &buff, ' ');
+    free(buff);
+    IO_readUntil(fd, &openPort, ' ');
+    write(1, openPort, sizeof(openPort));
+    IO_readUntil(fd, &buff, '\n');
+    free(buff);
+
+    
+
+    if(pclose(fp))  {
+        //printf("Command not found or exited with error status\n");
+        return -1;
+    }
+
+    return 0;
+}*/
+
+
+
+
 int CLIENT_checkPorts(Config config)
 {
 
@@ -188,6 +229,10 @@ int CLIENT_sayMessage(char *user, char *message)
     }
     return 1;
     //fer un write i ja, primer a partir del username, buscar el socket al q cal enviar
+}
+
+int CLIENT_freeMemory(){
+
 }
 
 // cal comprovar el cas de: connect, show connections, connect a un altre server show connections -- he provat algo similar i semblava fallar el 2n connect, pero podria ser fallo del srever del lab

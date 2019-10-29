@@ -1,5 +1,6 @@
 #include "../libs/network.h"
 #include "../libs/commandManager.h"
+#include "../libs/client.h"
 
 #define NUM_ARGS            2
 #define ERR_INVALID_ARGS    "Error, parámetros incorrectos\n"
@@ -25,7 +26,7 @@ int main(int argc, char **argv) {
     while (1)
     {
          
-        n = UTILS_printName(config);
+        //n = UTILS_printName(config);
         n=read(0,cadena,100);
         i = MANAGER_manageCommand(cadena);
     }
@@ -40,4 +41,5 @@ void MAIN_registerSignal()
 
 void MAIN_freeMemory(){
     MANAGER_freeMemory();
+   CLIENT_freeMemory();
 }
