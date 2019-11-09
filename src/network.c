@@ -5,12 +5,9 @@
 int NETWORK_init(Config config) {
     char aux[100];
 
-    int n = sprintf(aux, "%s \n",CONFIG_getAudioFolder(config));
-    write(1, aux, n);
-
     if (CONFIG_getState(config) != 0) return -1;
 
-    //coses de server, threads
+    //coses de server: reb connexio, crea threads
 
     return 0;
 }

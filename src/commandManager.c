@@ -47,7 +47,6 @@ int MANAGER_manageCommand(char *inputString)
 
             write(1, EXIT_MSG, strlen(EXIT_MSG));
             raise(SIGINT);
-            //return 0;
         }
         else if (UTILS_compareCaseInsensitive(CONNECT, words[0]) == 0)
         {
@@ -78,7 +77,7 @@ int MANAGER_manageCommand(char *inputString)
                     {
                         UTILS_removeChar(words[2], '"');
 
-                        write(1, SAY_MSG, strlen(SAY_MSG));
+                        //write(1, SAY_MSG, strlen(SAY_MSG));
 
                         char buff[128];
                         int bytes = sprintf(buff, "%s \n", words[2]);
@@ -106,7 +105,7 @@ int MANAGER_manageCommand(char *inputString)
             if (words[1])
             {
                 write(1, BROADCAST, strlen(BROADCAST));
-                ;
+                
             }
             else
             {
@@ -139,7 +138,7 @@ int MANAGER_manageCommand(char *inputString)
             }
             else if (UTILS_compareCaseInsensitive(CONNECTIONS, words[1]) == 0)
             {
-                write(1, SHOW_CONNECTIONS, strlen(SHOW_CONNECTIONS));
+                //write(1, SHOW_CONNECTIONS, strlen(SHOW_CONNECTIONS));
                 CLIENT_checkPorts(config);
             }
             else
@@ -166,15 +165,13 @@ int MANAGER_manageCommand(char *inputString)
         {
             write(1, COMMAND_ERROR, strlen(COMMAND_ERROR));
         }
-
-        free(words);
+        
     }
+    free(words);
+
     return 1;
 }
 void MANAGER_freeMemory()
 {
-    //Alliberar la memòria pertinent
-
-    write(1, FREE_MEM, strlen(FREE_MEM));
-    exit(1);
+    //write(1, FREE_MEM, strlen(FREE_MEM));
 }

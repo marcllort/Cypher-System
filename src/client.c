@@ -41,6 +41,7 @@ int CLIENT_checkPorts(Config config)
     struct sockaddr_in s_addr;
     int socket_conn = -1;
 
+    // Fem busqueda dins el rang de ports, guardem el nombre de connecxions trobades, i el numero de port en un array
     write(1, TESTING, sizeof(TESTING));
     while (port < endPort)
     {
@@ -70,6 +71,9 @@ int CLIENT_checkPorts(Config config)
         }
     }
 
+    // Un cop sabem els ports oberts, mirem si ja estava a la nostra llista de servers, per mostrar el nom en comptes de el numero de port
+    // Si no hi era, el guardem a la llista, per després alhora de enviar saber quin és el nom del server
+    
     char buff[128];
     int bytes = sprintf(buff, MSG_AVAIL_CONN, availableConnections);
     write(1, buff, bytes);
@@ -80,7 +84,8 @@ int CLIENT_checkPorts(Config config)
     {
         trobat = 0;
         LLISTABID_vesInici(&servers);
-        //if esta a la llista, printa port i nom, sino el port sol
+
+        // Si esta a la llista, printa port i nom, sino el port sol
         if (LLISTABID_buida(servers))
         {
             bytes = sprintf(buff, "%d\n", availPorts[i]);
@@ -135,30 +140,34 @@ int CLIENT_connectPort(Config config, int connectPort)
 
         if (connect(socket_conn, (void *)&s_addr, sizeof(s_addr)) < 0)
         {
-            write(1, MSG_ERR_CONN, sizeof(MSG_ERR_CONN));
+            char buff[128];
+            int bytes = sprintf(buff, MSG_ERR_CONN, connectPort);
+            write(1, buff, bytes);
             close(socket_conn);
             socket_conn = -1;
         }
     }
+    if (socket_conn != -1)
+    {
+        newServer.port = connectPort;
+        newServer.socketfd = socket_conn;
 
-    newServer.port = connectPort;
-    newServer.socketfd = socket_conn;
+        // Per provar amb server sessio lab 4 -- envio nom al server IMPORTANT BORRARRRRRRRRRRRRR QUAN TINGUEM EL NOSTRE SERVEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEER
+        char *name = CLIENT_get_message(0, '\n');
+        write(socket_conn, name, strlen(name));
+        free(name);
+        // Cal borrar fins aqui
 
-    // Per provar amb server sessio lab 4 -- envio nom al server
-    char *name = CLIENT_get_message(0, '\n');
-    write(socket_conn, name, strlen(name));
-    // Cal borrar fins aqui
+        newServer.name = CLIENT_get_message(socket_conn, '\n');
 
+        char buff[128];
+        int bytes = sprintf(buff, MSG_CONNECTED, newServer.port, newServer.name);
+        write(1, buff, bytes);
 
-    newServer.name = CLIENT_get_message(socket_conn, '\n');
+        LLISTABID_inserirDarrere(&servers, newServer);
+    }
 
-    char buff[128];
-    int bytes = sprintf(buff, MSG_CONNECTED, newServer.port, newServer.name);
-    write(1, buff, bytes);
-
-    LLISTABID_inserirDarrere(&servers, newServer);
-
-    return newServer.socketfd;
+    return -1;
 }
 
 int CLIENT_sayMessage(char *user, char *message)
@@ -182,9 +191,10 @@ int CLIENT_sayMessage(char *user, char *message)
             packet.lenght = bytes;
             packet.data = buff;
 
+            //void *ptr = &buff; Serveix per provar enviar missatge en comptes de paquet
             void *ptr = &packet;
 
-            write(server.socketfd, ptr, bytes);     //Cal provar si funciona, fent cast desde el server
+            write(server.socketfd, ptr, bytes); //Cal provar si funciona, fent cast desde el server
             trobat = 1;
         }
         else
@@ -198,18 +208,26 @@ int CLIENT_sayMessage(char *user, char *message)
         write(1, buff, bytes);
     }
     return 1;
-    //fer un write i ja, primer a partir del username, buscar el socket al q cal enviar
+    
 }
 
 int CLIENT_freeMemory()
 {
-
+    LLISTABID_vesInici(&servers);
+    while (!LLISTABID_final(servers))
+    {
+        Element server = LLISTABID_consulta(servers);
+        close(server.socketfd);
+        free(server.name);
+    }
+    
+    LLISTABID_destrueix(&servers);
+    
     return 0;
 }
 
 // cal comprovar el cas de: connect, show connections, connect a un altre server show connections -- he provat algo similar i semblava fallar el 2n connect, pero podria ser fallo del srever del lab
 
-//fer funcio de FREE
 
 // mirar de fer algunes funcions privades per client.c repeteixo molt codi, en el cas de saymessage estic fent el mateix q a checkports, que es buscar, aixo hauria de ser una funcio
 // tmb estic fent el mateix a check ports i a connect, casi tota la funcio de connect hauria de ser una funcio a part q rebi ip i port, i ferla servir a connect i a checkports

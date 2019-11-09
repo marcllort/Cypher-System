@@ -25,7 +25,6 @@ int main(int argc, char **argv)
     char cadena[100];
     while (1)
     {
-
         UTILS_printName(config);
         read(0, cadena, 100);
         MANAGER_manageCommand(cadena);
@@ -41,6 +40,8 @@ void MAIN_registerSignal()
 
 void MAIN_freeMemory()
 {
+    NETWORK_close();
     MANAGER_freeMemory();
     CLIENT_freeMemory();
+    exit(1);
 }
