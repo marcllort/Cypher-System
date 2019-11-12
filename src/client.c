@@ -29,7 +29,97 @@ char *CLIENT_get_message(int fd, char delimiter)
     return msg;
 }
 
-int CLIENT_checkPorts(Config config)
+int CLIENT_checkPorts(char *buffer)
+{
+    FILE *fp;
+    char *buff;
+    char *openPort;
+    int availPorts[10];
+    int availableConnections = 0;
+
+    if ((fp = popen(buffer, "r")) == NULL)
+    {
+        printf("Error opening pipe!\n");
+        return -1;
+    }
+    int fd = fileno(fp);
+
+    
+    while (1)
+    {
+        IO_readUntil(fd, &buff, ' ');
+        free(buff);
+
+        IO_readUntilv2(fd, &openPort, ' ');
+        availPorts[availableConnections] = atoi(openPort);
+        //int size = sprintf(buffer, "PORT: %d \n", availPorts[availableConnections]);
+        //write(1, buffer, size);
+
+        IO_readUntil(fd, &buff, '\n');
+        free(buff);
+
+        availableConnections++;
+        if (checkEOF(fd) == 1)
+            break;
+    }
+
+    
+
+    // Un cop sabem els ports oberts, mirem si ja estava a la nostra llista de servers, per mostrar el nom en comptes de el numero de port
+    // Si no hi era, el guardem a la llista, per després alhora de enviar saber quin és el nom del server
+
+    char bufff[128];
+    int bytes = sprintf(bufff, MSG_AVAIL_CONN, availableConnections);
+    write(1, bufff, bytes);
+    LLISTABID_vesInici(&servers);
+
+    int trobat = 0;
+    for (size_t i = 0; i < availableConnections; i++)
+    {
+        trobat = 0;
+        LLISTABID_vesInici(&servers);
+
+        // Si esta a la llista, printa port i nom, sino el port sol
+        if (LLISTABID_buida(servers))
+        {
+            bytes = sprintf(bufff, "%d\n", availPorts[i]);
+            write(1, bufff, bytes);
+        }
+        else
+        {
+            while (!LLISTABID_final(servers) && !trobat)
+            {
+                Element server = LLISTABID_consulta(servers);
+                
+                if (server.port == availPorts[i])
+                {
+                    bytes = sprintf(bufff, "%d %s\n", availPorts[i], server.name);
+                    write(1, bufff, bytes);
+                    trobat = 1;
+                }
+                else
+                {
+                    LLISTABID_avanca(&servers);
+                }
+            }
+            if (!trobat)
+            {
+                bytes = sprintf(bufff, "%d\n", availPorts[i]);
+                write(1, bufff, bytes);
+            }
+        }
+    }
+
+    if (pclose(fp))
+    {
+        //printf("Command not found or exited with error status\n");
+        return -1;
+    }
+
+    return 0;
+}
+
+/*int CLIENT_checkPorts2(Config config)
 {
 
     char *ip = config.cypherIP;
@@ -116,7 +206,7 @@ int CLIENT_checkPorts(Config config)
     }
 
     return socket_conn;
-}
+}*/
 
 int CLIENT_connectPort(Config config, int connectPort)
 {
@@ -159,6 +249,7 @@ int CLIENT_connectPort(Config config, int connectPort)
         // Cal borrar fins aqui
 
         newServer.name = CLIENT_get_message(socket_conn, '\n');
+        newServer.name ="prova";    //CAL BORRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAR
 
         char buff[128];
         int bytes = sprintf(buff, MSG_CONNECTED, newServer.port, newServer.name);
@@ -167,7 +258,7 @@ int CLIENT_connectPort(Config config, int connectPort)
         LLISTABID_inserirDarrere(&servers, newServer);
     }
 
-    return -1;
+    return 0;
 }
 
 int CLIENT_sayMessage(char *user, char *message)
@@ -208,7 +299,6 @@ int CLIENT_sayMessage(char *user, char *message)
         write(1, buff, bytes);
     }
     return 1;
-    
 }
 
 int CLIENT_freeMemory()
@@ -220,14 +310,13 @@ int CLIENT_freeMemory()
         close(server.socketfd);
         free(server.name);
     }
-    
+
     LLISTABID_destrueix(&servers);
-    
+
     return 0;
 }
 
 // cal comprovar el cas de: connect, show connections, connect a un altre server show connections -- he provat algo similar i semblava fallar el 2n connect, pero podria ser fallo del srever del lab
-
 
 // mirar de fer algunes funcions privades per client.c repeteixo molt codi, en el cas de saymessage estic fent el mateix q a checkports, que es buscar, aixo hauria de ser una funcio
 // tmb estic fent el mateix a check ports i a connect, casi tota la funcio de connect hauria de ser una funcio a part q rebi ip i port, i ferla servir a connect i a checkports

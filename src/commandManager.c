@@ -1,7 +1,7 @@
 #include "../libs/commandManager.h"
 
 #define EXIT_MSG "TEST: Disconnecting Trinity...\n"
-#define CONNECT_MSG "TEST: CONNECTING TO \n"
+#define CONNECT_MSG "Connecting... \n"
 #define CONNECT_ERROR "TEST: ERROR CONNECT, MISSING PARAMETER\n"
 
 #define SAY_MSG "TEST: SAYING Y TO X\n"
@@ -139,7 +139,11 @@ int MANAGER_manageCommand(char *inputString)
             else if (UTILS_compareCaseInsensitive(CONNECTIONS, words[1]) == 0)
             {
                 //write(1, SHOW_CONNECTIONS, strlen(SHOW_CONNECTIONS));
-                CLIENT_checkPorts(config);
+                char* buffer = (char*) malloc(50*sizeof(char));
+                
+                int size = sprintf(buffer, "./show_connections.sh %d %d", config.cypherStartPort, config.cypherEndPort);
+                //write(1, buffer, size);
+                CLIENT_checkPorts(buffer);
             }
             else
             {
