@@ -3,6 +3,8 @@
 
 #include "config.h"
 #include "utils.h"
+#include "server.h"
+
 
 
 #define NET_TESTING    "Testing...\n"

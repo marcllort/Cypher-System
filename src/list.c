@@ -101,6 +101,13 @@ int LLISTABID_elimina (Llista * l) {
     return 1;
 }
 
+//Funcio per eliminar un node concret de la llista
+int LLISTABID_eliminaAmbNode (Llista * l, Node *node) {
+    (*l).curr = node;
+    return LLISTABID_elimina(l);
+
+}
+
 //Funcio per avancar el PDI en la nostre llista.
 int LLISTABID_avanca (Llista * l) {
 
@@ -140,6 +147,12 @@ int LLISTABID_vesFinal (Llista * l) {
 int LLISTABID_buida (Llista l) {
   
     return l.pri->seg == l.ult;
+}
+
+//Funcio que retorna la mida de la llista
+int LLISTABID_getMida (Llista l) {
+  
+    return *(l.elements);
 }
 
 //Funcio per comprovar que el nostre PDI esta situat al principi.
