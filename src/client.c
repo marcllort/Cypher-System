@@ -8,27 +8,6 @@ int CLIENT_initClient()
     return 1;
 }
 
-char *CLIENT_get_message(int fd, char delimiter)
-{
-    char *msg = (char *)malloc(1);
-    char current;
-    int i = 0;
-
-    while (read(fd, &current, 1) > 0)
-    {
-
-        msg[i] = current;
-        msg = (char *)realloc(msg, ++i + 1);
-
-        if (current == delimiter)
-            break;
-    }
-
-    msg[i] = '\0';
-
-    return msg;
-}
-
 int CLIENT_checkPorts(Config config)
 {
 
@@ -170,7 +149,7 @@ int CLIENT_connectPort(Config config, int connectPort)
     return -1;
 }
 
-int CLIENT_sayMessage(char *user, char *message)
+int CLIENT_write(char *user, char *message)
 {
     int trobat = 0;
     LLISTABID_vesInici(&servers);
@@ -225,6 +204,10 @@ int CLIENT_freeMemory()
     
     return 0;
 }
+
+
+
+
 
 // cal comprovar el cas de: connect, show connections, connect a un altre server show connections -- he provat algo similar i semblava fallar el 2n connect, pero podria ser fallo del srever del lab
 

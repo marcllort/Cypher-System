@@ -13,6 +13,8 @@
 #include <signal.h>
 
 #include "list.h"
+#include "dedicatedServer.h"
+
 
 
 #define ERR_SOCKET  "[Server] Error creating socket\n"

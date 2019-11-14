@@ -33,10 +33,9 @@ typedef struct {
 } Server;
 
 int CLIENT_checkPorts(Config config);
-int CLIENT_sayMessage(char* user, char* message);
-int CLIENT_connectPort(Config config, int connectPort);
-char *CLIENT_get_message(int fd, char delimiter);
-int CLIENT_initClient();
-int CLIENT_freeMemory();
 
+int CLIENT_connectPort(Config config, int connectPort);
+int CLIENT_initClient();
+int CLIENT_write(char *user, char *message);
+int CLIENT_freeMemory();
 #endif //_CLIENT_H
