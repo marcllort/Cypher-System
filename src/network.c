@@ -1,6 +1,8 @@
 #include "../libs/network.h"
 #include <stdio.h>
 
+#define MSG_CONNECTED       "Connection Cyper -%s ready.\n"
+#define MSG_DISCONNECTED    "Disconnecting from %s.\n"
 
 int NETWORK_init(Config config) {
     char aux[100];
@@ -21,6 +23,15 @@ int NETWORK_close() {
 
     return 0;
 }
+
+int NETWORK_synAck(DServer dServer, int type)
+{
+    Packet pw = PACKET_create(type, (int)strlen(H_CONOK), H_CONOK, 0, NULL);
+    PACKET_write(pw, DSERVER_getFd(&dServer));
+    PACKET_destroy(&pw);
+    return 0;
+}
+
 void* MCG_DS_operate(void* dat) {
 
     DServer* ds = (DServer*) dat;
@@ -33,7 +44,7 @@ void* MCG_DS_operate(void* dat) {
         switch ((int) pr.type) {
 
             case T_CONNECT:
-                printMsg(MSG_CONNECTED, DSERVER_setName(ds, pr.data, (size_t) pr.dataLength));
+                printMsg(MSG_CONNECTED, DSERVER_setName(ds, pr.data, (size_t) pr.lenght));
                 NETWORK_synAck(*ds, T_CONNECT);
                 break;
 
@@ -43,7 +54,7 @@ void* MCG_DS_operate(void* dat) {
                 DSERVER_setState(ds, 0);
                 break;
 
-            case T_TRANSFER:
+            /*case T_TRANSFER:
 
                 switch (pr.header[1]) {
 
@@ -82,17 +93,16 @@ void* MCG_DS_operate(void* dat) {
                         break;
                 }
 
-                break;
+                break;*/
 
             default:
                 printf("\nConnection Lost\n");
                 printf("Type: %d\n", (int)pr.type);
                 printMsg(MSG_DISCONNECTED, ds->name);
                 DSERVER_setState(ds, 0);
-                FILE_destroy(&ds->file);
+                //FILE_destroy(&ds->file);
                 break;
         }
-
         PACKET_destroy(&pr);
 
     }
@@ -157,5 +167,18 @@ void MCT_DS_threadISR(int sig) {
     if (sig == MCT_DS_SIG) {
         write(1, MCT_DS_EXIT, strlen(MCT_DS_EXIT));
         pthread_exit(0);
+    }
+}
+
+void printMsg(char *msg, char *name)
+{
+    char* data;
+
+    if (name != NULL) {
+        if ((data = (char*) malloc(sizeof(char) * (strlen(name) + strlen(msg)))) != NULL) {
+            sprintf(data, msg, name);
+            write(1, data, strlen(data));
+            free(data);
+        }
     }
 }

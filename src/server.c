@@ -156,7 +156,7 @@ int SERVER_addDS(void *server, DServer *ds) {
 
     Server *s = (Server*) server;
 
-    //Node* node = SBL_insertBefore2(&s->dss, ds);  //NOSE PERQUE HO VOL AFEGIR 2 ABANS
+    Node* node = LLISTABID_inserirDavant(&s->dss, ds);  //NOSE PERQUE HO VOL AFEGIR 2 ABANS
 
     DSERVER_setListNode(ds, node);
 
@@ -169,11 +169,11 @@ int SERVER_addDS(void *server, DServer *ds) {
 
 int SERVER_removeDSS(Server *server) {
 
-    LLISTABID_inici(&server->dss);
+    LLISTABID_vesInici(&server->dss);
 
     while (!LLISTABID_final(server->dss)) {
 
-        DServer* ds = LLISTABID_consulta(server->dss);
+        DServer* ds = (DServer)LLISTABID_consulta(server->dss);
 
         removeDS(ds);
 

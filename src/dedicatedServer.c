@@ -1,4 +1,4 @@
-#include "../h/dedicatedServer.h"
+#include "../libs/dedicatedServer.h"
 
 DServer* DSERVER_init (
                  int                 id,

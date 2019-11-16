@@ -28,7 +28,7 @@ typedef struct
     void*               list_node;
     void*               (*operate)  (void*);
     int                 (*remove)   (void*);
-    File                file;
+    //File                file;
 } DServer;
 
 DServer* DSERVER_init
