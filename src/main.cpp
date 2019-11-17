@@ -1,3 +1,4 @@
+#include <iostream>
 #include "../libs/network.h"
 #include "../libs/commandManager.h"
 #include "../libs/client.h"
@@ -35,7 +36,7 @@ int main(int argc, char **argv)
 
 void MAIN_registerSignal()
 {
-    signal(SIGINT, MAIN_freeMemory);
+    //signal(SIGINT, MAIN_freeMemory);
 }
 
 void MAIN_freeMemory()

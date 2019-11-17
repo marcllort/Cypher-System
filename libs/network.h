@@ -26,6 +26,7 @@
 #define NET_DISCONNECT    "Disconnecting Trinity...\n"
 
 Config config;
+Server trinity;
 
 int NETWORK_init(Config config);
 int NETWORK_close();
