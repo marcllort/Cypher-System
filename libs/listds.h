@@ -3,21 +3,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "dedicatedServer.h"
 
-typedef struct
-{
-    int                 id;
-    int                 fd;
-    int                 state;
-    char*               name;
-    pthread_t           thread;
-    struct sockaddr_in  addr;
-    void*               server;
-    void*               list_node;
-    void*               (*operate)  (void*);
-    int                 (*remove)   (void*);
-    //File                file;
-} Elementds;
+
+typedef DServer* Elementds;
 
 typedef struct p
 {
@@ -31,15 +20,15 @@ typedef struct
     Nodeds *pri;
     Nodeds *pdi;
     Nodeds *ult;
-    int Elementds;
+    int elements;
 } Llistads;
 
 Llistads LLISTADS_crea();
 int LLISTADS_inserirDavant(Llistads *l, Elementds e);
 int LLISTADS_inserirDarrere(Llistads *l, Elementds e);
-Elementds LLISTADS_consulta(Llistads  l);
+Elementds LLISTADS_consulta(Llistads l);
 int LLISTADS_elimina(Llistads  *l);
-int LLISTADS_eliminaAmbNode (Llistads  * l, Nodeds*node);
+int LLISTADS_eliminaAmbNode (Llistads  * l, Nodeds *node);
 int LLISTADS_avanca(Llistads  *l);
 int LLISTADS_retrocedeix(Llistads  *l);
 int LLISTADS_vesInici(Llistads  *l);

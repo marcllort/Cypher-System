@@ -43,7 +43,7 @@ typedef struct {
     void*               (*threadFunc)   (void*);
     void                (*threadISR)    (int);
     unsigned short      threadSig;
-    Llista                 dss;
+    Llistads                 dss;
     void*               (*dsThreadOperate)    (void*);
     void                (*dsThreadISR) (int);
     unsigned short      dsThreadSig;

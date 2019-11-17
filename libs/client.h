@@ -38,4 +38,5 @@ int CLIENT_connectPort(Config config, int connectPort);
 int CLIENT_initClient();
 int CLIENT_write(char *user, char *message);
 int CLIENT_freeMemory();
+char *CLIENT_read(int fd, char delimiter);
 #endif //_CLIENT_H

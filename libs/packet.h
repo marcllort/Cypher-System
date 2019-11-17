@@ -1,6 +1,10 @@
 #ifndef PACKET_H
 #define PACKET_H
 
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <stdio.h>
 
 #define T_CONNECT       1
 #define T_DISCONNECT    2
@@ -15,7 +19,7 @@ typedef struct {
   char type;
   int headerLength;
   char* header;
-  int lenght;
+  int length;
   char* data;
 } Packet;
 

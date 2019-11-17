@@ -44,7 +44,7 @@ void* MCG_DS_operate(void* dat) {
         switch ((int) pr.type) {
 
             case T_CONNECT:
-                printMsg(MSG_CONNECTED, DSERVER_setName(ds, pr.data, (size_t) pr.lenght));
+                printMsg(MSG_CONNECTED, DSERVER_setName(ds, pr.data, (size_t) pr.length));
                 NETWORK_synAck(*ds, T_CONNECT);
                 break;
 

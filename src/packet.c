@@ -16,9 +16,9 @@ Packet PACKET_read(int fd/*, char delimiter*/)
 
     if (read(fd, tmp, 2) <= 0) return PACKET_destroy(&pd);
 
-    if ((pd.dataLength = (tmp[0] << 8) | tmp[1]) > 0) {
-        pd.data = (char*) realloc((void*) pd.data, sizeof(char) * pd.dataLength);
-        if (read(fd, pd.data, pd.dataLength) <= 0) return PACKET_destroy(&pd);
+    if ((pd.length = (tmp[0] << 8) | tmp[1]) > 0) {
+        pd.data = (char*) realloc((void*) pd.data, sizeof(char) * pd.length);
+        if (read(fd, pd.data, pd.length) <= 0) return PACKET_destroy(&pd);
     } else {
         return PACKET_destroy(&pd);
     }

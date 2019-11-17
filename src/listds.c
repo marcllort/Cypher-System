@@ -6,9 +6,9 @@ Llistads 	LLISTADS_crea () {
     Llistads  l;
     int err = 1;
     l.elements = 0;
-    l.pri = (Node*) malloc (sizeof(Node));
+    l.pri = (Nodeds*) malloc (sizeof(Nodeds));
     if (l.pri != NULL) {
-        l.ult = (Node*) malloc (sizeof(Node));
+        l.ult = (Nodeds*) malloc (sizeof(Nodeds));
         if (l.ult != NULL) {
             l.pdi = l.pri;
             l.pri->seg = l.ult;
@@ -35,7 +35,7 @@ int	LLISTADS_inserirDarrere (Llistads  * l, Elementds  e) {
     Nodeds* n;
     if (l->pdi == l->ult) return 0;
 
-    n = (Node*) malloc (sizeof(Node));
+    n = (Nodeds*) malloc (sizeof(Nodeds));
 
     if (n == NULL) return 0;
 
@@ -51,12 +51,12 @@ int	LLISTADS_inserirDarrere (Llistads  * l, Elementds  e) {
 }
 
 //Funció per inserir un nou node davant/esquerra del PDI amb el contingut Elementds.
-int LLISTADS_inserirDavant (Llistads  * l, Elementds e) {
+int LLISTADS_inserirDavant (Llistads  * l, Elementds    e) {
     Nodeds* n;
 
     if (l->pdi == l->pri) return 0;
 
-    n = (Node*) malloc (sizeof(Node));
+    n = (Nodeds*) malloc (sizeof(Nodeds));
 
     if (n == NULL) return 0;
 
@@ -72,7 +72,7 @@ int LLISTADS_inserirDavant (Llistads  * l, Elementds e) {
 }
 
 //Funció per consultar la Elementdssituat sobre el PDI de la nostre llista.
-Elementds LLISTADS_consulta (Llistads  l) {
+Elementds LLISTADS_consulta (Llistads l) {
 
     Elementds e;
     if(l.pdi->ant != NULL && l.pdi->seg != NULL){

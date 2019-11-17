@@ -133,7 +133,7 @@ int removeDS(DServer* ds)
 {
     close(DSERVER_getFd(ds));
     LLISTADS_eliminaAmbNode(&((Server*)ds->server)->dss, DSERVER_getListNode(ds));
-    printf("List size: %d\n", (int) LLISTADS_getMida(((Server*)ds->server)->dss));
+    //printf("List size: %d\n", (int) LLISTADS_getMida(&((Server*)ds->server)->dss));
     return 0;
 }
 
@@ -173,7 +173,7 @@ int SERVER_removeDSS(Server *server) {
 
     while (!LLISTADS_final(server->dss)) {
 
-        DServer* ds = (DServer)LLISTADS_consulta(server->dss);
+        DServer* ds = LLISTADS_consulta(server->dss);
 
         removeDS(ds);
 
