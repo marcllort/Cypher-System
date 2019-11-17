@@ -13,6 +13,7 @@
 #include <signal.h>
 
 #include "list.h"
+#include "listds.h"
 #include "dedicatedServer.h"
 
 

@@ -1,7 +1,7 @@
 #include "../libs/packet.h"
 
 
-char *PACKET_read(int fd/*, char delimiter*/)
+Packet PACKET_read(int fd/*, char delimiter*/)
 {
     Packet pd = PACKET_create(0, 0, NULL, 0, NULL);
 

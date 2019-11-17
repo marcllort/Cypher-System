@@ -13,7 +13,7 @@ Server SERVER_init(char *ip, int port) {
     server.threadFunc = NULL;
     server.threadISR = NULL;
     server.threadSig = 0;
-    server.dss = LLISTABID_crea();
+    server.dss = LLISTADS_crea();
     server.dsThreadOperate = NULL;
     server.dsThreadISR = NULL;
     server.dsThreadSig = 0;
@@ -132,8 +132,8 @@ int SERVER_operate(Server *server) {
 int removeDS(DServer* ds)
 {
     close(DSERVER_getFd(ds));
-    LLISTABID_eliminaAmbNode(&((Server*)ds->server)->dss, DSERVER_getListNode(ds));
-    printf("List size: %d\n", (int) LLISTABID_getMida(((Server*)ds->server)->dss));
+    LLISTADS_eliminaAmbNode(&((Server*)ds->server)->dss, DSERVER_getListNode(ds));
+    printf("List size: %d\n", (int) LLISTADS_getMida(((Server*)ds->server)->dss));
     return 0;
 }
 
@@ -156,24 +156,24 @@ int SERVER_addDS(void *server, DServer *ds) {
 
     Server *s = (Server*) server;
 
-    Node* node = LLISTABID_inserirDavant(&s->dss, ds);  //NOSE PERQUE HO VOL AFEGIR 2 ABANS
+    Nodeds * node = LLISTADS_inserirDavant(&s->dss, ds);  //NOSE PERQUE HO VOL AFEGIR 2 ABANS
 
     DSERVER_setListNode(ds, node);
 
     ds->state = 1;
 
-    printf("List Size: %d\n", (int) LLISTABID_getMida(s->dss));
+    printf("List Size: %d\n", (int) LLISTADS_getMida(s->dss));
 
     return 0;
 }
 
 int SERVER_removeDSS(Server *server) {
 
-    LLISTABID_vesInici(&server->dss);
+    LLISTADS_vesInici(&server->dss);
 
-    while (!LLISTABID_final(server->dss)) {
+    while (!LLISTADS_final(server->dss)) {
 
-        DServer* ds = (DServer)LLISTABID_consulta(server->dss);
+        DServer* ds = (DServer)LLISTADS_consulta(server->dss);
 
         removeDS(ds);
 
@@ -182,10 +182,10 @@ int SERVER_removeDSS(Server *server) {
 
         DSERVER_close(ds);
 
-        LLISTABID_avanca(&server->dss);
+        LLISTADS_avanca(&server->dss);
     }
 
-    LLISTABID_destrueix(&server->dss);
+    LLISTADS_destrueix(&server->dss);
 
     return 0;
 }

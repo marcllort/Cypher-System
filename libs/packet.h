@@ -21,7 +21,7 @@ typedef struct {
 
 
 int PACKET_write(Packet pd, int fd);
-char *PACKET_read(int fd);
+Packet PACKET_read(int fd);
 Packet PACKET_destroy(Packet *p);
 Packet PACKET_create(char type, int headerLength, char *header, unsigned short dataLength, char *data);
 
