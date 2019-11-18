@@ -8,61 +8,72 @@ int CLIENT_initClient()
     return 1;
 }
 
-int CLIENT_checkPorts(Config config)
+char *CLIENT_get_message(int fd, char delimiter)
 {
+    char *msg = (char *)malloc(1);
+    char current;
+    int i = 0;
 
-    char *ip = config.cypherIP;
-    int port = config.cypherStartPort;
-    int endPort = config.cypherEndPort;
-    int availableConnections = 0;
-    int availPorts[10];
-
-    struct sockaddr_in s_addr;
-    int socket_conn = -1;
-
-    // Fem busqueda dins el rang de ports, guardem el nombre de connecxions trobades, i el numero de port en un array
-    write(1, TESTING, sizeof(TESTING));
-    while (port < endPort)
+    while (read(fd, &current, 1) > 0)
     {
-        socket_conn = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-        if (socket_conn < 0)
-            write(1, MSG_ERR_SOCKET, sizeof(MSG_ERR_SOCKET));
-        else
+        msg[i] = current;
+        msg = (char *)realloc(msg, ++i + 1);
+
+        if (current == delimiter)
+            break;
+    }
+
+    msg[i] = '\0';
+
+    return msg;
+}
+
+int CLIENT_checkPorts(char *buffer)
+{
+    FILE *fp;
+    char *buffr;
+    char *openPort;
+    int availPorts[10];
+    int availableConnections = 0;
+
+    if ((fp = popen(buffer, "r")) == NULL)
+    {
+        printf("Error opening pipe!\n");
+        return -1;
+    }
+    int fd = fileno(fp);
+
+    while (1)
+    {
+        IO_readUntil(fd, &buffr, ' ');
+        free(buffr);
+
+        IO_readUntilv2(fd, &openPort, ' ');
+        availPorts[availableConnections] = atoi(openPort);
+
+        IO_readUntil(fd, &buffr, '\n');
+        free(buffr);
+        if (availPorts[0] != 0)
         {
-
-            memset(&s_addr, 0, sizeof(s_addr));
-            s_addr.sin_family = AF_INET;
-            s_addr.sin_port = htons(port);
-            s_addr.sin_addr.s_addr = inet_addr(ip);
-
-            if (connect(socket_conn, (void *)&s_addr, sizeof(s_addr)) < 0)
-            {
-                close(socket_conn);
-                socket_conn = -1;
-            }
-            else
-            {
-                availPorts[availableConnections] = port;
-                availableConnections++;
-            }
-            port++;
+            availableConnections++;
         }
+
+        if (checkEOF(fd) == 1)
+            break;
     }
 
     // Un cop sabem els ports oberts, mirem si ja estava a la nostra llista de servers, per mostrar el nom en comptes de el numero de port
     // Si no hi era, el guardem a la llista, per després alhora de enviar saber quin és el nom del server
-    
+
     char buff[128];
     int bytes = sprintf(buff, MSG_AVAIL_CONN, availableConnections);
     write(1, buff, bytes);
-    LLISTABID_vesInici(&servers);
 
     int trobat = 0;
     for (size_t i = 0; i < availableConnections; i++)
     {
         trobat = 0;
-        LLISTABID_vesInici(&servers);
 
         // Si esta a la llista, printa port i nom, sino el port sol
         if (LLISTABID_buida(servers))
@@ -80,6 +91,7 @@ int CLIENT_checkPorts(Config config)
                     bytes = sprintf(buff, "%d %s\n", availPorts[i], server.name);
                     write(1, buff, bytes);
                     trobat = 1;
+                    LLISTABID_vesInici(&servers);
                 }
                 else
                 {
@@ -90,11 +102,17 @@ int CLIENT_checkPorts(Config config)
             {
                 bytes = sprintf(buff, "%d\n", availPorts[i]);
                 write(1, buff, bytes);
+                LLISTABID_vesInici(&servers);
             }
         }
     }
 
-    return socket_conn;
+    if (pclose(fp))
+    {
+        return -1;
+    }
+
+    return 0;
 }
 
 int CLIENT_connectPort(Config config, int connectPort)
@@ -137,16 +155,17 @@ int CLIENT_connectPort(Config config, int connectPort)
         free(name);
         // Cal borrar fins aqui
 
-        newServer.name = CLIENT_read(socket_conn, '\n');
+        //IMPORTANT POSAR newServer.name = CLIENT_get_message(socket_conn, '\n');
+        CLIENT_get_message(socket_conn, '\n'); //borrar
+        newServer.name = "prova";              //CAL BORRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAR
 
         char buff[128];
         int bytes = sprintf(buff, MSG_CONNECTED, newServer.port, newServer.name);
         write(1, buff, bytes);
-
         LLISTABID_inserirDarrere(&servers, newServer);
     }
 
-    return -1;
+    return 0;
 }
 
 int CLIENT_write(char *user, char *message)
@@ -187,7 +206,6 @@ int CLIENT_write(char *user, char *message)
         write(1, buff, bytes);
     }
     return 1;
-    
 }
 
 char *CLIENT_read(int fd, char delimiter)
@@ -220,54 +238,7 @@ int CLIENT_freeMemory()
         close(server.socketfd);
         free(server.name);
     }
-    
     LLISTABID_destrueix(&servers);
-    
+
     return 0;
 }
-
-
-
-
-
-// cal comprovar el cas de: connect, show connections, connect a un altre server show connections -- he provat algo similar i semblava fallar el 2n connect, pero podria ser fallo del srever del lab
-
-
-// mirar de fer algunes funcions privades per client.c repeteixo molt codi, en el cas de saymessage estic fent el mateix q a checkports, que es buscar, aixo hauria de ser una funcio
-// tmb estic fent el mateix a check ports i a connect, casi tota la funcio de connect hauria de ser una funcio a part q rebi ip i port, i ferla servir a connect i a checkports
-
-/*int CLIENT_checkPorts(char* buffer) {
-    //char *cmd = "./show_connections.sh 8000 8010";
-   
-
-    //int size = sprintf(buffer, "./show_connections.sh %d %d", port, endPort);
-
-    char buf[BUFSIZE];
-    FILE *fp;
-    
-
-    if ((fp = popen(buffer, "r")) == NULL) {
-        printf("Error opening pipe!\n");
-        return -1;
-    }
-    int fd = fileno(fp);
-
-    char* buff;
-    char* openPort;
-
-    IO_readUntil(fd, &buff, ' ');
-    free(buff);
-    IO_readUntil(fd, &openPort, ' ');
-    write(1, openPort, sizeof(openPort));
-    IO_readUntil(fd, &buff, '\n');
-    free(buff);
-
-    
-
-    if(pclose(fp))  {
-        //printf("Command not found or exited with error status\n");
-        return -1;
-    }
-
-    return 0;
-}*/

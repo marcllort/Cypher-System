@@ -32,8 +32,8 @@
   int socketfd;
 } Server;*/
 
-int CLIENT_checkPorts(Config config);
-
+int CLIENT_checkPorts(char* buffer);
+int CLIENT_sayMessage(char* user, char* message);
 int CLIENT_connectPort(Config config, int connectPort);
 int CLIENT_initClient();
 int CLIENT_write(char *user, char *message);
