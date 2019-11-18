@@ -64,7 +64,9 @@ int SERVER_start(Server *server) {
     s_addr.sin_family = AF_INET;
     s_addr.sin_port = htons((uint16_t) server->port);
     s_addr.sin_addr.s_addr = INADDR_ANY;
-    printf("PORT: %d ADDR: %s",server->port, s_addr.sin_addr.s_addr);
+    char buff [100];
+    //int bytes = sprintf(buff, "PORT : %d IP: %s\n", server->port,s_addr.sin_addr.s_addr );
+    //write(1, buff, bytes);
     if (inet_aton(server->ip, &s_addr.sin_addr) == 0) {
 
         struct hostent* host = gethostbyname(server->ip);
@@ -77,11 +79,10 @@ int SERVER_start(Server *server) {
         memcpy(&s_addr.sin_addr.s_addr, host->h_addr, (size_t) host->h_length);
     }
 
-    if (bind(server->fd, (struct sockaddr*) &s_addr, sizeof(s_addr)) < 0) {
+    if (bind(server->fd, (void *) &s_addr, sizeof(s_addr)) < 0) {
         write(1, ERR_BIND, strlen(ERR_BIND));
-        return server->state = -3;
+        return server->state = -3;  
     }
-
     if (listen(server->fd, MAX_CONN) < 0) {
         write(1, ERR_LISTEN, strlen(ERR_LISTEN));
         return server->state = -4;
@@ -114,16 +115,27 @@ int SERVER_operate(Server *server) {
         int fd;
         struct sockaddr_in s_addr;
         socklen_t len = sizeof(s_addr);
+        while (1) {
 
-        do {
+            write(1, WAITING, sizeof(WAITING));
+            int fd_client = accept(server->fd, (void *) &s_addr, &len);
+            write(1, WAITING, sizeof(WAITING));
+
+            //game(board);
+    }
+        /*do {
             write(1, WAITING, strlen(WAITING));
+            
 
             if ((fd = accept(server->fd, (struct sockaddr*) &s_addr, &len)) <= 0) {
                 write(1, ERR_ACCEPT, strlen(ERR_ACCEPT));
             }
         } while (fd <= 0);
 
+        
         SERVER_startDS(server, fd, s_addr);
+        */
+
     }
 
     return EXIT_SUCCESS;

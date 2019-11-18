@@ -7,14 +7,21 @@
 int NETWORK_init(Config config) {
     char aux[100];
 
-    if (CONFIG_getState(config) != 0) return -1;
+    //if (CONFIG_getState(config) != 0) return -1;
 
     //coses de server: reb connexio, crea threads
-    Server mainServer = SERVER_init(CONFIG_getCypherIP(config), CONFIG_getMyPort(config));
-    SERVER_setMT(&mainServer, SERVER_threadFunc, MCG_threadISR, MCG_SIG, MCG_DS_operate, MCG_DS_threadISR, MCG_DS_SIG);
-    //SERVER_threadFunc(&mainServer);
-    if (pthread_create(SERVER_getThread(&trinity), NULL, SERVER_threadFunc, &trinity) != 0) {
+        Server mainServer = SERVER_init(CONFIG_getCypherIP(config), CONFIG_getMyPort(config));
+    //SERVER_setMT(&mainServer, SERVER_threadFunc, MCG_threadISR, MCG_SIG, MCG_DS_operate, MCG_DS_threadISR, MCG_DS_SIG);
+
+    
+    /*if (pthread_create(SERVER_getThread(&trinity), NULL, SERVER_threadFunc, &trinity) != 0) {
         return 1;
+    }*/
+    if (SERVER_start(&mainServer) == 0){
+        SERVER_operate(&mainServer);
+    }else{
+                write(1, MCT_DS_EXIT, strlen(MCT_DS_EXIT));
+
     }
     return 0;
 }
