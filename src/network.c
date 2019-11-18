@@ -12,6 +12,7 @@ int NETWORK_init(Config config) {
     //coses de server: reb connexio, crea threads
     Server mainServer = SERVER_init(CONFIG_getCypherIP(config), CONFIG_getMyPort(config));
     SERVER_setMT(&mainServer, SERVER_threadFunc, MCG_threadISR, MCG_SIG, MCG_DS_operate, MCG_DS_threadISR, MCG_DS_SIG);
+    //SERVER_threadFunc(&mainServer);
     if (pthread_create(SERVER_getThread(&trinity), NULL, SERVER_threadFunc, &trinity) != 0) {
         return 1;
     }

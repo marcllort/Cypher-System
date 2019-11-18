@@ -64,7 +64,7 @@ int SERVER_start(Server *server) {
     s_addr.sin_family = AF_INET;
     s_addr.sin_port = htons((uint16_t) server->port);
     s_addr.sin_addr.s_addr = INADDR_ANY;
-
+    printf("PORT: %d ADDR: %s",server->port, s_addr.sin_addr.s_addr);
     if (inet_aton(server->ip, &s_addr.sin_addr) == 0) {
 
         struct hostent* host = gethostbyname(server->ip);

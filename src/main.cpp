@@ -36,7 +36,7 @@ int main(int argc, char **argv)
 
 void MAIN_registerSignal()
 {
-    //signal(SIGINT, MAIN_freeMemory);
+    signal(SIGINT, MAIN_freeMemory);
 }
 
 void MAIN_freeMemory()
