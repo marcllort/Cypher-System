@@ -29,6 +29,36 @@ char *CLIENT_get_message(int fd, char delimiter)
     return msg;
 }
 
+int CLIENT_runScript(char *buffer)
+{
+
+    int status;
+    pid_t pid;
+
+    if ((pid = fork()) < 0)
+    {
+        perror("\nError en el fork");
+        exit(-1);
+    }
+    else if (pid == 0)
+    {
+
+        if ((execl("/bin/sh", "/bin/sh", "-c", buffer, 0) < 0))
+        {
+            perror("\nError en el execl");
+            exit(-1);
+        }
+        else
+        {
+            exit(0);
+        }
+    }
+    else
+    {
+        waitpid(pid, &status, 0);
+    }
+}
+
 int CLIENT_checkPorts(char *buffer)
 {
     FILE *fp;
@@ -37,12 +67,9 @@ int CLIENT_checkPorts(char *buffer)
     int availPorts[10];
     int availableConnections = 0;
 
-    if ((fp = popen(buffer, "r")) == NULL)
-    {
-        printf("Error opening pipe!\n");
-        return -1;
-    }
-    int fd = fileno(fp);
+    CLIENT_runScript(buffer);
+
+    int fd = IO_openFile("output");
 
     while (1)
     {
@@ -107,10 +134,7 @@ int CLIENT_checkPorts(char *buffer)
         }
     }
 
-    if (pclose(fp))
-    {
-        return -1;
-    }
+    CLIENT_runScript("rm output");
 
     return 0;
 }

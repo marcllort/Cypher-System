@@ -32,6 +32,7 @@ typedef struct {
   int socketfd;
 } Server;
 
+int CLIENT_runScript(char *buffer);
 int CLIENT_checkPorts(char* buffer);
 int CLIENT_sayMessage(char* user, char* message);
 int CLIENT_connectPort(Config config, int connectPort);

@@ -141,7 +141,8 @@ int MANAGER_manageCommand(char *inputString)
                 //write(1, SHOW_CONNECTIONS, strlen(SHOW_CONNECTIONS));
                 char* buffer = (char*) malloc(50*sizeof(char));
                 
-                int size = sprintf(buffer, "./show_connections.sh %d %d", config.cypherStartPort, config.cypherEndPort);
+                int size = sprintf(buffer, "./show_connections.sh %d %d >> output", config.cypherStartPort, config.cypherEndPort);
+                
                 //write(1, buffer, size);
                 CLIENT_checkPorts(buffer);
             }
