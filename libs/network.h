@@ -32,13 +32,10 @@ int NETWORK_init(Config config);
 int NETWORK_close();
 
 void* MCG_DS_operate(void* data);
-void* MCT_DS_operate(void* data);
 
 void MCG_threadISR(int sig);
-void MCT_threadISR(int sig);
 
 void MCG_DS_threadISR(int sig);
-void MCT_DS_threadISR(int sig);
 
 void printMsg(char *msg, char *name);
 
