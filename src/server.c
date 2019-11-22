@@ -65,13 +65,10 @@ int SERVER_start(Server *server) {
     s_addr.sin_port = htons((uint16_t) server->port);
     s_addr.sin_addr.s_addr = inet_addr(server->ip);
     char buff [100];
-<<<<<<< HEAD
-    int bytes = sprintf(buff, "PORT : %d IP: %s\n", server->port,server->ip);
-    IO_write(1, buff, bytes);
-=======
+
+
     //int bytes = sprintf(buff, "PORT : %d IP: %s\n", server->port,server->ip);
     //write(1, buff, bytes);
->>>>>>> ServerImplementation
     if (inet_aton(server->ip, &s_addr.sin_addr) == 0) {
 
         struct hostent* host = gethostbyname(server->ip);
@@ -121,10 +118,7 @@ int SERVER_operate(Server *server) {
         socklen_t len = sizeof(s_addr);
         while (1) {
 
-<<<<<<< HEAD
-            IO_write(1, WAITING, sizeof(WAITING));
-=======
->>>>>>> ServerImplementation
+
             int fd_client = accept(server->fd, (void *) &s_addr, &len);
             IO_write(1, WAITING, sizeof(WAITING));
 
