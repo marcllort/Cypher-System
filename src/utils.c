@@ -69,6 +69,8 @@ char **UTILS_str_split(char *a_str, const char a_delim)
         tmp++;
     }
 
+    free(tmp);
+
     /* Add space for trailing token. */
     count += last_comma < (a_str + strlen(a_str) - 1);
 
@@ -89,6 +91,7 @@ char **UTILS_str_split(char *a_str, const char a_delim)
             *(result + idx++) = strdup(token);
             token = strtok(0, delim);
         }
+        free(token);
         assert(idx == count - 1);
         *(result + idx) = 0;
     }

@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -g
+CFLAGS=-Wall -Wextra -g -O2
 LDFLAGS=-lpthread
 SOURCES=src/main.c src/io.c src/utils.c src/network.c src/config.c src/commandManager.c src/client.c src/server.c src/list.c
 OBJECTS=$(SOURCES:.c=.o)

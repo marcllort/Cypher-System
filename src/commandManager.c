@@ -37,6 +37,7 @@ int MANAGER_manageCommand(char *inputString)
     char **words;
 
     words = UTILS_str_split(inputString, ' ');
+    free(inputString);
     if (words)
     {
 
@@ -145,6 +146,7 @@ int MANAGER_manageCommand(char *inputString)
                 
                 //write(1, buffer, size);
                 CLIENT_checkPorts(buffer);
+                free(buffer);
             }
             else
             {

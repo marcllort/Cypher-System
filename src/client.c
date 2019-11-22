@@ -78,6 +78,7 @@ int CLIENT_checkPorts(char *buffer)
 
         IO_readUntilv2(fd, &openPort, ' ');
         availPorts[availableConnections] = atoi(openPort);
+        free(openPort);
 
         IO_readUntil(fd, &buffr, '\n');
         free(buffr);
