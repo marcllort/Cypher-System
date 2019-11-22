@@ -18,7 +18,7 @@ int UTILS_sizeOf(const char *str)
 
     while (j != 1)
     {
-        if (str[i] == '\0' || str[i] == ' ')
+        if (str[i] == '\0')
         {
             j = 1;
         }

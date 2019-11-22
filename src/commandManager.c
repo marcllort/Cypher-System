@@ -70,15 +70,31 @@ int MANAGER_manageCommand(char *inputString)
         else if (UTILS_compareCaseInsensitive(SAY, words[0]) == 0)
         {
             words[1] = strtok(0, " ");
+
+            char user[128];
+            sprintf(user,"%s",words[1]);
+
             if (words[1])
             {
                 words[2] = strtok(0, "\n");
                 if (words[2])
                 {
                     free(inputString);
-                    UTILS_removeChar(words[2], '"');
 
-                    CLIENT_write(words[1], words[2]);
+                    /*char buff[124];
+                    sprintf(buff,"Ultima lletra: %c",words[2][UTILS_sizeOf(words[2]) - 1]);
+                     IO_write(1, buff, strlen(buff));*/
+
+                    if (words[2][0] == '"' && words[2][UTILS_sizeOf(words[2]) - 1] == '"')
+                    {
+                        UTILS_removeChar(words[2], '"');
+
+                        CLIENT_write(user, words[2]);
+                    }
+                    else
+                    {
+                        IO_write(1, SAY_ERROR_MESS, strlen(SAY_ERROR_MESS));
+                    }
                 }
                 else
                 {
@@ -98,9 +114,16 @@ int MANAGER_manageCommand(char *inputString)
             if (words[1])
             {
                 free(inputString);
-                UTILS_removeChar(words[1], '"');
-                write(1, words[2], sizeof(words[2]));           //Cal borrar
-                IO_write(1, BROADCAST, strlen(BROADCAST));
+                if (words[1][0] == '"' && words[1][UTILS_sizeOf(words[1]) - 1] == '"')
+                {
+                    UTILS_removeChar(words[1], '"');
+                    IO_write(1, words[1], strlen(words[1])); //Cal borrar
+                    IO_write(1, BROADCAST, strlen(BROADCAST));
+                }
+                else
+                {
+                    IO_write(1, BROADCAST_ERROR, strlen(BROADCAST_ERROR));
+                }
             }
             else
             {
