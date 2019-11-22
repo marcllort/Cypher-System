@@ -46,7 +46,7 @@ int MANAGER_manageCommand(char *inputString)
         {
             // Alliberem memoria i sortim
             MANAGER_freeMemory();
-
+            free(inputString);
             IO_write(1, EXIT_MSG, strlen(EXIT_MSG));
             raise(SIGINT);
         }
@@ -55,15 +55,15 @@ int MANAGER_manageCommand(char *inputString)
             words[1] = strtok(0," ");
             if (words[1] && UTILS_valid_digit(words[1]))
             {
+                free(inputString);
                 UTILS_sizeOf(words[1]);
                 int port = atoi(words[1]);
-
                 IO_write(1, CONNECT_MSG, strlen(CONNECT_MSG));
-
                 CLIENT_connectPort(config, port);
             }
             else
             {
+                free(inputString);
                 IO_write(1, CONNECT_ERROR, strlen(CONNECT_ERROR));
             }
         }
@@ -77,6 +77,7 @@ int MANAGER_manageCommand(char *inputString)
                 {
                     if (words[2][0] == '"' && words[2][UTILS_sizeOf(words[2]) - 2] == '"')
                     {
+                        free(inputString);
                         UTILS_removeChar(words[2], '"');
 
                         //IO_write(1, SAY_MSG, strlen(SAY_MSG));
@@ -89,16 +90,19 @@ int MANAGER_manageCommand(char *inputString)
                     }
                     else
                     {
+                        free(inputString);
                         IO_write(1, SAY_ERROR_MESS, strlen(SAY_ERROR_MESS));
                     }
                 }
                 else
                 {
+                    free(inputString);
                     IO_write(1, SAY_ERROR, strlen(SAY_ERROR));
                 }
             }
             else
             {
+                free(inputString);
                 IO_write(1, SAY_ERROR_2, strlen(SAY_ERROR_2));
             }
         }
@@ -107,10 +111,12 @@ int MANAGER_manageCommand(char *inputString)
             words[1] = strtok(0," ");
             if (words[1])
             {
+                free(inputString);
                 IO_write(1, BROADCAST, strlen(BROADCAST));
             }
             else
             {
+                free(inputString);
                 IO_write(1, BROADCAST_ERROR, strlen(BROADCAST_ERROR));
             }
         }
@@ -122,15 +128,18 @@ int MANAGER_manageCommand(char *inputString)
                 words[2] = strtok(0," ");
                 if (words[2])
                 {
+                    free(inputString);
                     IO_write(1, DOWNLOAD, strlen(DOWNLOAD));
                 }
                 else
                 {
+                    free(inputString);
                     IO_write(1, DOWNLOAD_ERROR, strlen(DOWNLOAD_ERROR));
                 }
             }
             else
             {
+                free(inputString);
                 IO_write(1, DOWNLOAD_ERROR_2, strlen(DOWNLOAD_ERROR_2));
             }
         }
@@ -139,11 +148,14 @@ int MANAGER_manageCommand(char *inputString)
             words[1] = strtok(0," ");
             if (!words[1])
             {
+                free(inputString);
                 IO_write(1, SHOW_ERROR, strlen(SHOW_ERROR));
             }
             else if (UTILS_compareCaseInsensitive(CONNECTIONS, words[1]) == 0)
             {
                 //IO_write(1, SHOW_CONNECTIONS, strlen(SHOW_CONNECTIONS));
+                free(inputString);
+
                 char *buffer = (char *)malloc(50 * sizeof(char));
 
                 sprintf(buffer, "./show_connections.sh %d %d >> output", config.cypherStartPort, config.cypherEndPort);
@@ -160,25 +172,30 @@ int MANAGER_manageCommand(char *inputString)
                     words[2] = strtok(0," ");
                     if (words[2])
                     {
+                        free(inputString);
                         IO_write(1, SHOW_AUDIOS, strlen(SHOW_AUDIOS));
                     }
                     else
                     {
+                        free(inputString);
                         IO_write(1, AUDIOS_ERROR, strlen(AUDIOS_ERROR));
                     }
                 }
                 else
                 {
+                    free(inputString);
                     IO_write(1, SHOW_ERROR, strlen(SHOW_ERROR));
                 }
             }
         }
         else
         {
+            free(inputString);
             IO_write(1, COMMAND_ERROR, strlen(COMMAND_ERROR));
         }
     }
     //free(words);
+    free(inputString);
 
     return 1;
 }

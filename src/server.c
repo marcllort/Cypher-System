@@ -209,7 +209,7 @@ void SERVER_close(Server *server) {
 
     server->state = -1;
     close(server->fd);
-
+    LLISTADS_destrueix(&server->dss);
     IO_write(1, GOODBYE, strlen(GOODBYE));
 }
 
