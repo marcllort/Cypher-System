@@ -82,7 +82,7 @@ int MANAGER_manageCommand(char *inputString)
                         int bytes = sprintf(buff, "%s \n", words[2]);
                         write(1, buff, bytes);
 
-                        CLIENT_sayMessage(words[1], words[2]);
+                        CLIENT_write(words[1], words[2]);
                     }
                     else
                     {

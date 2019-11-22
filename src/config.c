@@ -26,19 +26,19 @@ Config CONFIG_load(char* filename) {
     
     IO_readUntil(fd, &(config.audioFolder), '\n');
     
-    IO_readUntil(fd, &(config.myIP), '\n');
+    IO_readUntilv2(fd, &(config.myIP), '\n');
 
-    IO_readUntil(fd, &temp, '\n');
+    IO_readUntilv2(fd, &temp, '\n');
     config.myPort = (int) strtol(temp, NULL, 10);
     free(temp);
 
-    IO_readUntil(fd, &(config.cypherIP), '\n');
+    IO_readUntilv2(fd, &(config.cypherIP), '\n');
 
-    IO_readUntil(fd, &temp, '\n');
+    IO_readUntilv2(fd, &temp, '\n');
     config.cypherStartPort = (int) strtol(temp, NULL, 10);
     free(temp);
 
-    IO_readUntil(fd, &temp, '\n');
+    IO_readUntilv2(fd, &temp, '\n');
     config.cypherEndPort = (int) strtol(temp, NULL, 10);
     free(temp);
 
