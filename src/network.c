@@ -3,7 +3,6 @@
 
 
 int NETWORK_init(Config config) {
-    char aux[100];
 
     if (CONFIG_getState(config) != 0) return -1;
 

@@ -4,12 +4,14 @@ Llista servers;
 
 int CLIENT_initClient()
 {
+    // Creem llista bidireccional de on emmagatzerem els servers (nom,fd)
     servers = LLISTABID_crea();
     return 1;
 }
 
 char *CLIENT_get_message(int fd, char delimiter)
 {
+    // Funció encarregada de capturar el missatge de un FD i retornar el char*
     char *msg = (char *)malloc(1);
     char current;
     int i = 0;
@@ -31,7 +33,8 @@ char *CLIENT_get_message(int fd, char delimiter)
 
 int CLIENT_runScript(char *buffer)
 {
-
+    // Funció per correr un script bash
+    // Cal fer fork, ja que execl s'apropia de el procés, executa script i mor
     int status;
     pid_t pid;
 
@@ -41,9 +44,9 @@ int CLIENT_runScript(char *buffer)
         exit(-1);
     }
     else if (pid == 0)
-    {
+    { // El fill es on s'executa el script rebut per parametres, i al acabar mor
 
-        if ((execl("/bin/sh", "/bin/sh", "-c", buffer, 0) < 0))
+        if ((execl("/bin/sh", "/bin/sh", "-c", buffer, (char *)0) < 0))
         {
             perror("\nError en el execl");
             exit(-1);
@@ -54,26 +57,26 @@ int CLIENT_runScript(char *buffer)
         }
     }
     else
-    {
+    { // El pare espera a que acabi la execució del fill
         waitpid(pid, &status, 0);
+        return 0;
     }
 }
 
 int CLIENT_checkPorts(char *buffer)
 {
-    FILE *fp;
     char *buffr;
     char *openPort;
     int availPorts[10];
     int availableConnections = 0;
 
-    CLIENT_runScript(buffer);
+    CLIENT_runScript(buffer); // Executem script entre X i Y ports rebut per parametres a buffer
 
-    int fd = IO_openFile("output");
+    int fd = IO_openFile("output"); // El script ha guardat en un fitxer de text el seu output, llegim aquest fitxer
 
     while (1)
     {
-        IO_readUntil(fd, &buffr, ' ');
+        IO_readUntil(fd, &buffr, ' '); // Ens quedem només amb el nombre del port obert
         free(buffr);
 
         IO_readUntilv2(fd, &openPort, ' ');
@@ -99,7 +102,7 @@ int CLIENT_checkPorts(char *buffer)
     write(1, buff, bytes);
 
     int trobat = 0;
-    for (size_t i = 0; i < availableConnections; i++)
+    for (int i = 0; i < availableConnections; i++)
     {
         trobat = 0;
 
@@ -135,13 +138,15 @@ int CLIENT_checkPorts(char *buffer)
         }
     }
 
-    CLIENT_runScript("rm output");
+    CLIENT_runScript("rm output"); // Correm la comanda de bsh, per aixi borrar el fitxer que hem generat anteriorment
 
     return 0;
 }
 
 int CLIENT_connectPort(Config config, int connectPort)
 {
+    // Connexio al server, llegim la classe config on tenim la informació necessaria
+
     Element newServer;
     char *ip = config.cypherIP;
 
@@ -195,11 +200,14 @@ int CLIENT_connectPort(Config config, int connectPort)
 
 int CLIENT_sayMessage(char *user, char *message)
 {
+    // Funció per enviar un paquet a un altre usuari, al que previament estàs connectat
+
     int trobat = 0;
     LLISTABID_vesInici(&servers);
     char buff[128];
     int bytes;
 
+    // Busquem a la llista la relació de nom i port per així saber a quin fd hem de enviar
     while (!LLISTABID_final(servers) && !trobat)
     {
         Element server = LLISTABID_consulta(servers);
@@ -235,6 +243,7 @@ int CLIENT_sayMessage(char *user, char *message)
 
 int CLIENT_freeMemory()
 {
+    // Funció de lliberar memoria del CLIENT
     LLISTABID_vesInici(&servers);
     while (!LLISTABID_final(servers))
     {

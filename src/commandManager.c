@@ -28,35 +28,33 @@ Config config;
 
 int MANAGER_setConfig(Config newConfig)
 {
-    config = newConfig;
+    config = newConfig; // Emmagatzemem la configuració llegida anteriorment al main
     return 1;
 }
 
 int MANAGER_manageCommand(char *inputString)
 {
+    // Funció encarregada de cridar les diferents funcionalitats del sistema i passarlis els parametres necessaris
     char **words;
 
+    //Separem la comanda per espais per anar analitzantla pas a pas
     words = UTILS_str_split(inputString, ' ');
-    free(inputString);
+
     if (words)
     {
-
         if (UTILS_compareCaseInsensitive(EXIT, words[0]) == 0)
         {
-            /* FUNCIO PER ALLIBERAR MEMORIA I SORTIR */
+            // Alliberem memoria i sortim
             MANAGER_freeMemory();
 
             write(1, EXIT_MSG, strlen(EXIT_MSG));
-            raise(SIGINT);
+            //raise(SIGINT);
         }
         else if (UTILS_compareCaseInsensitive(CONNECT, words[0]) == 0)
         {
             if (words[1] && UTILS_valid_digit(words[1]))
             {
-
-                int size = UTILS_sizeOf(words[1]);
-                words[1][size - 1] = '\0';
-
+                UTILS_sizeOf(words[1]);
                 int port = atoi(words[1]);
 
                 write(1, CONNECT_MSG, strlen(CONNECT_MSG));
@@ -106,7 +104,6 @@ int MANAGER_manageCommand(char *inputString)
             if (words[1])
             {
                 write(1, BROADCAST, strlen(BROADCAST));
-                
             }
             else
             {
@@ -140,10 +137,10 @@ int MANAGER_manageCommand(char *inputString)
             else if (UTILS_compareCaseInsensitive(CONNECTIONS, words[1]) == 0)
             {
                 //write(1, SHOW_CONNECTIONS, strlen(SHOW_CONNECTIONS));
-                char* buffer = (char*) malloc(50*sizeof(char));
-                
-                int size = sprintf(buffer, "./show_connections.sh %d %d >> output", config.cypherStartPort, config.cypherEndPort);
-                
+                char *buffer = (char *)malloc(50 * sizeof(char));
+
+                sprintf(buffer, "./show_connections.sh %d %d >> output", config.cypherStartPort, config.cypherEndPort);
+
                 //write(1, buffer, size);
                 CLIENT_checkPorts(buffer);
                 free(buffer);
@@ -172,7 +169,6 @@ int MANAGER_manageCommand(char *inputString)
         {
             write(1, COMMAND_ERROR, strlen(COMMAND_ERROR));
         }
-        
     }
     free(words);
 

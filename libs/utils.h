@@ -22,5 +22,6 @@ int UTILS_ip_checker(char *ip_str) ;
 int UTILS_sizeOf(const char *str);
 int UTILS_printName(Config config);
 void UTILS_removeChar(char *str, char garbage);
+char* UTILS_readKB();
 
 #endif 

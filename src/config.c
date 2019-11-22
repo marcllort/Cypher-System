@@ -2,9 +2,11 @@
 
 Config CONFIG_load(char* filename) {
 
+    // Llegim el fitxer de configuració rebut per parametres
+
     write(1, START_TRINITY, strlen(START_TRINITY));
 
-    Config config;
+    Config config;              // Guardem la informació en el tipus Config
     char *temp = NULL;
     config.username = NULL;
     config.audioFolder = NULL;
@@ -47,6 +49,7 @@ Config CONFIG_load(char* filename) {
     return config;
 }
 
+//Getters
 char* CONFIG_getUsername(Config config) {
     return config.username;
 }
@@ -79,6 +82,7 @@ int CONFIG_getState(Config config) {
     return config.state;
 }
 
+// Tancar/Alliberar el fitxer config
 void CONFIG_close(Config *config) {
     if (config->username != NULL) free(config->username);
     if (config->audioFolder != NULL) free(config->audioFolder);

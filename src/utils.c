@@ -69,8 +69,6 @@ char **UTILS_str_split(char *a_str, const char a_delim)
         tmp++;
     }
 
-    free(tmp);
-
     /* Add space for trailing token. */
     count += last_comma < (a_str + strlen(a_str) - 1);
 
@@ -194,4 +192,24 @@ void UTILS_removeChar(char *str, char garbage)
             dst++;
     }
     *dst = '\0';
+}
+
+char *UTILS_readKB()
+{
+    char c = '\0';
+    int count = 0;
+
+    char *bufferKB = (char *)malloc(sizeof(char));
+    while (c != '\n')
+    {
+        read(0, &c, sizeof(char));
+        if (c != '\n')
+        {
+            bufferKB[count] = c;
+            bufferKB = (char *)realloc(bufferKB, sizeof(char) * (count + 2));
+        }
+        count++;
+    }
+    bufferKB[count - 1] = '\0';
+    return bufferKB;
 }
