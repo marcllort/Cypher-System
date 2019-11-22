@@ -11,9 +11,11 @@ int NETWORK_init(Config config) {
     //coses de server: reb connexio, crea threads
     char buff [100];
     int port = CONFIG_getMyPort(config);
-    char* ip = CONFIG_getCypherIP(config);
-    int bytes = sprintf(buff, "PORT : %d IP: %s\n",port ,ip);
-    Server mainServer = SERVER_init(CONFIG_getCypherIP(config), CONFIG_getMyPort(config));
+    char* ip = CONFIG_getMyIP(config);
+    int bytes = sprintf(buff, "NETWORK PORT : %d IP: %s knjk\n",port ,ip);
+    write(1,buff, sizeof(buff));
+
+    trinity = SERVER_init(ip, port);
     //SERVER_setMT(&mainServer, SERVER_threadFunc, MCG_threadISR, MCG_SIG, MCG_DS_operate, MCG_DS_threadISR, MCG_DS_SIG);
 
     
