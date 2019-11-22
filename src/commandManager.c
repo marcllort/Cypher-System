@@ -35,10 +35,10 @@ int MANAGER_setConfig(Config newConfig)
 int MANAGER_manageCommand(char *inputString)
 {
     // Funció encarregada de cridar les diferents funcionalitats del sistema i passarlis els parametres necessaris
-    char* words[3];
+    char *words[3];
 
     //Separem la comanda per espais per anar analitzantla pas a pas
-    words[0] = strtok(inputString," ");
+    words[0] = strtok(inputString, " ");
 
     if (words)
     {
@@ -52,7 +52,7 @@ int MANAGER_manageCommand(char *inputString)
         }
         else if (UTILS_compareCaseInsensitive(CONNECT, words[0]) == 0)
         {
-            words[1] = strtok(0," ");
+            words[1] = strtok(0, " ");
             if (words[1] && UTILS_valid_digit(words[1]))
             {
                 free(inputString);
@@ -69,30 +69,16 @@ int MANAGER_manageCommand(char *inputString)
         }
         else if (UTILS_compareCaseInsensitive(SAY, words[0]) == 0)
         {
-            words[1] = strtok(0," ");
+            words[1] = strtok(0, " ");
             if (words[1])
             {
-                words[2] = strtok(0," ");
+                words[2] = strtok(0, "\n");
                 if (words[2])
                 {
-                    if (words[2][0] == '"' && words[2][UTILS_sizeOf(words[2]) - 2] == '"')
-                    {
-                        free(inputString);
-                        UTILS_removeChar(words[2], '"');
+                    free(inputString);
+                    UTILS_removeChar(words[2], '"');
 
-                        //IO_write(1, SAY_MSG, strlen(SAY_MSG));
-
-                        char buff[128];
-                        int bytes = sprintf(buff, "%s \n", words[2]);
-                        IO_write(1, buff, bytes);
-
-                        CLIENT_write(words[1], words[2]);
-                    }
-                    else
-                    {
-                        free(inputString);
-                        IO_write(1, SAY_ERROR_MESS, strlen(SAY_ERROR_MESS));
-                    }
+                    CLIENT_write(words[1], words[2]);
                 }
                 else
                 {
@@ -108,10 +94,12 @@ int MANAGER_manageCommand(char *inputString)
         }
         else if (UTILS_compareCaseInsensitive(BROADCAST, words[0]) == 0)
         {
-            words[1] = strtok(0," ");
+            words[1] = strtok(0, "\n");
             if (words[1])
             {
                 free(inputString);
+                UTILS_removeChar(words[1], '"');
+                write(1, words[2], sizeof(words[2]));           //Cal borrar
                 IO_write(1, BROADCAST, strlen(BROADCAST));
             }
             else
@@ -122,10 +110,10 @@ int MANAGER_manageCommand(char *inputString)
         }
         else if (UTILS_compareCaseInsensitive(DOWNLOAD, words[0]) == 0)
         {
-            words[1] = strtok(0," ");
+            words[1] = strtok(0, " ");
             if (words[1])
             {
-                words[2] = strtok(0," ");
+                words[2] = strtok(0, " ");
                 if (words[2])
                 {
                     free(inputString);
@@ -145,7 +133,7 @@ int MANAGER_manageCommand(char *inputString)
         }
         else if (UTILS_compareCaseInsensitive(SHOW, words[0]) == 0)
         {
-            words[1] = strtok(0," ");
+            words[1] = strtok(0, " ");
             if (!words[1])
             {
                 free(inputString);
@@ -169,7 +157,7 @@ int MANAGER_manageCommand(char *inputString)
 
                 if (UTILS_compareCaseInsensitive(AUDIOS, words[1]) == 0)
                 {
-                    words[2] = strtok(0," ");
+                    words[2] = strtok(0, " ");
                     if (words[2])
                     {
                         free(inputString);
@@ -194,7 +182,6 @@ int MANAGER_manageCommand(char *inputString)
             IO_write(1, COMMAND_ERROR, strlen(COMMAND_ERROR));
         }
     }
-    //free(words);
     free(inputString);
 
     return 1;
