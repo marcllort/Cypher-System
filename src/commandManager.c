@@ -47,7 +47,7 @@ int MANAGER_manageCommand(char *inputString)
             // Alliberem memoria i sortim
             MANAGER_freeMemory();
 
-            write(1, EXIT_MSG, strlen(EXIT_MSG));
+            IO_write(1, EXIT_MSG, strlen(EXIT_MSG));
             //raise(SIGINT);
         }
         else if (UTILS_compareCaseInsensitive(CONNECT, words[0]) == 0)
@@ -57,13 +57,13 @@ int MANAGER_manageCommand(char *inputString)
                 UTILS_sizeOf(words[1]);
                 int port = atoi(words[1]);
 
-                write(1, CONNECT_MSG, strlen(CONNECT_MSG));
+                IO_write(1, CONNECT_MSG, strlen(CONNECT_MSG));
 
                 CLIENT_connectPort(config, port);
             }
             else
             {
-                write(1, CONNECT_ERROR, strlen(CONNECT_ERROR));
+                IO_write(1, CONNECT_ERROR, strlen(CONNECT_ERROR));
             }
         }
         else if (UTILS_compareCaseInsensitive(SAY, words[0]) == 0)
@@ -76,38 +76,38 @@ int MANAGER_manageCommand(char *inputString)
                     {
                         UTILS_removeChar(words[2], '"');
 
-                        //write(1, SAY_MSG, strlen(SAY_MSG));
+                        //IO_write(1, SAY_MSG, strlen(SAY_MSG));
 
                         char buff[128];
                         int bytes = sprintf(buff, "%s \n", words[2]);
-                        write(1, buff, bytes);
+                        IO_write(1, buff, bytes);
 
                         CLIENT_write(words[1], words[2]);
                     }
                     else
                     {
-                        write(1, SAY_ERROR_MESS, strlen(SAY_ERROR_MESS));
+                        IO_write(1, SAY_ERROR_MESS, strlen(SAY_ERROR_MESS));
                     }
                 }
                 else
                 {
-                    write(1, SAY_ERROR, strlen(SAY_ERROR));
+                    IO_write(1, SAY_ERROR, strlen(SAY_ERROR));
                 }
             }
             else
             {
-                write(1, SAY_ERROR_2, strlen(SAY_ERROR_2));
+                IO_write(1, SAY_ERROR_2, strlen(SAY_ERROR_2));
             }
         }
         else if (UTILS_compareCaseInsensitive(BROADCAST, words[0]) == 0)
         {
             if (words[1])
             {
-                write(1, BROADCAST, strlen(BROADCAST));
+                IO_write(1, BROADCAST, strlen(BROADCAST));
             }
             else
             {
-                write(1, BROADCAST_ERROR, strlen(BROADCAST_ERROR));
+                IO_write(1, BROADCAST_ERROR, strlen(BROADCAST_ERROR));
             }
         }
         else if (UTILS_compareCaseInsensitive(DOWNLOAD, words[0]) == 0)
@@ -116,32 +116,32 @@ int MANAGER_manageCommand(char *inputString)
             {
                 if (words[2])
                 {
-                    write(1, DOWNLOAD, strlen(DOWNLOAD));
+                    IO_write(1, DOWNLOAD, strlen(DOWNLOAD));
                 }
                 else
                 {
-                    write(1, DOWNLOAD_ERROR, strlen(DOWNLOAD_ERROR));
+                    IO_write(1, DOWNLOAD_ERROR, strlen(DOWNLOAD_ERROR));
                 }
             }
             else
             {
-                write(1, DOWNLOAD_ERROR_2, strlen(DOWNLOAD_ERROR_2));
+                IO_write(1, DOWNLOAD_ERROR_2, strlen(DOWNLOAD_ERROR_2));
             }
         }
         else if (UTILS_compareCaseInsensitive(SHOW, words[0]) == 0)
         {
             if (!words[1])
             {
-                write(1, SHOW_ERROR, strlen(SHOW_ERROR));
+                IO_write(1, SHOW_ERROR, strlen(SHOW_ERROR));
             }
             else if (UTILS_compareCaseInsensitive(CONNECTIONS, words[1]) == 0)
             {
-                //write(1, SHOW_CONNECTIONS, strlen(SHOW_CONNECTIONS));
+                //IO_write(1, SHOW_CONNECTIONS, strlen(SHOW_CONNECTIONS));
                 char *buffer = (char *)malloc(50 * sizeof(char));
 
                 sprintf(buffer, "./show_connections.sh %d %d >> output", config.cypherStartPort, config.cypherEndPort);
 
-                //write(1, buffer, size);
+                //IO_write(1, buffer, size);
                 CLIENT_checkPorts(buffer);
                 free(buffer);
             }
@@ -152,22 +152,22 @@ int MANAGER_manageCommand(char *inputString)
                 {
                     if (words[2])
                     {
-                        write(1, SHOW_AUDIOS, strlen(SHOW_AUDIOS));
+                        IO_write(1, SHOW_AUDIOS, strlen(SHOW_AUDIOS));
                     }
                     else
                     {
-                        write(1, AUDIOS_ERROR, strlen(AUDIOS_ERROR));
+                        IO_write(1, AUDIOS_ERROR, strlen(AUDIOS_ERROR));
                     }
                 }
                 else
                 {
-                    write(1, SHOW_ERROR, strlen(SHOW_ERROR));
+                    IO_write(1, SHOW_ERROR, strlen(SHOW_ERROR));
                 }
             }
         }
         else
         {
-            write(1, COMMAND_ERROR, strlen(COMMAND_ERROR));
+            IO_write(1, COMMAND_ERROR, strlen(COMMAND_ERROR));
         }
     }
     free(words);
@@ -176,5 +176,5 @@ int MANAGER_manageCommand(char *inputString)
 }
 void MANAGER_freeMemory()
 {
-    //write(1, FREE_MEM, strlen(FREE_MEM));
+    //IO_write(1, FREE_MEM, strlen(FREE_MEM));
 }

@@ -54,7 +54,7 @@ void SERVER_setMT ( Server  *server,
 int SERVER_start(Server *server) {
 
     if ((server->fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
-        write(1, ERR_SOCKET, strlen(ERR_SOCKET));
+        IO_write(1, ERR_SOCKET, strlen(ERR_SOCKET));
         return server->state = -1;
     }
 
@@ -66,13 +66,13 @@ int SERVER_start(Server *server) {
     s_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
     char buff [100];
     int bytes = sprintf(buff, "PORT : %d IP: %s\n", server->port,server->ip);
-    write(1, buff, bytes);
+    IO_write(1, buff, bytes);
     if (inet_aton(server->ip, &s_addr.sin_addr) == 0) {
 
         struct hostent* host = gethostbyname(server->ip);
 
         if (host == NULL) {
-            write(1, ERR_IP, strlen(ERR_IP));
+            IO_write(1, ERR_IP, strlen(ERR_IP));
             return server->state = -2;
         }
 
@@ -80,11 +80,11 @@ int SERVER_start(Server *server) {
     }
 
     if (bind(server->fd, (void *) &s_addr, sizeof(s_addr)) < 0) {
-        write(1, ERR_BIND, strlen(ERR_BIND));
+        IO_write(1, ERR_BIND, strlen(ERR_BIND));
         return server->state = -3;  
     }
     if (listen(server->fd, MAX_CONN) < 0) {
-        write(1, ERR_LISTEN, strlen(ERR_LISTEN));
+        IO_write(1, ERR_LISTEN, strlen(ERR_LISTEN));
         return server->state = -4;
     }
 
@@ -117,18 +117,18 @@ int SERVER_operate(Server *server) {
         socklen_t len = sizeof(s_addr);
         while (1) {
 
-            write(1, WAITING, sizeof(WAITING));
+            IO_write(1, WAITING, sizeof(WAITING));
             int fd_client = accept(server->fd, (void *) &s_addr, &len);
-            write(1, WAITING, sizeof(WAITING));
+            IO_write(1, WAITING, sizeof(WAITING));
 
             //game(board);
     }
         /*do {
-            write(1, WAITING, strlen(WAITING));
+            IO_write(1, WAITING, strlen(WAITING));
             
 
             if ((fd = accept(server->fd, (struct sockaddr*) &s_addr, &len)) <= 0) {
-                write(1, ERR_ACCEPT, strlen(ERR_ACCEPT));
+                IO_write(1, ERR_ACCEPT, strlen(ERR_ACCEPT));
             }
         } while (fd <= 0);
 
@@ -209,7 +209,7 @@ void SERVER_close(Server *server) {
     server->state = -1;
     close(server->fd);
 
-    write(1, GOODBYE, strlen(GOODBYE));
+    IO_write(1, GOODBYE, strlen(GOODBYE));
 }
 
 void* SERVER_threadFunc(void* data) {

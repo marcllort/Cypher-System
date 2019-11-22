@@ -99,7 +99,7 @@ int CLIENT_checkPorts(char *buffer)
 
     char buff[128];
     int bytes = sprintf(buff, MSG_AVAIL_CONN, availableConnections);
-    write(1, buff, bytes);
+    IO_write(1, buff, bytes);
 
     int trobat = 0;
     for (int i = 0; i < availableConnections; i++)
@@ -110,7 +110,7 @@ int CLIENT_checkPorts(char *buffer)
         if (LLISTABID_buida(servers))
         {
             bytes = sprintf(buff, "%d\n", availPorts[i]);
-            write(1, buff, bytes);
+            IO_write(1, buff, bytes);
         }
         else
         {
@@ -120,7 +120,7 @@ int CLIENT_checkPorts(char *buffer)
                 if (server.port == availPorts[i])
                 {
                     bytes = sprintf(buff, "%d %s\n", availPorts[i], server.name);
-                    write(1, buff, bytes);
+                    IO_write(1, buff, bytes);
                     trobat = 1;
                     LLISTABID_vesInici(&servers);
                 }
@@ -132,7 +132,7 @@ int CLIENT_checkPorts(char *buffer)
             if (!trobat)
             {
                 bytes = sprintf(buff, "%d\n", availPorts[i]);
-                write(1, buff, bytes);
+                IO_write(1, buff, bytes);
                 LLISTABID_vesInici(&servers);
             }
         }
@@ -156,7 +156,7 @@ int CLIENT_connectPort(Config config, int connectPort)
     socket_conn = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     if (socket_conn < 0)
-        write(1, MSG_ERR_SOCKET, sizeof(MSG_ERR_SOCKET));
+        IO_write(1, MSG_ERR_SOCKET, sizeof(MSG_ERR_SOCKET));
     else
     {
 
@@ -169,7 +169,7 @@ int CLIENT_connectPort(Config config, int connectPort)
         {
             char buff[128];
             int bytes = sprintf(buff, MSG_ERR_CONN, connectPort);
-            write(1, buff, bytes);
+            IO_write(1, buff, bytes);
             close(socket_conn);
             socket_conn = -1;
         }
@@ -181,7 +181,7 @@ int CLIENT_connectPort(Config config, int connectPort)
 
         // Per provar amb server sessio lab 4 -- envio nom al server IMPORTANT BORRARRRRRRRRRRRRR QUAN TINGUEM EL NOSTRE SERVEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEER
         char *name = CLIENT_read(0, '\n');
-        write(socket_conn, name, strlen(name));
+        IO_write(socket_conn, name, strlen(name));
         free(name);
         // Cal borrar fins aqui
 
@@ -191,7 +191,7 @@ int CLIENT_connectPort(Config config, int connectPort)
 
         char buff[128];
         int bytes = sprintf(buff, MSG_CONNECTED, newServer.port, newServer.name);
-        write(1, buff, bytes);
+        IO_write(1, buff, bytes);
         LLISTABID_inserirDarrere(&servers, newServer);
     }
 
@@ -225,7 +225,7 @@ int CLIENT_write(char *user, char *message)
             //void *ptr = &buff; Serveix per provar enviar missatge en comptes de paquet
             void *ptr = &packet;
 
-            write(server.socketfd, ptr, bytes); //Cal provar si funciona, fent cast desde el server
+            IO_write(server.socketfd, ptr, bytes); //Cal provar si funciona, fent cast desde el server
             trobat = 1;
         }
         else
@@ -236,7 +236,7 @@ int CLIENT_write(char *user, char *message)
     if (!trobat)
     {
         bytes = sprintf(buff, UNKNOWN_CONNECTION, user);
-        write(1, buff, bytes);
+        IO_write(1, buff, bytes);
     }
     return 1;
 }

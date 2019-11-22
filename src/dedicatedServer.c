@@ -75,7 +75,7 @@ void* DSERVER_threadFunc(void* data) {
 
     if (sigaddset(&set, SIGUSR2)) pthread_exit(0);
 
-    write(1, CONNECTED, strlen(CONNECTED));
+    IO_write(1, CONNECTED, strlen(CONNECTED));
 
     DServer* ds = (DServer*) data;
 

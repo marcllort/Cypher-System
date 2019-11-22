@@ -44,7 +44,7 @@ int PACKET_write(Packet pd, int fd) {
 
     data -= sizeof(char) * (size - pd.length);      //Restart pointer
 
-    write(fd, data, size);
+    IO_write(fd, data, size);
 
     free(data);
 

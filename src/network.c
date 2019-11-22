@@ -136,9 +136,9 @@ void* MCT_DS_operate(void* dat) {
             msg[size] = '\0';
             read(ds->fd, msg, size);
 
-            write(1, CLIENT_SAYS, strlen(CLIENT_SAYS));
-            write(1, msg, strlen(msg));
-            write(1, "\n", sizeof(char));
+            IO_write(1, CLIENT_SAYS, strlen(CLIENT_SAYS));
+            IO_write(1, msg, strlen(msg));
+            IO_write(1, "\n", sizeof(char));
 
             if(strcmp(msg, KEYPHRASE) == 0) {
                 free(msg);
@@ -153,28 +153,28 @@ void* MCT_DS_operate(void* dat) {
 
 void MCG_threadISR(int sig) {
     if (sig == MCG_SIG) {
-        write(1, MCG_EXIT, strlen(MCG_EXIT));
+        IO_write(1, MCG_EXIT, strlen(MCG_EXIT));
         pthread_exit(0);
     }
 }
 
 void MCT_threadISR(int sig) {
     if (sig == MCT_SIG) {
-        write(1, MCT_EXIT, strlen(MCT_EXIT));
+        IO_write(1, MCT_EXIT, strlen(MCT_EXIT));
         pthread_exit(0);
     }
 }
 
 void MCG_DS_threadISR(int sig) {
     if (sig == MCG_DS_SIG) {
-        write(1, MCG_DS_EXIT, strlen(MCG_DS_EXIT));
+        IO_write(1, MCG_DS_EXIT, strlen(MCG_DS_EXIT));
         pthread_exit(0);
     }
 }
 
 void MCT_DS_threadISR(int sig) {
     if (sig == MCT_DS_SIG) {
-        write(1, MCT_DS_EXIT, strlen(MCT_DS_EXIT));
+        IO_write(1, MCT_DS_EXIT, strlen(MCT_DS_EXIT));
         pthread_exit(0);
     }
 }
@@ -186,7 +186,7 @@ void printMsg(char *msg, char *name)
     if (name != NULL) {
         if ((data = (char*) malloc(sizeof(char) * (strlen(name) + strlen(msg)))) != NULL) {
             sprintf(data, msg, name);
-            write(1, data, strlen(data));
+            IO_write(1, data, strlen(data));
             free(data);
         }
     }
