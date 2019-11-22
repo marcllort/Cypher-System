@@ -23,8 +23,8 @@ Config CONFIG_load(char* filename) {
 
     IO_readUntil(fd, &(config.username), '\n');
     
-    
-    IO_readUntil(fd, &(config.audioFolder), '\n');
+
+    IO_readUntilv2(fd, &(config.audioFolder), '\n');
     
     IO_readUntilv2(fd, &(config.myIP), '\n');
 
@@ -32,15 +32,29 @@ Config CONFIG_load(char* filename) {
     config.myPort = (int) strtol(temp, NULL, 10);
     free(temp);
 
+    char buff [100];
+    int bytes = sprintf(buff, "PORT : %d \n", config.myPort);
+    write(1, buff, bytes);
     IO_readUntilv2(fd, &(config.cypherIP), '\n');
 
     IO_readUntilv2(fd, &temp, '\n');
     config.cypherStartPort = (int) strtol(temp, NULL, 10);
     free(temp);
 
+    
     IO_readUntilv2(fd, &temp, '\n');
     config.cypherEndPort = (int) strtol(temp, NULL, 10);
     free(temp);
+
+    /*write(1, config.username, strlen(config.username));
+    write(1, config.audioFolder, strlen(config.audioFolder));
+        write(1, config.myIP, strlen(config.myIP));
+    write(1, config.myPort, strlen(config.myPort));
+    write(1, config.cypherIP, strlen(config.cypherIP));
+    write(1, config.cypherStartPort, strlen(config.cypherStartPort));
+    write(1, config.cypherEndPort, strlen(config.cypherEndPort));*/
+
+
 
     IO_close(fd);
 
