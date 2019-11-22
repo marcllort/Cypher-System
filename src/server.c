@@ -63,10 +63,10 @@ int SERVER_start(Server *server) {
 
     s_addr.sin_family = AF_INET;
     s_addr.sin_port = htons((uint16_t) server->port);
-    s_addr.sin_addr.s_addr = INADDR_ANY;
+    s_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
     char buff [100];
-    //int bytes = sprintf(buff, "PORT : %d IP: %s\n", server->port,s_addr.sin_addr.s_addr );
-    //write(1, buff, bytes);
+    int bytes = sprintf(buff, "PORT : %d IP: %s\n", server->port,server->ip);
+    write(1, buff, bytes);
     if (inet_aton(server->ip, &s_addr.sin_addr) == 0) {
 
         struct hostent* host = gethostbyname(server->ip);
