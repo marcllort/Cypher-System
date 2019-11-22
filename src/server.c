@@ -63,10 +63,10 @@ int SERVER_start(Server *server) {
 
     s_addr.sin_family = AF_INET;
     s_addr.sin_port = htons((uint16_t) server->port);
-    s_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    s_addr.sin_addr.s_addr = inet_addr(server->ip);
     char buff [100];
-    int bytes = sprintf(buff, "PORT : %d IP: %s\n", server->port,server->ip);
-    write(1, buff, bytes);
+    //int bytes = sprintf(buff, "PORT : %d IP: %s\n", server->port,server->ip);
+    //write(1, buff, bytes);
     if (inet_aton(server->ip, &s_addr.sin_addr) == 0) {
 
         struct hostent* host = gethostbyname(server->ip);
@@ -109,7 +109,6 @@ int SERVER_startDS(Server* server, int fd, struct sockaddr_in addr) {
 int SERVER_operate(Server *server) {
 
     server->state = 1;
-
     while (server->state) {
 
         int fd;
@@ -117,7 +116,6 @@ int SERVER_operate(Server *server) {
         socklen_t len = sizeof(s_addr);
         while (1) {
 
-            write(1, WAITING, sizeof(WAITING));
             int fd_client = accept(server->fd, (void *) &s_addr, &len);
             write(1, WAITING, sizeof(WAITING));
 
@@ -213,12 +211,11 @@ void SERVER_close(Server *server) {
 }
 
 void* SERVER_threadFunc(void* data) {
-
     Server *server = (Server*) data;
-    sigset_t set;
+    /*sigset_t set;
     sigemptyset(&set);
 
-    if (sigaddset(&set, server->threadSig)) pthread_exit(0);
+    if (sigaddset(&set, server->threadSig)) pthread_exit(0);*/
 
     if (SERVER_start(server) == 0) SERVER_operate(server);
 
