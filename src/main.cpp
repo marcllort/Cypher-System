@@ -1,3 +1,4 @@
+#include <iostream>
 #include "../libs/network.h"
 #include "../libs/commandManager.h"
 #include "../libs/client.h"

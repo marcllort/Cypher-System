@@ -26,18 +26,18 @@
 #define MSG_CONNECTED "%d connected: %s\n"
 #define UNKNOWN_CONNECTION "Couldn't send message. Unknown connection %s\n"
 
-typedef struct {
+/*typedef struct {
   int port;
   char* name;
   int socketfd;
-} Server;
+} Server;*/
 
 int CLIENT_runScript(char *buffer);
 int CLIENT_checkPorts(char* buffer);
 int CLIENT_sayMessage(char* user, char* message);
 int CLIENT_connectPort(Config config, int connectPort);
-char *CLIENT_get_message(int fd, char delimiter);
 int CLIENT_initClient();
+int CLIENT_write(char *user, char *message);
 int CLIENT_freeMemory();
-
+char *CLIENT_read(int fd, char delimiter);
 #endif //_CLIENT_H

@@ -12,6 +12,8 @@
 #include "utils.h"
 #include "config.h"
 #include "client.h"
+#include "packet.h"
+
 
 #define SHOW "SHOW"
 #define CONNECTIONS "CONNECTIONS"

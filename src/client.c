@@ -175,7 +175,7 @@ int CLIENT_connectPort(Config config, int connectPort)
         newServer.socketfd = socket_conn;
 
         // Per provar amb server sessio lab 4 -- envio nom al server IMPORTANT BORRARRRRRRRRRRRRR QUAN TINGUEM EL NOSTRE SERVEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEER
-        char *name = CLIENT_get_message(0, '\n');
+        char *name = CLIENT_read(0, '\n');
         write(socket_conn, name, strlen(name));
         free(name);
         // Cal borrar fins aqui
@@ -193,7 +193,7 @@ int CLIENT_connectPort(Config config, int connectPort)
     return 0;
 }
 
-int CLIENT_sayMessage(char *user, char *message)
+int CLIENT_write(char *user, char *message)
 {
     int trobat = 0;
     LLISTABID_vesInici(&servers);
@@ -211,7 +211,7 @@ int CLIENT_sayMessage(char *user, char *message)
 
             packet.type = 0x01;
             packet.header = "[MSG]";
-            packet.lenght = bytes;
+            packet.length = bytes;
             packet.data = buff;
 
             //void *ptr = &buff; Serveix per provar enviar missatge en comptes de paquet
@@ -233,6 +233,27 @@ int CLIENT_sayMessage(char *user, char *message)
     return 1;
 }
 
+char *CLIENT_read(int fd, char delimiter)
+{
+    char *msg = (char *)malloc(1);
+    char current;
+    int i = 0;
+
+    while (read(fd, &current, 1) > 0)
+    {
+
+        msg[i] = current;
+        msg = (char *)realloc(msg, ++i + 1);
+
+        if (current == delimiter)
+            break;
+    }
+
+    msg[i] = '\0';
+
+    return msg;
+}
+
 int CLIENT_freeMemory()
 {
     LLISTABID_vesInici(&servers);
@@ -242,7 +263,6 @@ int CLIENT_freeMemory()
         close(server.socketfd);
         free(server.name);
     }
-
     LLISTABID_destrueix(&servers);
 
     return 0;
