@@ -39,6 +39,7 @@ int CLIENT_checkPorts(char* buffer);
 int CLIENT_sayMessage(char* user, char* message);
 int CLIENT_connectPort(Config config, int connectPort);
 int CLIENT_initClient();
+char* CLIENT_get_message(int fd, char delimiter);
 int CLIENT_write(char *user, char *message);
 int CLIENT_freeMemory();
 char *CLIENT_read(int fd, char delimiter);

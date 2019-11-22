@@ -35,10 +35,10 @@ int MANAGER_setConfig(Config newConfig)
 int MANAGER_manageCommand(char *inputString)
 {
     // Funció encarregada de cridar les diferents funcionalitats del sistema i passarlis els parametres necessaris
-    char **words;
+    char* words[3];
 
     //Separem la comanda per espais per anar analitzantla pas a pas
-    words = UTILS_str_split(inputString, ' ');
+    words[0] = strtok(inputString," ");
 
     if (words)
     {
@@ -48,10 +48,11 @@ int MANAGER_manageCommand(char *inputString)
             MANAGER_freeMemory();
 
             IO_write(1, EXIT_MSG, strlen(EXIT_MSG));
-            //raise(SIGINT);
+            raise(SIGINT);
         }
         else if (UTILS_compareCaseInsensitive(CONNECT, words[0]) == 0)
         {
+            words[1] = strtok(0," ");
             if (words[1] && UTILS_valid_digit(words[1]))
             {
                 UTILS_sizeOf(words[1]);
@@ -68,8 +69,10 @@ int MANAGER_manageCommand(char *inputString)
         }
         else if (UTILS_compareCaseInsensitive(SAY, words[0]) == 0)
         {
+            words[1] = strtok(0," ");
             if (words[1])
             {
+                words[2] = strtok(0," ");
                 if (words[2])
                 {
                     if (words[2][0] == '"' && words[2][UTILS_sizeOf(words[2]) - 2] == '"')
@@ -101,6 +104,7 @@ int MANAGER_manageCommand(char *inputString)
         }
         else if (UTILS_compareCaseInsensitive(BROADCAST, words[0]) == 0)
         {
+            words[1] = strtok(0," ");
             if (words[1])
             {
                 IO_write(1, BROADCAST, strlen(BROADCAST));
@@ -112,8 +116,10 @@ int MANAGER_manageCommand(char *inputString)
         }
         else if (UTILS_compareCaseInsensitive(DOWNLOAD, words[0]) == 0)
         {
+            words[1] = strtok(0," ");
             if (words[1])
             {
+                words[2] = strtok(0," ");
                 if (words[2])
                 {
                     IO_write(1, DOWNLOAD, strlen(DOWNLOAD));
@@ -130,6 +136,7 @@ int MANAGER_manageCommand(char *inputString)
         }
         else if (UTILS_compareCaseInsensitive(SHOW, words[0]) == 0)
         {
+            words[1] = strtok(0," ");
             if (!words[1])
             {
                 IO_write(1, SHOW_ERROR, strlen(SHOW_ERROR));
@@ -150,6 +157,7 @@ int MANAGER_manageCommand(char *inputString)
 
                 if (UTILS_compareCaseInsensitive(AUDIOS, words[1]) == 0)
                 {
+                    words[2] = strtok(0," ");
                     if (words[2])
                     {
                         IO_write(1, SHOW_AUDIOS, strlen(SHOW_AUDIOS));
@@ -170,7 +178,7 @@ int MANAGER_manageCommand(char *inputString)
             IO_write(1, COMMAND_ERROR, strlen(COMMAND_ERROR));
         }
     }
-    free(words);
+    //free(words);
 
     return 1;
 }
