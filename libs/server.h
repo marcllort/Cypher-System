@@ -15,6 +15,8 @@
 #include "list.h"
 #include "listds.h"
 #include "dedicatedServer.h"
+#include "packet.h"
+
 
 
 

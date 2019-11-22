@@ -180,18 +180,24 @@ int CLIENT_connectPort(Config config, int connectPort)
         newServer.socketfd = socket_conn;
 
         // Per provar amb server sessio lab 4 -- envio nom al server IMPORTANT BORRARRRRRRRRRRRRR QUAN TINGUEM EL NOSTRE SERVEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEER
-        char *name = CLIENT_read(0, '\n');
+        /*char *name = CLIENT_read(0, '\n');
         IO_write(socket_conn, name, strlen(name));
-        free(name);
+        free(name);*/
         // Cal borrar fins aqui
-
-        //IMPORTANT POSAR newServer.name = CLIENT_get_message(socket_conn, '\n');
-        CLIENT_get_message(socket_conn, '\n'); //borrar
-        newServer.name = "prova";              //CAL BORRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAR
-
         char buff[128];
-        int bytes = sprintf(buff, MSG_CONNECTED, newServer.port, newServer.name);
+        int bytes = sprintf(buff, "%d connected: %s\n", config.myPort, config.username);
         IO_write(1, buff, bytes);
+        //IMPORTANT POSAR newServer.name = CLIENT_get_message(socket_conn, '\n');
+        
+        Packet p = PACKET_create(T_CONNECT, (int)strlen(H_NAME),H_NAME,0,newServer.name);
+        bytes = sprintf(buff, "%d PAcketCreation\n", p.type);
+        IO_write(1, buff, bytes);
+        int i = PACKET_write(p,socket_conn);
+        
+        //PACKET_destroy(&p);
+
+
+        
         LLISTABID_inserirDarrere(&servers, newServer);
     }
 

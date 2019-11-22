@@ -7,13 +7,19 @@
 #include <stdio.h>
 
 #define T_CONNECT       1
-#define T_DISCONNECT    2
-#define T_TRANSFER      3
+#define T_MSG           2
+#define T_BROADCAST     3
+#define T_EXIT          6
+
 
 #define H_DEF       "[]"
 #define H_CONOK     "[CONOK]"
 #define H_CONKO     "[CONKO]"
-#define H_META      "[METADATA]"
+#define H_NAME      "[TR_NAME]"
+#define H_MSG      "[MSG]"
+#define H_MSGOK      "[MSGOK]"
+
+
 
 typedef struct {
   char type;
