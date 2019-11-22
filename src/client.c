@@ -9,7 +9,7 @@ int CLIENT_initClient()
     return 1;
 }
 
-char *CLIENT_get_message(int fd, char delimiter)
+char* CLIENT_get_message(int fd, char delimiter)
 {
     // Funció encarregada de capturar el missatge de un FD i retornar el char*
     char *msg = (char *)malloc(1);

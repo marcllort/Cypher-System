@@ -18,7 +18,7 @@ int UTILS_sizeOf(const char *str)
 
     while (j != 1)
     {
-        if (str[i] == '\0' || str[i] == ' ')
+        if (str[i] == '\0')
         {
             j = 1;
         }
@@ -181,17 +181,14 @@ int UTILS_printName(Config config)
     return n;
 }
 
-void UTILS_removeChar(char *str, char garbage)
+void UTILS_removeChar(char *p, int ch)
 {
+    char *ptr;
 
-    char *src, *dst;
-    for (src = dst = str; *src != '\0'; src++)
-    {
-        *dst = *src;
-        if (*dst != garbage)
-            dst++;
-    }
-    *dst = '\0';
+    while (ptr = strchr(p, ch))
+        strcpy(ptr, ptr + 1);
+
+    return p;
 }
 
 char *UTILS_readKB()

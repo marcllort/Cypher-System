@@ -19,7 +19,7 @@ int NETWORK_init(Config config) {
     //SERVER_setMT(&mainServer, SERVER_threadFunc, MCG_threadISR, MCG_SIG, MCG_DS_operate, MCG_DS_threadISR, MCG_DS_SIG);
 
     
-    if (pthread_create(SERVER_getThread(&trinity), NULL, SERVER_threadFunc, &trinity) != 0) {
+    if (pthread_create(SERVER_getThread(&trinity), NULL, SERVER_threadFunc, &trinity) != 0) {       // CAL FER PTHREAD JOIN AL ACABAR, SINO MEMORY LEAK
         return 1;
     }
         return 0;
@@ -31,9 +31,9 @@ int NETWORK_init(Config config) {
 int NETWORK_close() {
 
     //tancar server i threads i forks
-
+    //pthread_cancel(*SERVER_getThread(&trinity));
     CONFIG_close(&config);
-
+    SERVER_close(&trinity);
     return 0;
 }
 

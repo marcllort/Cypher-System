@@ -21,7 +21,7 @@ int UTILS_valid_digit(char *ip_str);
 int UTILS_ip_checker(char *ip_str) ;
 int UTILS_sizeOf(const char *str);
 int UTILS_printName(Config config);
-void UTILS_removeChar(char *str, char garbage);
+void UTILS_removeChar(char *p, int ch);
 char* UTILS_readKB();
 
 #endif 
