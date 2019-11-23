@@ -189,8 +189,8 @@ int CLIENT_connectPort(Config config, int connectPort)
         IO_write(1, buff, bytes);
         //IMPORTANT POSAR newServer.name = CLIENT_get_message(socket_conn, '\n');
         
-        Packet p = PACKET_create(T_CONNECT, (int)strlen(H_NAME),H_NAME,(int)strlen(newServer.name),newServer.name);
-        bytes = sprintf(buff, "%d PAcketCreation\n", p.type);
+        Packet p = PACKET_create(T_CONNECT, (int)strlen(H_NAME),H_NAME,(int)strlen(config.username),config.username);
+        bytes = sprintf(buff, "%d PAcketCreation\n", p.length);
         IO_write(1, buff, bytes);
         int i = PACKET_write(p,socket_conn);
         
