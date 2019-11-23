@@ -84,7 +84,7 @@ int IO_deleteFile(const char *filename)
 }
 
 inline int checkEOF(int fd)
-{   // Mirem si hem arribat al final de un fitxer
+{ // Mirem si hem arribat al final de un fitxer
     char c;
     ssize_t n = read(fd, &c, sizeof(char));
 

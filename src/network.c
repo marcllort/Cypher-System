@@ -1,34 +1,35 @@
 #include "../libs/network.h"
 #include <stdio.h>
 
-#define MSG_CONNECTED       "Connection Cyper -%s ready.\n"
-#define MSG_DISCONNECTED    "Disconnecting from %s.\n"
+#define MSG_CONNECTED "Connection Cyper -%s ready.\n"
+#define MSG_DISCONNECTED "Disconnecting from %s.\n"
 
-int NETWORK_init(Config config) {
+int NETWORK_init(Config config)
+{
 
     //if (CONFIG_getState(config) != 0) return -1;
 
     //coses de server: reb connexio, crea threads
     //char buff [100];
     int port = CONFIG_getMyPort(config);
-    char* ip = CONFIG_getMyIP(config);
+    char *ip = CONFIG_getMyIP(config);
     //int bytes = sprintf(buff, "NETWORK PORT : %d IP: %s knjk\n",port ,ip);
     //write(1,buff, sizeof(buff));
 
     trinity = SERVER_init(ip, port);
     //SERVER_setMT(&mainServer, SERVER_threadFunc, MCG_threadISR, MCG_SIG, MCG_DS_operate, MCG_DS_threadISR, MCG_DS_SIG);
 
-    
-    if (pthread_create(SERVER_getThread(&trinity), NULL, SERVER_threadFunc, &trinity) != 0) {       // CAL FER PTHREAD JOIN AL ACABAR, SINO MEMORY LEAK
+    if (pthread_create(SERVER_getThread(&trinity), NULL, SERVER_threadFunc, &trinity) != 0)
+    { // CAL FER PTHREAD JOIN AL ACABAR, SINO MEMORY LEAK
         return 1;
     }
-        return 0;
-    
-        pthread_join(*SERVER_getThread(&trinity), NULL);
+    return 0;
 
+    pthread_join(*SERVER_getThread(&trinity), NULL);
 }
 
-int NETWORK_close() {
+int NETWORK_close()
+{
 
     //tancar server i threads i forks
     //pthread_cancel(*SERVER_getThread(&trinity));
@@ -45,27 +46,30 @@ int NETWORK_synAck(DServer dServer, int type)
     return 0;
 }
 
-void* MCG_DS_operate(void* dat) {
+void *MCG_DS_operate(void *dat)
+{
 
-    DServer* ds = (DServer*) dat;
+    DServer *ds = (DServer *)dat;
     Packet pr;
 
-    while (DSERVER_getState(ds)) {
+    while (DSERVER_getState(ds))
+    {
 
         pr = PACKET_read(ds->fd);
 
-        switch ((int) pr.type) {
+        switch ((int)pr.type)
+        {
 
-            case T_CONNECT:
-                printMsg(MSG_CONNECTED, DSERVER_setName(ds, pr.data, (size_t) pr.length));
-                NETWORK_synAck(*ds, T_CONNECT);
-                break;
+        case T_CONNECT:
+            printMsg(MSG_CONNECTED, DSERVER_setName(ds, pr.data, (size_t)pr.length));
+            NETWORK_synAck(*ds, T_CONNECT);
+            break;
 
-            case T_EXIT:
-                printMsg(MSG_DISCONNECTED, ds->name);
-                NETWORK_synAck(*ds, T_EXIT);
-                DSERVER_setState(ds, 0);
-                break;
+        case T_EXIT:
+            printMsg(MSG_DISCONNECTED, ds->name);
+            NETWORK_synAck(*ds, T_EXIT);
+            DSERVER_setState(ds, 0);
+            break;
 
             /*case T_TRANSFER:
 
@@ -108,43 +112,52 @@ void* MCG_DS_operate(void* dat) {
 
                 break;*/
 
-            default:
-                printf("\nConnection Lost\n");
-                printf("Type: %d\n", (int)pr.type);
-                printMsg(MSG_DISCONNECTED, ds->name);
-                DSERVER_setState(ds, 0);
-                //FILE_destroy(&ds->file);
-                break;
+        default:
+            printf("\nConnection Lost\n");
+            printf("Type: %d\n", (int)pr.type);
+            printMsg(MSG_DISCONNECTED, ds->name);
+            DSERVER_setState(ds, 0);
+            //FILE_destroy(&ds->file);
+            break;
         }
         PACKET_destroy(&pr);
-
     }
     return NULL;
 }
 
-void* MCT_DS_operate(void* dat) {
+void *MCT_DS_operate(void *dat)
+{
 
-    DServer* ds = (DServer*) dat;
+    DServer *ds = (DServer *)dat;
 
     size_t size = 0;
-    char* msg = NULL;
+    char *msg = NULL;
 
-    while (DSERVER_getState(ds)) {
+    while (DSERVER_getState(ds))
+    {
 
         ssize_t x;
-        if((x = read(ds->fd, &size, sizeof(size_t))) <= 0) {
+        if ((x = read(ds->fd, &size, sizeof(size_t))) <= 0)
+        {
             printf("X: %zi\n", x);
             break;
-        } else {
-            msg = (char*)malloc(sizeof(char) * size + 1);
+        }
+        else
+        {
+            msg = (char *)malloc(sizeof(char) * size + 1);
             msg[size] = '\0';
-            read(ds->fd, msg, size);
+            int value = read(ds->fd, msg, size);
+            if (value < 0)
+            {
+                IO_write(1, "Error read", sizeof("Error read"));
+            }
 
             IO_write(1, CLIENT_SAYS, strlen(CLIENT_SAYS));
             IO_write(1, msg, strlen(msg));
             IO_write(1, "\n", sizeof(char));
 
-            if(strcmp(msg, KEYPHRASE) == 0) {
+            if (strcmp(msg, KEYPHRASE) == 0)
+            {
                 free(msg);
                 break;
             }
@@ -155,29 +168,37 @@ void* MCT_DS_operate(void* dat) {
     return NULL;
 }
 
-void MCG_threadISR(int sig) {
-    if (sig == MCG_SIG) {
+void MCG_threadISR(int sig)
+{
+    if (sig == MCG_SIG)
+    {
         IO_write(1, MCG_EXIT, strlen(MCG_EXIT));
         pthread_exit(0);
     }
 }
 
-void MCT_threadISR(int sig) {
-    if (sig == MCT_SIG) {
+void MCT_threadISR(int sig)
+{
+    if (sig == MCT_SIG)
+    {
         IO_write(1, MCT_EXIT, strlen(MCT_EXIT));
         pthread_exit(0);
     }
 }
 
-void MCG_DS_threadISR(int sig) {
-    if (sig == MCG_DS_SIG) {
+void MCG_DS_threadISR(int sig)
+{
+    if (sig == MCG_DS_SIG)
+    {
         IO_write(1, MCG_DS_EXIT, strlen(MCG_DS_EXIT));
         pthread_exit(0);
     }
 }
 
-void MCT_DS_threadISR(int sig) {
-    if (sig == MCT_DS_SIG) {
+void MCT_DS_threadISR(int sig)
+{
+    if (sig == MCT_DS_SIG)
+    {
         IO_write(1, MCT_DS_EXIT, strlen(MCT_DS_EXIT));
         pthread_exit(0);
     }
@@ -185,10 +206,12 @@ void MCT_DS_threadISR(int sig) {
 
 void printMsg(char *msg, char *name)
 {
-    char* data;
+    char *data;
 
-    if (name != NULL) {
-        if ((data = (char*) malloc(sizeof(char) * (strlen(name) + strlen(msg)))) != NULL) {
+    if (name != NULL)
+    {
+        if ((data = (char *)malloc(sizeof(char) * (strlen(name) + strlen(msg)))) != NULL)
+        {
             sprintf(data, msg, name);
             IO_write(1, data, strlen(data));
             free(data);

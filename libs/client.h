@@ -20,7 +20,6 @@
 #include "list.h"
 #include "packet.h"
 
-
 #define MSG_ERR_CONN "Puerto %d Cerrado\n"
 #define MSG_AVAIL_CONN "%d connections available\n"
 #define TESTING "Testing...\n"
@@ -35,11 +34,11 @@
 } Server;*/
 
 int CLIENT_runScript(char *buffer);
-int CLIENT_checkPorts(char* buffer);
-int CLIENT_sayMessage(char* user, char* message);
+int CLIENT_checkPorts(char *buffer);
+int CLIENT_sayMessage(char *user, char *message);
 int CLIENT_connectPort(Config config, int connectPort);
 int CLIENT_initClient();
-char* CLIENT_get_message(int fd, char delimiter);
+char *CLIENT_get_message(int fd, char delimiter);
 int CLIENT_write(char *user, char *message);
 int CLIENT_freeMemory();
 char *CLIENT_read(int fd, char delimiter);

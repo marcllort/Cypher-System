@@ -1,27 +1,32 @@
 #include "../libs/listds.h"
 
-
 //Funció per crear una nova llista.
-Llistads 	LLISTADS_crea () {
-    Llistads  l;
+Llistads LLISTADS_crea()
+{
+    Llistads l;
     int err = 1;
     l.elements = 0;
-    l.pri = (Nodeds*) malloc (sizeof(Nodeds));
-    if (l.pri != NULL) {
-        l.ult = (Nodeds*) malloc (sizeof(Nodeds));
-        if (l.ult != NULL) {
+    l.pri = (Nodeds *)malloc(sizeof(Nodeds));
+    if (l.pri != NULL)
+    {
+        l.ult = (Nodeds *)malloc(sizeof(Nodeds));
+        if (l.ult != NULL)
+        {
             l.pdi = l.pri;
             l.pri->seg = l.ult;
             l.pri->ant = NULL;
             l.ult->ant = l.pri;
             l.ult->seg = NULL;
             err = 0;
-        } else {
+        }
+        else
+        {
             free(l.pri);
         }
     }
 
-    if (err == 1) {
+    if (err == 1)
+    {
         l.pri = NULL;
         l.ult = NULL;
         l.pdi = NULL;
@@ -29,15 +34,17 @@ Llistads 	LLISTADS_crea () {
     return l;
 }
 
-
 //Funció per inserir un nou node darrere/dreta del PDI amb el contingut element.
-int	LLISTADS_inserirDarrere (Llistads  * l, Elementds  e) {    
-    Nodeds* n;
-    if (l->pdi == l->ult) return 0;
+int LLISTADS_inserirDarrere(Llistads *l, Elementds e)
+{
+    Nodeds *n;
+    if (l->pdi == l->ult)
+        return 0;
 
-    n = (Nodeds*) malloc (sizeof(Nodeds));
+    n = (Nodeds *)malloc(sizeof(Nodeds));
 
-    if (n == NULL) return 0;
+    if (n == NULL)
+        return 0;
 
     n->e = e;
     n->seg = l->pdi->seg;
@@ -51,14 +58,17 @@ int	LLISTADS_inserirDarrere (Llistads  * l, Elementds  e) {
 }
 
 //Funció per inserir un nou node davant/esquerra del PDI amb el contingut Elementds.
-int LLISTADS_inserirDavant (Llistads  * l, Elementds    e) {
-    Nodeds* n;
+int LLISTADS_inserirDavant(Llistads *l, Elementds e)
+{
+    Nodeds *n;
 
-    if (l->pdi == l->pri) return 0;
+    if (l->pdi == l->pri)
+        return 0;
 
-    n = (Nodeds*) malloc (sizeof(Nodeds));
+    n = (Nodeds *)malloc(sizeof(Nodeds));
 
-    if (n == NULL) return 0;
+    if (n == NULL)
+        return 0;
 
     n->e = e;
     n->seg = l->pdi;
@@ -72,21 +82,25 @@ int LLISTADS_inserirDavant (Llistads  * l, Elementds    e) {
 }
 
 //Funció per consultar la Elementdssituat sobre el PDI de la nostre llista.
-Elementds LLISTADS_consulta (Llistads l) {
+Elementds LLISTADS_consulta(Llistads l)
+{
 
     Elementds e;
-    if(l.pdi->ant != NULL && l.pdi->seg != NULL){
+    if (l.pdi->ant != NULL && l.pdi->seg != NULL)
+    {
         e = l.pdi->e;
     }
-    
+
     return e;
 }
 
 //Funció per eliminar un node de la nostre llista.
-int LLISTADS_elimina (Llistads  * l) {
-    Nodeds* aux;
+int LLISTADS_elimina(Llistads *l)
+{
+    Nodeds *aux;
 
-    if (l->pdi == l->pri || l->pdi == l->ult) {
+    if (l->pdi == l->pri || l->pdi == l->ult)
+    {
         return 0;
     }
     aux = l->pdi;
@@ -102,16 +116,18 @@ int LLISTADS_elimina (Llistads  * l) {
 }
 
 //Funcio per eliminar un node concret de la llista
-int LLISTADS_eliminaAmbNode (Llistads  * l, Nodeds*node) {
+int LLISTADS_eliminaAmbNode(Llistads *l, Nodeds *node)
+{
     (*l).pdi = node;
     return LLISTADS_elimina(l);
-
 }
 
 //Funcio per avancar el PDI en la nostre llista.
-int LLISTADS_avanca (Llistads  * l) {
+int LLISTADS_avanca(Llistads *l)
+{
 
-    if (l->pdi->seg == NULL) {
+    if (l->pdi->seg == NULL)
+    {
         return 0;
     }
 
@@ -120,8 +136,10 @@ int LLISTADS_avanca (Llistads  * l) {
 }
 
 //Funcio per tirar enrere una posició el PDI en la nostre llista.
-int LLISTADS_retrocedeix (Llistads  * l) {
-    if (l->pdi->ant == NULL) {
+int LLISTADS_retrocedeix(Llistads *l)
+{
+    if (l->pdi->ant == NULL)
+    {
         return 0;
     }
 
@@ -130,46 +148,54 @@ int LLISTADS_retrocedeix (Llistads  * l) {
 }
 
 //Funció per posar el nostre PDI en primera posicio.
-int LLISTADS_vesInici (Llistads  * l) {
+int LLISTADS_vesInici(Llistads *l)
+{
 
     l->pdi = l->pri->seg;
     return 1;
 }
 
 //Funcio per posar el nostre PDI en ultima posicio.
-int LLISTADS_vesFinal (Llistads  * l) {
+int LLISTADS_vesFinal(Llistads *l)
+{
 
     l->pdi = l->ult->ant;
     return 1;
 }
 
 //Funcio per comprovar si la Llistads esta buida.
-int LLISTADS_buida (Llistads  l) {
-  
+int LLISTADS_buida(Llistads l)
+{
+
     return l.pri->seg == l.ult;
 }
 
 //Funcio que retorna la mida de la llista
-int LLISTADS_getMida (Llistads  l) {
-  
+int LLISTADS_getMida(Llistads l)
+{
+
     return (l.elements);
 }
 
 //Funcio per comprovar que el nostre PDI esta situat al principi.
-int LLISTADS_inici (Llistads  l) {
+int LLISTADS_inici(Llistads l)
+{
     return l.pdi == l.pri;
 }
 
 //Funcio per comprovar que el nostre PDI esta situat al final.
-int LLISTADS_final (Llistads l) {
+int LLISTADS_final(Llistads l)
+{
     return l.pdi == l.ult;
 }
 
 //Funcio per destruir la nostre llista.
-void LLISTADS_destrueix (Llistads * l) {
-    Nodeds* aux;
+void LLISTADS_destrueix(Llistads *l)
+{
+    Nodeds *aux;
 
-    while (l->pri != NULL) {
+    while (l->pri != NULL)
+    {
         aux = l->pri;
         l->pri = l->pri->seg;
         free(aux);
