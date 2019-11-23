@@ -28,7 +28,10 @@ int main(int argc, char **argv)
     { // Mentre no es tanqui el progama, escrivim nom de programa i llegim la comanda
         UTILS_printName(config);
         cadena = UTILS_readKB();
-        MANAGER_manageCommand(cadena);
+        if (UTILS_sizeOf(cadena) > 0)
+        {
+            MANAGER_manageCommand(cadena);
+        }
     }
 
     return 0;
