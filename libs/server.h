@@ -16,6 +16,8 @@
 #include "list.h"
 #include "listds.h"
 #include "dedicatedServer.h"
+#include "packet.h"
+
 
 #define ERR_SOCKET "[Server] Error creating socket\n"
 #define ERR_IP "[Server] Error resolving IP\n"

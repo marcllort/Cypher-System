@@ -10,11 +10,11 @@ int NETWORK_init(Config config)
     //if (CONFIG_getState(config) != 0) return -1;
 
     //coses de server: reb connexio, crea threads
-    char buff[100];
+    //char buff [100];
     int port = CONFIG_getMyPort(config);
     char *ip = CONFIG_getMyIP(config);
-    int bytes = sprintf(buff, "NETWORK PORT : %d IP: %s knjk\n", port, ip);
-    IO_write(1, buff, bytes);
+    //int bytes = sprintf(buff, "NETWORK PORT : %d IP: %s knjk\n",port ,ip);
+    //write(1,buff, sizeof(buff));
 
     trinity = SERVER_init(ip, port);
     //SERVER_setMT(&mainServer, SERVER_threadFunc, MCG_threadISR, MCG_SIG, MCG_DS_operate, MCG_DS_threadISR, MCG_DS_SIG);
@@ -23,10 +23,9 @@ int NETWORK_init(Config config)
     { // CAL FER PTHREAD JOIN AL ACABAR, SINO MEMORY LEAK
         return 1;
     }
-    else
-    {
-        return 0;
-    }
+    return 0;
+
+    pthread_join(*SERVER_getThread(&trinity), NULL);
 }
 
 int NETWORK_close()
@@ -66,9 +65,9 @@ void *MCG_DS_operate(void *dat)
             NETWORK_synAck(*ds, T_CONNECT);
             break;
 
-        case T_DISCONNECT:
+        case T_EXIT:
             printMsg(MSG_DISCONNECTED, ds->name);
-            NETWORK_synAck(*ds, T_DISCONNECT);
+            NETWORK_synAck(*ds, T_EXIT);
             DSERVER_setState(ds, 0);
             break;
 

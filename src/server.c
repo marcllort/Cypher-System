@@ -126,26 +126,35 @@ int SERVER_operate(Server *server)
         int fd;
         struct sockaddr_in s_addr;
         socklen_t len = sizeof(s_addr);
-        while (1)
-        {
+        /*while (1) {
 
             int fd_client = accept(server->fd, (void *)&s_addr, &len);
             IO_write(1, WAITING, sizeof(WAITING));
 
             //game(board);
-        }
-        /*do {
-            IO_write(1, WAITING, strlen(WAITING));
-            
+    }*/
+        do
+        {
 
-            if ((fd = accept(server->fd, (struct sockaddr*) &s_addr, &len)) <= 0) {
+            if ((fd = accept(server->fd, (struct sockaddr *)&s_addr, &len)) <= 0)
+            {
                 IO_write(1, ERR_ACCEPT, strlen(ERR_ACCEPT));
             }
-        } while (fd <= 0);
 
-        
-        SERVER_startDS(server, fd, s_addr);
-        */
+        } while (fd <= 0);
+        IO_write(1, ERR_ACCEPT, strlen(ERR_ACCEPT));
+        Packet p = PACKET_read(fd);
+        char buff[128];
+        int bytes = sprintf(buff, "%d Recived: %s\n", p.type, p.header);
+        IO_write(1, buff, bytes);
+        if (p.type == T_CONNECT)
+        {
+            IO_write(1, WAITING, strlen(WAITING));
+            char buff[128];
+            int bytes = sprintf(buff, "User %s connected \n", p.data);
+            IO_write(1, buff, bytes);
+            SERVER_startDS(server, fd, s_addr);
+        }
     }
 
     return EXIT_SUCCESS;
