@@ -14,7 +14,7 @@ int main(int argc, char **argv)
 
     if (argc != NUM_ARGS)
     { // Comprovem el correcte nombre de arguments
-        write(1, ERR_INVALID_ARGS, strlen(ERR_INVALID_ARGS));
+        IO_write(1, ERR_INVALID_ARGS, strlen(ERR_INVALID_ARGS));
         return 1;
     }
 
@@ -26,13 +26,11 @@ int main(int argc, char **argv)
     char *cadena = NULL;
     while (1)
     { // Mentre no es tanqui el progama, escrivim nom de programa i llegim la comanda
-        //free(cadena);
         UTILS_printName(config);
         cadena = UTILS_readKB();
         MANAGER_manageCommand(cadena);
-        //free(cadena);
     }
-    free(cadena);
+
     return 0;
 }
 

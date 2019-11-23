@@ -10,7 +10,7 @@ int UTILS_compare(const char *str1, const char *str2, int size)
     return 0;
 }
 
-// String sizeOf
+// String sizeOf, returns int with the size
 int UTILS_sizeOf(const char *str)
 {
     int j = 0;
@@ -47,56 +47,6 @@ int UTILS_compareCaseInsensitive(const char *str1, const char *str2)
     return size1;
 }
 
-// String splitter by delimiter
-char **UTILS_str_split(char *a_str, const char a_delim)
-{
-    char **result = 0;
-    size_t count = 0;
-    char *tmp = a_str;
-    char *last_comma = 0;
-    char delim[2];
-    delim[0] = a_delim;
-    delim[1] = 0;
-
-    /* Count how many elements will be extracted. */
-    while (*tmp)
-    {
-        if (a_delim == *tmp)
-        {
-            count++;
-            last_comma = tmp;
-        }
-        tmp++;
-    }
-
-    /* Add space for trailing token. */
-    count += last_comma < (a_str + strlen(a_str) - 1);
-
-    /* Add space for terminating null string so caller
-       knows where the list of returned strings ends. */
-    count++;
-
-    result = malloc(sizeof(char *) * count);
-
-    if (result)
-    {
-        size_t idx = 0;
-        char *token = strtok(a_str, delim);
-
-        while (token)
-        {
-            assert(idx < count);
-            *(result + idx++) = strdup(token);
-            token = strtok(0, delim);
-        }
-        free(token);
-        assert(idx == count - 1);
-        *(result + idx) = 0;
-    }
-
-    return result;
-}
-
 // String number checker, returns true (1) if it's a number
 int UTILS_valid_digit(char *ip_str)
 {
@@ -119,78 +69,26 @@ int UTILS_valid_digit(char *ip_str)
     return 1;
 }
 
-// String IP checker, returns true (1) if it's a valid IP
-int UTILS_ip_checker(char *ip_str)
-{
-    int num, dots = 0;
-    char *ptr;
-
-    if (ip_str == NULL)
-    {
-        return 0;
-    }
-
-    ptr = strtok(ip_str, IP_DELIM); //Split String by delimiter
-
-    if (ptr == NULL)
-    {
-        return 0;
-    }
-
-    while (ptr)
-    {
-
-        // Check if is a valid digit
-        if (!UTILS_valid_digit(ptr))
-        {
-            return 0;
-        }
-        // Transform to number
-        num = atoi(ptr);
-
-        // Check if it's between the valid values
-        if (num >= 0 && num <= 255)
-        {
-            ptr = strtok(NULL, IP_DELIM); // By passing null, you get next part of the string in the ptr
-            if (ptr != NULL)
-            {
-                ++dots;
-            }
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-    // Check number of dots found while parsing, must be 3 to be valid
-    if (dots != 3)
-    {
-        return 0;
-    }
-    return 1;
-}
-
+// Function to print name of the Trinity program
 int UTILS_printName(Config config)
 {
-
     char buff[128];
     int n = sprintf(buff, "$%s: ", CONFIG_getUsername(config));
-    write(1, buff, n);
+    IO_write(1, buff, n);
 
     return n;
 }
 
+// Function to remove specific char from string
 void UTILS_removeChar(char *p, int ch)
 {
     char *ptr;
 
-    while (ptr = strchr(p, ch))
+    while ((ptr = strchr(p, ch)))
         strcpy(ptr, ptr + 1);
-
-    return p;
 }
 
+// Funciton to read keyboard dynamically
 char *UTILS_readKB()
 {
     char c = '\0';
@@ -199,7 +97,11 @@ char *UTILS_readKB()
     char *bufferKB = (char *)malloc(sizeof(char));
     while (c != '\n')
     {
-        read(0, &c, sizeof(char));
+        int value = read(0, &c, sizeof(char));
+        if (value < 0)
+        {
+            IO_write(1, "Error read", sizeof("Error read"));
+        }
         if (c != '\n')
         {
             bufferKB[count] = c;

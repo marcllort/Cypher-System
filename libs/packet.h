@@ -6,28 +6,29 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#define T_CONNECT       1
-#define T_DISCONNECT    2
-#define T_TRANSFER      3
+#include "io.h"
 
-#define H_DEF       "[]"
-#define H_CONOK     "[CONOK]"
-#define H_CONKO     "[CONKO]"
-#define H_META      "[METADATA]"
+#define T_CONNECT 1
+#define T_DISCONNECT 2
+#define T_TRANSFER 3
 
-typedef struct {
+#define H_DEF "[]"
+#define H_CONOK "[CONOK]"
+#define H_CONKO "[CONKO]"
+#define H_META "[METADATA]"
+
+typedef struct
+{
   char type;
   int headerLength;
-  char* header;
+  char *header;
   int length;
-  char* data;
+  char *data;
 } Packet;
-
 
 int PACKET_write(Packet pd, int fd);
 Packet PACKET_read(int fd);
 Packet PACKET_destroy(Packet *p);
 Packet PACKET_create(char type, int headerLength, char *header, unsigned short dataLength, char *data);
 
-
-#endif 
+#endif
