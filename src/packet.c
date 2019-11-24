@@ -1,41 +1,40 @@
 #include "../libs/packet.h"
 
-Packet PACKET_read(int fd /*, char delimiter*/)
-{
+Packet PACKET_read(int fd) {
+
     Packet pd = PACKET_create(0, 0, NULL, 0, NULL);
+    
+    if (read(fd, &pd.type, 1) <= 0) return PACKET_destroy(&pd);
+    char buff[128];
+    int bytes = sprintf(buff, "CHAR RECIVED %c \n", pd.type);
+    IO_write(1, buff, bytes);
 
-    if (read(fd, &pd.type, 1) <= 0)
-        return PACKET_destroy(&pd);
 
-    do
-    {
-        pd.header = (char *)realloc((void *)pd.header, ++pd.headerLength * sizeof(char));
-        if (read(fd, &pd.header[pd.headerLength - 1], 1) <= 0)
-            return PACKET_destroy(&pd);
-    } while (pd.header[pd.headerLength - 1] != ']');
-
+   do {
+        pd.header = (char*) realloc((void*) pd.header, ++pd.headerLength * sizeof(char));
+        if (read(fd, &pd.header[pd.headerLength - 1], 1) <= 0) return PACKET_destroy(&pd);
+    } while(pd.header[pd.headerLength - 1] != ']');
+    bytes = sprintf(buff, "STRING RECIVED %s \n", pd.header);
+    IO_write(1, buff, bytes);
+ 
     unsigned char tmp[2];
 
-    if (read(fd, tmp, 2) <= 0)
+    if (read(fd, tmp, 2) <= 0) return PACKET_destroy(&pd);
+    bytes = sprintf(buff, "DATA LENGTH %s \n", pd.data);
+    IO_write(1, buff, bytes);
+/*
+    if ((pd.length = (tmp[0] << 8) | tmp[1]) > 0) {
+        pd.data = (char*) realloc((void*) pd.data, sizeof(char) * pd.length);
+        if (read(fd, pd.data, pd.length) <= 0) return PACKET_destroy(&pd);
+    } else {
         return PACKET_destroy(&pd);
-
-    if ((pd.length = (tmp[0] << 8) | tmp[1]) > 0)
-    {
-        pd.data = (char *)realloc((void *)pd.data, sizeof(char) * pd.length);
-        if (read(fd, pd.data, pd.length) <= 0)
-            return PACKET_destroy(&pd);
-    }
-    else
-    {
-        return PACKET_destroy(&pd);
-    }
-
+    }*/
     return pd;
 }
 int PACKET_write(Packet pd, int fd)
 {
 
-    int size = 1 + pd.headerLength + 2 + pd.length;
+    /*int size = 1 + pd.headerLength + 2 + pd.length;
     unsigned char *data = NULL;
 
     if ((data = (unsigned char *)malloc(sizeof(unsigned char) * size)) == NULL)
@@ -55,7 +54,24 @@ int PACKET_write(Packet pd, int fd)
 
     IO_write(fd, data, size);
 
-    free(data);
+    free(data);*/
+    char buff[128];
+    int bytes = sprintf(buff, "%d", pd.type);
+    IO_write(fd, buff, bytes);
+
+    bytes = sprintf(buff, "%s", pd.header);
+    IO_write(fd, buff, bytes);
+
+    bytes = sprintf(buff, "%d", pd.length);
+    IO_write(fd, buff, bytes);
+
+            //write(fd, &pd.type ,sizeof(pd.type));
+
+
+    //IO_write(fd, pd.type,1);
+
+    //IO_write(fd, pd.header,sizeof())
+
 
     return 0;
 }
