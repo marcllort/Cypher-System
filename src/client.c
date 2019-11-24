@@ -69,76 +69,102 @@ int CLIENT_checkPorts(char *buffer)
     char *openPort;
     int availPorts[10];
     int availableConnections = 0;
+    int fd[2];
+    int status;
+    pid_t pid;
 
-    CLIENT_runScript(buffer); // Executem script entre X i Y ports rebut per parametres a buffer
-
-    int fd = IO_openFile("output"); // El script ha guardat en un fitxer de text el seu output, llegim aquest fitxer
-
-    while (1)
+    pipe(fd);
+    if ((pid = fork()) < 0)
     {
-        IO_readUntil(fd, &buffr, ' '); // Ens quedem només amb el nombre del port obert
-        free(buffr);
-
-        IO_readUntilv2(fd, &openPort, ' ');
-        availPorts[availableConnections] = atoi(openPort);
-        free(openPort);
-
-        IO_readUntil(fd, &buffr, '\n');
-        free(buffr);
-        if (availPorts[0] != 0)
-        {
-            availableConnections++;
-        }
-
-        if (checkEOF(fd) == 1)
-            break;
+        perror("\nError en el fork");
+        exit(-1);
     }
-
-    // Un cop sabem els ports oberts, mirem si ja estava a la nostra llista de servers, per mostrar el nom en comptes de el numero de port
-    // Si no hi era, el guardem a la llista, per després alhora de enviar saber quin és el nom del server
-
-    char buff[128];
-    int bytes = sprintf(buff, MSG_AVAIL_CONN, availableConnections);
-    IO_write(1, buff, bytes);
-
-    int trobat = 0;
-    for (int i = 0; i < availableConnections; i++)
-    {
-        trobat = 0;
-
-        // Si esta a la llista, printa port i nom, sino el port sol
-        if (LLISTABID_buida(servers))
+    else if (pid == 0)
+    { // El fill es on s'executa el script rebut per parametres, i al acabar mor
+        
+        dup2 (fd[1], STDOUT_FILENO);
+        close(fd[0]);
+        close(fd[1]);
+        if ((execl("/bin/sh", "/bin/sh", "-c", buffer, (char *)0) < 0))         // Executem script entre X i Y ports rebut per parametres a buffer
         {
-            bytes = sprintf(buff, "%d\n", availPorts[i]);
-            IO_write(1, buff, bytes);
+            perror("\nError en el execl");
+            exit(-1);
         }
         else
         {
-            while (!LLISTABID_final(servers) && !trobat)
+            exit(0);
+        }
+    }
+    else
+    { // El pare espera a que acabi la execució del fill
+        waitpid(pid, &status, 0);
+        close(fd[1]);
+
+
+        while (1)                               // El script ha guardat en un pipe, el llegim
+        {
+            IO_readUntil(fd[0], &buffr, ' '); // Ens quedem només amb el nombre del port obert
+            free(buffr);
+
+            IO_readUntilv2(fd[0], &openPort, ' ');
+            availPorts[availableConnections] = atoi(openPort);
+            free(openPort);
+
+            IO_readUntil(fd[0], &buffr, '\n');
+            free(buffr);
+            if (availPorts[0] != 0)
             {
-                Element server = LLISTABID_consulta(servers);
-                if (server.port == availPorts[i])
-                {
-                    bytes = sprintf(buff, "%d %s\n", availPorts[i], server.name);
-                    IO_write(1, buff, bytes);
-                    trobat = 1;
-                    LLISTABID_vesInici(&servers);
-                }
-                else
-                {
-                    LLISTABID_avanca(&servers);
-                }
+                availableConnections++;
             }
-            if (!trobat)
+
+            if (checkEOF(fd[0]) == 1)
+                break;
+        }
+
+        // Un cop sabem els ports oberts, mirem si ja estava a la nostra llista de servers, per mostrar el nom en comptes de el numero de port
+        // Si no hi era, el guardem a la llista, per després alhora de enviar saber quin és el nom del server
+
+        char buff[128];
+        int bytes = sprintf(buff, MSG_AVAIL_CONN, availableConnections);
+        IO_write(1, buff, bytes);
+
+        int trobat = 0;
+        for (int i = 0; i < availableConnections; i++)
+        {
+            trobat = 0;
+
+            // Si esta a la llista, printa port i nom, sino el port sol
+            if (LLISTABID_buida(servers))
             {
                 bytes = sprintf(buff, "%d\n", availPorts[i]);
                 IO_write(1, buff, bytes);
-                LLISTABID_vesInici(&servers);
+            }
+            else
+            {
+                while (!LLISTABID_final(servers) && !trobat)
+                {
+                    Element server = LLISTABID_consulta(servers);
+                    if (server.port == availPorts[i])
+                    {
+                        bytes = sprintf(buff, "%d %s\n", availPorts[i], server.name);
+                        IO_write(1, buff, bytes);
+                        trobat = 1;
+                        LLISTABID_vesInici(&servers);
+                    }
+                    else
+                    {
+                        LLISTABID_avanca(&servers);
+                    }
+                }
+                if (!trobat)
+                {
+                    bytes = sprintf(buff, "%d\n", availPorts[i]);
+                    IO_write(1, buff, bytes);
+                    LLISTABID_vesInici(&servers);
+                }
             }
         }
     }
-
-    CLIENT_runScript("rm output"); // Correm la comanda de bsh, per aixi borrar el fitxer que hem generat anteriorment
 
     return 0;
 }
@@ -188,16 +214,14 @@ int CLIENT_connectPort(Config config, int connectPort)
         int bytes = sprintf(buff, "%d connected: %s\n", config.myPort, config.username);
         IO_write(1, buff, bytes);
         //IMPORTANT POSAR newServer.name = CLIENT_get_message(socket_conn, '\n');
-        
-        Packet p = PACKET_create(T_CONNECT, (int)strlen(H_NAME),H_NAME,(int)strlen(newServer.name),newServer.name);
+
+        Packet p = PACKET_create(T_CONNECT, (int)strlen(H_NAME), H_NAME, 0, newServer.name);
         bytes = sprintf(buff, "%d PAcketCreation\n", p.type);
         IO_write(1, buff, bytes);
-        int i = PACKET_write(p,socket_conn);
-        
+        int i = PACKET_write(p, socket_conn);
+
         //PACKET_destroy(&p);
 
-
-        
         LLISTABID_inserirDarrere(&servers, newServer);
     }
 
