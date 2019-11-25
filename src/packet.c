@@ -17,11 +17,11 @@ Packet PACKET_read(int fd) {
     bytes = sprintf(buff, "STRING RECIVED %s \n", pd.header);
     IO_write(1, buff, bytes);
  
-    unsigned char tmp[2];
-
+    char  tmp= (char *)malloc(sizeof(char) * 2);
+    char buff2[128];
     if (read(fd, tmp, 2) <= 0) return PACKET_destroy(&pd);
-    bytes = sprintf(buff, "DATA LENGTH %s \n", pd.data);
-    IO_write(1, buff, bytes);
+    bytes = sprintf(buff2, "DATA LENGTH char1: %s \n", tmp);
+    IO_write(1, buff2, bytes);
 /*
     if ((pd.length = (tmp[0] << 8) | tmp[1]) > 0) {
         pd.data = (char*) realloc((void*) pd.data, sizeof(char) * pd.length);
@@ -61,9 +61,15 @@ int PACKET_write(Packet pd, int fd)
 
     bytes = sprintf(buff, "%s", pd.header);
     IO_write(fd, buff, bytes);
+    char buff2[128];
+    if(pd.length < 10){
+    bytes = sprintf(buff2, "08");
+    }else{
+    bytes = sprintf(buff2, "09", pd.length);
 
-    bytes = sprintf(buff, "%d", pd.length);
-    IO_write(fd, buff, bytes);
+    }
+    IO_write(fd, buff2, bytes);
+    IO_write(1, buff2, bytes);
 
             //write(fd, &pd.type ,sizeof(pd.type));
 

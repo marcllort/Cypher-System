@@ -141,7 +141,7 @@ int SERVER_operate(Server *server)
 
         Packet p = PACKET_read(fd);
         char buff[128];
-        int bytes = sprintf(buff, " Recived: %c\n", p.type);
+        int bytes = sprintf(buff, " Recived: %c\n", p.length);
         IO_write(1, buff, bytes);
         if (p.type == T_CONNECT)
         {
