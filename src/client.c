@@ -63,7 +63,7 @@ int CLIENT_runScript(char *buffer)
     }
 }
 
-int CLIENT_checkPorts(char *buffer)
+int CLIENT_checkPorts(char *buffer, Config config)
 {
     char *buffr;
     char *openPort;
@@ -74,11 +74,11 @@ int CLIENT_checkPorts(char *buffer)
     pid_t pid;
 
     int pipereturn = pipe(fd);
-    if (pipereturn== -1)
+    if (pipereturn == -1)
     {
         IO_write(1, "Pipe pum pum", sizeof("Pipe pum pum"));
     }
-    
+
     if ((pid = fork()) < 0)
     {
         perror("\nError en el fork");
@@ -86,11 +86,11 @@ int CLIENT_checkPorts(char *buffer)
     }
     else if (pid == 0)
     { // El fill es on s'executa el script rebut per parametres, i al acabar mor
-        
-        dup2 (fd[1], STDOUT_FILENO);
+
+        dup2(fd[1], STDOUT_FILENO);
         close(fd[0]);
         close(fd[1]);
-        if ((execl("/bin/sh", "/bin/sh", "-c", buffer, (char *)0) < 0))         // Executem script entre X i Y ports rebut per parametres a buffer
+        if ((execl("/bin/sh", "/bin/sh", "-c", buffer, (char *)0) < 0)) // Executem script entre X i Y ports rebut per parametres a buffer
         {
             perror("\nError en el execl");
             exit(-1);
@@ -105,8 +105,7 @@ int CLIENT_checkPorts(char *buffer)
         waitpid(pid, &status, 0);
         close(fd[1]);
 
-
-        while (1)                               // El script ha guardat en un pipe, el llegim
+        while (1) // El script ha guardat en un pipe, el llegim
         {
             if (checkEOF(fd[0]) == 1)
                 break;
@@ -133,7 +132,7 @@ int CLIENT_checkPorts(char *buffer)
         // Si no hi era, el guardem a la llista, per després alhora de enviar saber quin és el nom del server
 
         char buff[128];
-        int bytes = sprintf(buff, MSG_AVAIL_CONN, availableConnections);
+        int bytes = sprintf(buff, MSG_AVAIL_CONN, availableConnections-1);
         IO_write(1, buff, bytes);
 
         int trobat = 0;
@@ -144,8 +143,11 @@ int CLIENT_checkPorts(char *buffer)
             // Si esta a la llista, printa port i nom, sino el port sol
             if (LLISTABID_buida(servers))
             {
-                bytes = sprintf(buff, "%d\n", availPorts[i]);
-                IO_write(1, buff, bytes);
+                if (availPorts[i] != config.myPort)
+                {
+                    bytes = sprintf(buff, "%d\n", availPorts[i]);
+                    IO_write(1, buff, bytes);
+                }
             }
             else
             {
@@ -166,9 +168,12 @@ int CLIENT_checkPorts(char *buffer)
                 }
                 if (!trobat)
                 {
-                    bytes = sprintf(buff, "%d\n", availPorts[i]);
-                    IO_write(1, buff, bytes);
-                    LLISTABID_vesInici(&servers);
+                    if (availPorts[i] != config.myPort)
+                    {
+                        bytes = sprintf(buff, "%d\n", availPorts[i]);
+                        IO_write(1, buff, bytes);
+                        LLISTABID_vesInici(&servers);
+                    }
                 }
             }
         }
@@ -187,52 +192,59 @@ int CLIENT_connectPort(Config config, int connectPort)
     struct sockaddr_in s_addr;
     int socket_conn = -1;
 
-    socket_conn = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-
-    if (socket_conn < 0)
-        IO_write(1, MSG_ERR_SOCKET, sizeof(MSG_ERR_SOCKET));
+    if (connectPort == config.myPort)
+    {
+        IO_write(1, MSG_ERR_PORT, sizeof(MSG_ERR_PORT));
+    }
     else
     {
 
-        memset(&s_addr, 0, sizeof(s_addr));
-        s_addr.sin_family = AF_INET;
-        s_addr.sin_port = htons(connectPort);
-        s_addr.sin_addr.s_addr = inet_addr(ip);
+        socket_conn = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-        if (connect(socket_conn, (void *)&s_addr, sizeof(s_addr)) < 0)
+        if (socket_conn < 0)
+            IO_write(1, MSG_ERR_SOCKET, sizeof(MSG_ERR_SOCKET));
+        else
         {
-            char buff[128];
-            int bytes = sprintf(buff, MSG_ERR_CONN, connectPort);
-            IO_write(1, buff, bytes);
-            close(socket_conn);
-            socket_conn = -1;
-        }
-    }
-    if (socket_conn != -1)
-    {
-        newServer.port = connectPort;
-        newServer.socketfd = socket_conn;
 
-        // Per provar amb server sessio lab 4 -- envio nom al server IMPORTANT BORRARRRRRRRRRRRRR QUAN TINGUEM EL NOSTRE SERVEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEER
-        /*char *name = CLIENT_read(0, '\n');
+            memset(&s_addr, 0, sizeof(s_addr));
+            s_addr.sin_family = AF_INET;
+            s_addr.sin_port = htons(connectPort);
+            s_addr.sin_addr.s_addr = inet_addr(ip);
+
+            if (connect(socket_conn, (void *)&s_addr, sizeof(s_addr)) < 0)
+            {
+                char buff[128];
+                int bytes = sprintf(buff, MSG_ERR_CONN, connectPort);
+                IO_write(1, buff, bytes);
+                close(socket_conn);
+                socket_conn = -1;
+            }
+        }
+        if (socket_conn != -1)
+        {
+            newServer.port = connectPort;
+            newServer.socketfd = socket_conn;
+
+            // Per provar amb server sessio lab 4 -- envio nom al server IMPORTANT BORRARRRRRRRRRRRRR QUAN TINGUEM EL NOSTRE SERVEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEER
+            /*char *name = CLIENT_read(0, '\n');
         IO_write(socket_conn, name, strlen(name));
         free(name);*/
-        // Cal borrar fins aqui
-        char buff[128];
-        int bytes = sprintf(buff, "%d connected: %s\n", config.myPort, config.username);
-        IO_write(1, buff, bytes);
-        //IMPORTANT POSAR newServer.name = CLIENT_get_message(socket_conn, '\n');
-        
-        Packet p = PACKET_create(T_CONNECT, (int)strlen(H_NAME),H_NAME,(int)strlen(config.username),config.username);
-        bytes = sprintf(buff, "%d PAcketCreation\n", p.length);
-        IO_write(1, buff, bytes);
-        PACKET_write(p, socket_conn);
+            // Cal borrar fins aqui
+            char buff[128];
+            int bytes = sprintf(buff, "%d connected: %s\n", config.myPort, config.username);
+            IO_write(1, buff, bytes);
+            //IMPORTANT POSAR newServer.name = CLIENT_get_message(socket_conn, '\n');
 
-        //PACKET_destroy(&p);
+            Packet p = PACKET_create(T_CONNECT, (int)strlen(H_NAME), H_NAME, (int)strlen(config.username), config.username);
+            bytes = sprintf(buff, "%d PAcketCreation\n", p.length);
+            IO_write(1, buff, bytes);
+            PACKET_write(p, socket_conn);
 
-        LLISTABID_inserirDarrere(&servers, newServer);
+            //PACKET_destroy(&p);
+
+            LLISTABID_inserirDarrere(&servers, newServer);
+        }
     }
-
     return 0;
 }
 

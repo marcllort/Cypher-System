@@ -116,7 +116,7 @@ Packet PACKET_create(char type, int headerLength, char *header, unsigned short d
     if ((pd.header = (char *)malloc(sizeof(char) * headerLength)) == NULL)
         return pd;
 
-    strcpy(pd.header, header);
+    memcpy(pd.header, header, (size_t)headerLength);
 
     if ((pd.data = (char *)malloc(sizeof(char) * dataLength)) == NULL)
     {
@@ -124,7 +124,7 @@ Packet PACKET_create(char type, int headerLength, char *header, unsigned short d
         return pd;
     }
 
-    strcpy(pd.data, data);
+    memcpy(pd.data, data, dataLength);
 
     return pd;
 }

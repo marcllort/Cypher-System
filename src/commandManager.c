@@ -166,7 +166,7 @@ int MANAGER_manageCommand(char *inputString)
             char *buffer = (char *)malloc(50 * sizeof(char));
             sprintf(buffer, "./show_connections.sh %d %d", config.cypherStartPort, config.cypherEndPort);
 
-            CLIENT_checkPorts(buffer);
+            CLIENT_checkPorts(buffer, config);
             free(buffer);
         }
         else
