@@ -26,11 +26,6 @@ Packet PACKET_read(int fd)
     } while (pd.header[pd.headerLength - 1] != ']');
     bytes = sprintf(buff, "STRING RECIVED %s \n", pd.header);
     IO_write(1, buff, bytes);
-
-    //char *tmp ="asdf";
-
-    
-
     if (read(fd, &pd.length,sizeof(uint16_t)) <= 0){
         return PACKET_destroy(&pd);
     }

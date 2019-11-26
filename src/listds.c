@@ -12,7 +12,7 @@ Llistads LLISTADS_crea()
         l.ult = (Nodeds *)malloc(sizeof(Nodeds));
         if (l.ult != NULL)
         {
-            l.pdi = l.pri;
+            l.pdi = l.ult;
             l.pri->seg = l.ult;
             l.pri->ant = NULL;
             l.ult->ant = l.pri;
@@ -62,9 +62,10 @@ int LLISTADS_inserirDavant(Llistads *l, Elementds e)
 {
     Nodeds *n;
 
-    if (l->pdi == l->pri)
+    if (l->pdi == l->pri){
+            write(1,"DS CREATED", sizeof("DS CREATED"));
         return 0;
-
+    }
     n = (Nodeds *)malloc(sizeof(Nodeds));
 
     if (n == NULL)

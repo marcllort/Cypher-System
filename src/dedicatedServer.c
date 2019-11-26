@@ -8,7 +8,6 @@ DServer *DSERVER_init(
     struct sockaddr_in addr,
     void *server,
     void *list_node,
-    void *(*operate)(void *),
     int (*remove)(void *))
 {
     DServer *ds = (DServer *)malloc(sizeof(DServer));
@@ -19,13 +18,11 @@ DServer *DSERVER_init(
         ds->fd = fd;
         ds->state = state;
         ds->name = NULL;
-        ds->thread = thread;
+        ds->thread = (pthread_t)thread;
         ds->addr = addr;
         ds->server = server;
         ds->list_node = list_node;
-        ds->operate = operate;
         ds->remove = remove;
-        //ds->file = FILE_init(); NO ens cal cap file en principi
     }
     return ds;
 }
@@ -81,7 +78,7 @@ void *DSERVER_setListNode(DServer *ds, void *list_node)
 
 void *DSERVER_threadFunc(void *data)
 {
-
+    write(1,"bbbb",sizeof("aaaa"));
     sigset_t set;
     sigemptyset(&set);
 
@@ -93,7 +90,7 @@ void *DSERVER_threadFunc(void *data)
     DServer *ds = (DServer *)data;
 
     ds->state = 1;
-    ds->operate(ds);
+    
     ds->remove(ds);
 
     pthread_exit(0);

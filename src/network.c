@@ -13,11 +13,12 @@ int NETWORK_init(Config config)
     //char buff [100];
     int port = CONFIG_getMyPort(config);
     char *ip = CONFIG_getMyIP(config);
+    char * name = CONFIG_getUsername(config);
     //int bytes = sprintf(buff, "NETWORK PORT : %d IP: %s knjk\n",port ,ip);
     //write(1,buff, sizeof(buff));
 
-    trinity = SERVER_init(ip, port);
-    //SERVER_setMT(&mainServer, SERVER_threadFunc, MCG_threadISR, MCG_SIG, MCG_DS_operate, MCG_DS_threadISR, MCG_DS_SIG);
+    trinity = SERVER_init(ip, port, name);
+    SERVER_setMT(&trinity, SERVER_threadFunc);
 
     if (pthread_create(SERVER_getThread(&trinity), NULL, SERVER_threadFunc, &trinity) != 0)
     { // CAL FER PTHREAD JOIN AL ACABAR, SINO MEMORY LEAK

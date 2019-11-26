@@ -27,6 +27,7 @@
 
 #define ERR_SERVER "Error, no se pudo inicar el servidor\n"
 #define WAITING "[Server] Waiting client...\n"
+#define USERCONNECTED "[Server] Connected to user : %s\n"
 #define GOODBYE "[Server] Disconnecting Server\n"
 #define BYE "[Server] Bye Client\n"
 
@@ -36,39 +37,28 @@
 
 typedef struct
 {
-
+    char *name;
     char *ip;
     int port;
     int fd;
     int state;
     pthread_t thread;
     void *(*threadFunc)(void *);
-    void (*threadISR)(int);
-    unsigned short threadSig;
     Llistads dss;
-    void *(*dsThreadOperate)(void *);
-    void (*dsThreadISR)(int);
-    unsigned short dsThreadSig;
     int ids;
     pthread_mutex_t mutex;
 
 } Server;
 
-Server SERVER_init(char *ip, int port);
+Server SERVER_init(char *ip, int port,char *name);
 int SERVER_start(Server *server);
 int SERVER_operate(Server *server);
 void SERVER_close(Server *server);
 
 pthread_t *SERVER_getThread(Server *server);
-int SERVER_getThreadSig(Server *server);
 
 void SERVER_setMT(Server *server,
-                  void *(*threadFunc)(void *),
-                  void (*threadISR)(int),
-                  unsigned short threadSig,
-                  void *(*dsThreadOperate)(void *),
-                  void (*dsThreadISR)(int),
-                  unsigned short dsThreadSig);
+                  void *(*threadFunc)(void *));
 
 int SERVER_addDS(void *server, DServer *ds);
 int SERVER_removeDS(void *data);

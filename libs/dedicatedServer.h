@@ -27,7 +27,6 @@ typedef struct
     struct sockaddr_in addr;
     void *server;
     void *list_node;
-    void *(*operate)(void *);
     int (*remove)(void *);
     //File                file;
 } DServer;
@@ -40,7 +39,6 @@ DServer *DSERVER_init(
     struct sockaddr_in addr,
     void *server,
     void *list_node,
-    void *(*operate)(void *),
     int (*remove)(void *));
 
 int DSERVER_close(DServer *ds);

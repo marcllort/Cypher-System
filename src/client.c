@@ -240,12 +240,19 @@ int CLIENT_connectPort(Config config, int connectPort)
             IO_write(1, buff, bytes);
             PACKET_write(p, socket_conn);
 
-            //PACKET_destroy(&p);
-
-            LLISTABID_inserirDarrere(&servers, newServer);
+            //AQUI ABANS DE GUARDAR LA CONNEXIO HAURIEM DE LLEGIR EL NOM DEL ALTRE USUARI
+            Packet j = PACKET_read(socket_conn);
+            newServer.name = j.data;
+            int i = LLISTABID_inserirDarrere(&servers, newServer);
+            bytes = sprintf(buff, "%d Added to list, list size = %d\n", i, LLISTABID_getMida(servers));
+            IO_write(1, buff, bytes);
         }
     }
     return 0;
+}
+
+int CLIENT_msgConnection(){
+
 }
 
 int CLIENT_write(char *user, char *message)
@@ -261,6 +268,8 @@ int CLIENT_write(char *user, char *message)
     while (!LLISTABID_final(servers) && !trobat)
     {
         Element server = LLISTABID_consulta(servers);
+        bytes = sprintf(buff, "%s , %s ", server.name, user);
+        IO_write(1, buff, bytes);
         if (strcmp(server.name, user) == 0) //strcmp("prova", user) serveix per provar el say, si fas connect i despres say prova sallefest, funciona
         {
 
