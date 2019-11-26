@@ -145,10 +145,6 @@ int SERVER_operate(Server *server)
         IO_write(1, buff, bytes);
         if (p.type == T_CONNECT)
         {
-            IO_write(1, WAITING, strlen(WAITING));
-            //char buff[128];
-            //int bytes = sprintf(buff, "User %s connected \n", p.data);
-            //IO_write(1, buff, bytes);
             SERVER_startDS(server, fd, s_addr);
         }
     }

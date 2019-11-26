@@ -23,9 +23,10 @@ int NETWORK_init(Config config)
     { // CAL FER PTHREAD JOIN AL ACABAR, SINO MEMORY LEAK
         return 1;
     }
+    //pthread_join(*SERVER_getThread(&trinity), NULL);
     return 0;
 
-    pthread_join(*SERVER_getThread(&trinity), NULL);
+    
 }
 
 int NETWORK_close()

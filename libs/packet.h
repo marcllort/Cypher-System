@@ -5,16 +5,14 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #include "io.h"
 
-#define T_CONNECT 1
-#define T_DISCONNECT 2
-#define T_TRANSFER 3
-#define T_CONNECT 1
-#define T_MSG 2
-#define T_BROADCAST 3
-#define T_EXIT 6
+#define T_CONNECT 0x01
+#define T_MSG 0x02
+#define T_BROADCAST 0x03
+#define T_EXIT 0x06
 
 #define H_DEF "[]"
 #define H_CONOK "[CONOK]"
@@ -28,7 +26,7 @@ typedef struct
   char type;
   int headerLength;
   char *header;
-  int length;
+  uint16_t length;
   char *data;
 } Packet;
 
