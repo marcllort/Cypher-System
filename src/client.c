@@ -86,7 +86,7 @@ int CLIENT_checkPorts(char *buffer, Config config)
     }
     else if (pid == 0)
     { // El fill es on s'executa el script rebut per parametres, i al acabar mor
-
+        IO_write(1, TESTING, sizeof(TESTING));
         dup2(fd[1], STDOUT_FILENO);
         close(fd[0]);
         close(fd[1]);

@@ -1,28 +1,40 @@
 #include "../libs/packet.h"
 
-Packet PACKET_read(int fd) {
+Packet PACKET_read(int fd)
+{
 
-    Packet pd = PACKET_create(0, 0, NULL, 0, NULL);
-    
-    if (read(fd, &pd.type, 1) <= 0) return PACKET_destroy(&pd);
+    Packet pd = PACKET_create("0", strlen("[TR_caca]"), "[TR_caca]", strlen("test"), "test");
+
+    if (read(fd, &pd.type, 1) <= 0)
+        return PACKET_destroy(&pd);
     char buff[128];
     int bytes = sprintf(buff, "CHAR RECIVED %c \n", pd.type);
     IO_write(1, buff, bytes);
 
-
-   do {
-        pd.header = (char*) realloc((void*) pd.header, ++pd.headerLength * sizeof(char));
-        if (read(fd, &pd.header[pd.headerLength - 1], 1) <= 0) return PACKET_destroy(&pd);
-    } while(pd.header[pd.headerLength - 1] != ']');
+    free(pd.header);
+    pd.headerLength = 0;
+    do
+    {
+        pd.header = (char *)realloc((void *)pd.header, ++pd.headerLength * sizeof(char));
+        if (read(fd, &pd.header[pd.headerLength - 1], 1) <= 0)
+            return PACKET_destroy(&pd);
+    } while (pd.header[pd.headerLength - 1] != ']');
     bytes = sprintf(buff, "STRING RECIVED %s \n", pd.header);
     IO_write(1, buff, bytes);
- 
-    char *tmp= (char *)malloc(sizeof(char) * 2);
+
+    //char *tmp ="asdf";
+    pd.length = 0;
     char buff2[128];
-    if (read(fd, tmp, 2) <= 0) return PACKET_destroy(&pd);
-    bytes = sprintf(buff2, "DATA LENGTH char1: %s \n", tmp);
+
+    char str[20];
+
+    if (read(fd, str, 20) <= 0)
+        return PACKET_destroy(&pd);
+
+    pd.length = atoi(str);
+    bytes = sprintf(buff2, "DATA LENGTH char1: %d \n", pd.length);
     IO_write(1, buff2, bytes);
-/*
+    /*
     if ((pd.length = (tmp[0] << 8) | tmp[1]) > 0) {
         pd.data = (char*) realloc((void*) pd.data, sizeof(char) * pd.length);
         if (read(fd, pd.data, pd.length) <= 0) return PACKET_destroy(&pd);
@@ -62,22 +74,23 @@ int PACKET_write(Packet pd, int fd)
     bytes = sprintf(buff, "%s", pd.header);
     IO_write(fd, buff, bytes);
     char buff2[128];
-    if(pd.length < 10){
-    bytes = sprintf(buff2, "08");
-    }else{
-    bytes = sprintf(buff2, "09");
-
+    if (pd.length < 10)
+    {
+        bytes = sprintf(buff2, "08");
     }
-    IO_write(fd, buff2, bytes);
-    IO_write(1, buff2, bytes);
+    else
+    {
+        bytes = sprintf(buff2, "09");
+    }
+    pd.length = 5;
+    write(fd, "6", sizeof("5"));
+    write(1, pd.length, sizeof(pd.length));
 
-            //write(fd, &pd.type ,sizeof(pd.type));
-
+    //write(fd, &pd.type ,sizeof(pd.type));
 
     //IO_write(fd, pd.type,1);
 
     //IO_write(fd, pd.header,sizeof())
-
 
     return 0;
 }
@@ -116,7 +129,9 @@ Packet PACKET_create(char type, int headerLength, char *header, unsigned short d
     if ((pd.header = (char *)malloc(sizeof(char) * headerLength)) == NULL)
         return pd;
 
-    memcpy(pd.header, header, (size_t)headerLength);
+    //memcpy(pd.header, header, (size_t)headerLength);
+    //pd.header = (char *)malloc(100 * sizeof(char));
+    strcpy(pd.header, header);
 
     if ((pd.data = (char *)malloc(sizeof(char) * dataLength)) == NULL)
     {
@@ -124,7 +139,8 @@ Packet PACKET_create(char type, int headerLength, char *header, unsigned short d
         return pd;
     }
 
-    memcpy(pd.data, data, dataLength);
+    strcpy(pd.data, data);
+    // memcpy(pd.data, data, dataLength);
 
     return pd;
 }
