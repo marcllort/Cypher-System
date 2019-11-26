@@ -34,6 +34,13 @@ Packet PACKET_read(int fd)
     pd.length = atoi(str);
     bytes = sprintf(buff2, "DATA LENGTH char1: %d \n", pd.length);
     IO_write(1, buff2, bytes);
+
+    if (read(fd, pd.data, pd.length) <= 0)
+        return PACKET_destroy(&pd);
+
+    bytes = sprintf(buff2, "DATA: %s \n", pd.data);
+    IO_write(1, buff2, bytes);
+
     /*
     if ((pd.length = (tmp[0] << 8) | tmp[1]) > 0) {
         pd.data = (char*) realloc((void*) pd.data, sizeof(char) * pd.length);
@@ -82,10 +89,16 @@ int PACKET_write(Packet pd, int fd)
     {
         bytes = sprintf(buff2, "09");
     }
-    pd.length = 5;
-    write(fd, "6", sizeof("5"));
+    char str[20];
+    pd.length = 14;
+    sprintf(str, "%d", pd.length);
+    write(fd, str, 20);
     write(1, pd.length, sizeof(pd.length));
 
+    pd.data = "funcionaaaaaa";
+    bytes = sprintf(buff, "%s", pd.data);
+
+    IO_write(fd, buff, bytes);
     //write(fd, &pd.type ,sizeof(pd.type));
 
     //IO_write(fd, pd.type,1);
