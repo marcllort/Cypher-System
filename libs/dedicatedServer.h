@@ -11,6 +11,7 @@
 #include <signal.h>
 
 #include "io.h"
+#include "packet.h"
 
 #define KEYPHRASE "Bye"
 #define CLIENT_SAYS "[Server] Client says: \n"

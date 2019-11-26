@@ -116,30 +116,11 @@ int SERVER_operate(Server *server)
 
         } while (fd <= 0);
         IO_write(1, WAITING, strlen(WAITING));
-       
-
-        Packet p = PACKET_read(fd);
-        char buff[128];
-        if (p.type == T_CONNECT)
-        {
-            if (strcmp(p.header,H_NAME))
-            {
-                Packet s = PACKET_create(T_CONNECT, (int)strlen(H_CONOK), H_CONOK, (int)strlen(server->name), server->name);
-                PACKET_write(s, fd);
-                //SERVER_startDS(server, fd, s_addr);
-                fd = 0;
-            }
-            
-            if (strcmp(p.header,H_CONOK))
-            {
-                //START CONNECTION TO HAVE FD THE OTHER WAY
-                char buff[100];
-                int bytes = sprintf(buff, USERCONNECTED,p.data);
-                write(1,buff, sizeof(buff));
-            }
+        SERVER_startDS(server, fd, s_addr);
+        
             
             
-        }
+        
     }
 
     return EXIT_SUCCESS;

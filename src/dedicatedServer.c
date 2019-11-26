@@ -78,20 +78,36 @@ void *DSERVER_setListNode(DServer *ds, void *list_node)
 
 void *DSERVER_threadFunc(void *data)
 {
-    write(1,"bbbb",sizeof("aaaa"));
-    sigset_t set;
-    sigemptyset(&set);
-
-    if (sigaddset(&set, SIGUSR2))
-        pthread_exit(0);
-
-    IO_write(1, CONNECTED, strlen(CONNECTED));
-
+   
     DServer *ds = (DServer *)data;
+    IO_write(1, CONNECTED, strlen(CONNECTED));
+    Packet p = PACKET_read(ds->fd);
+        char buff[128];
+        if (p.type == T_CONNECT)
+        {
+            if (strcmp(p.header,H_NAME))
+            {
+                IO_write(1, CONNECTED, strlen(CONNECTED));
+                Packet s = PACKET_create(T_CONNECT, (int)strlen(H_CONOK), H_CONOK, (int)strlen("Alex"), "Alex");
+                PACKET_write(s, ds->fd);
+                
+                
+            }
+            
+            if (strcmp(p.header,H_CONOK))
+            {
+                //START CONNECTION TO HAVE FD THE OTHER WAY
+                char buff[100];
+                //int bytes = sprintf(buff, USERCONNECTED,p.data);
+                //write(1,buff, sizeof(buff));
+            }
+        }
+
+    
 
     ds->state = 1;
     
-    ds->remove(ds);
+    
 
     pthread_exit(0);
 }
