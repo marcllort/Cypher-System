@@ -85,12 +85,12 @@ int LLISTADS_inserirDavant(Llistads *l, Elementds e)
 Elementds LLISTADS_consulta(Llistads l)
 {
 
-    Elementds e;
+    Elementds e =NULL;
     if (l.pdi->ant != NULL && l.pdi->seg != NULL)
     {
         e = l.pdi->e;
+        
     }
-
     return e;
 }
 

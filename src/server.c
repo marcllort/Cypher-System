@@ -146,7 +146,7 @@ int SERVER_operate(Server *server)
         if (p.type == T_CONNECT)
         {
             IO_write(1, WAITING, strlen(WAITING));
-            char buff[128];
+            //char buff[128];
             //int bytes = sprintf(buff, "User %s connected \n", p.data);
             //IO_write(1, buff, bytes);
             SERVER_startDS(server, fd, s_addr);
@@ -186,7 +186,7 @@ int SERVER_addDS(void *server, DServer *ds)
     Server *s = (Server *)server;
 
     Nodeds *node = LLISTADS_inserirDavant(&s->dss, ds); //NOSE PERQUE HO VOL AFEGIR 2 ABANS
-
+    // ESTA MALAMENT AIXO, LLISTADS INSERIR DAVANAT RETORNA UN INT, NO UN NODE
     DSERVER_setListNode(ds, node);
 
     ds->state = 1;

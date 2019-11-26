@@ -73,7 +73,12 @@ int CLIENT_checkPorts(char *buffer)
     int status;
     pid_t pid;
 
-    pipe(fd);
+    int pipereturn = pipe(fd);
+    if (pipereturn== -1)
+    {
+        IO_write(1, "Pipe pum pum", sizeof("Pipe pum pum"));
+    }
+    
     if ((pid = fork()) < 0)
     {
         perror("\nError en el fork");
@@ -103,6 +108,9 @@ int CLIENT_checkPorts(char *buffer)
 
         while (1)                               // El script ha guardat en un pipe, el llegim
         {
+            if (checkEOF(fd[0]) == 1)
+                break;
+
             IO_readUntil(fd[0], &buffr, ' '); // Ens quedem només amb el nombre del port obert
             free(buffr);
 
@@ -218,7 +226,7 @@ int CLIENT_connectPort(Config config, int connectPort)
         Packet p = PACKET_create(T_CONNECT, (int)strlen(H_NAME),H_NAME,(int)strlen(config.username),config.username);
         bytes = sprintf(buff, "%d PAcketCreation\n", p.length);
         IO_write(1, buff, bytes);
-        int i = PACKET_write(p, socket_conn);
+        PACKET_write(p, socket_conn);
 
         //PACKET_destroy(&p);
 

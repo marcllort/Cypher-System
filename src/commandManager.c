@@ -54,7 +54,7 @@ int MANAGER_manageCommand(char *inputString)
         if (words[1] && UTILS_valid_digit(words[1]))
         {
             free(inputString);
-            UTILS_sizeOf(words[1]);
+            //UTILS_sizeOf(words[1]);
             int port = atoi(words[1]);
             IO_write(1, CONNECT_MSG, strlen(CONNECT_MSG));
             CLIENT_connectPort(config, port);
@@ -199,7 +199,7 @@ int MANAGER_manageCommand(char *inputString)
         IO_write(1, COMMAND_ERROR, strlen(COMMAND_ERROR));
     }
 
-    free(inputString);
+    //free(inputString);
 
     return 1;
 }

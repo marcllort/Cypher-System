@@ -17,7 +17,7 @@ Packet PACKET_read(int fd) {
     bytes = sprintf(buff, "STRING RECIVED %s \n", pd.header);
     IO_write(1, buff, bytes);
  
-    char  tmp= (char *)malloc(sizeof(char) * 2);
+    char *tmp= (char *)malloc(sizeof(char) * 2);
     char buff2[128];
     if (read(fd, tmp, 2) <= 0) return PACKET_destroy(&pd);
     bytes = sprintf(buff2, "DATA LENGTH char1: %s \n", tmp);
@@ -65,7 +65,7 @@ int PACKET_write(Packet pd, int fd)
     if(pd.length < 10){
     bytes = sprintf(buff2, "08");
     }else{
-    bytes = sprintf(buff2, "09", pd.length);
+    bytes = sprintf(buff2, "09");
 
     }
     IO_write(fd, buff2, bytes);
@@ -116,7 +116,7 @@ Packet PACKET_create(char type, int headerLength, char *header, unsigned short d
     if ((pd.header = (char *)malloc(sizeof(char) * headerLength)) == NULL)
         return pd;
 
-    memcpy(pd.header, header, (size_t)headerLength);
+    strcpy(pd.header, header);
 
     if ((pd.data = (char *)malloc(sizeof(char) * dataLength)) == NULL)
     {
@@ -124,7 +124,7 @@ Packet PACKET_create(char type, int headerLength, char *header, unsigned short d
         return pd;
     }
 
-    memcpy(pd.data, data, dataLength);
+    strcpy(pd.data, data);
 
     return pd;
 }
