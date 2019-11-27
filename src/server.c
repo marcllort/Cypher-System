@@ -116,10 +116,38 @@ int SERVER_operate(Server *server)
 
         } while (fd <= 0);
         IO_write(1, WAITING, strlen(WAITING));
-        SERVER_startDS(server, fd, s_addr);
-        
+        Packet p = PACKET_read(fd);
+        char buff[128];
+        if (p.type == T_CONNECT)
+        {
+            if (!strcmp(p.header,H_NAME))
+            {
+                IO_write(1, CONNECTED, strlen(CONNECTED));
+                //Packet s = PACKET_create(T_CONNECT, (int)strlen(H_CONOK), H_CONOK, (int)strlen("Alex"), "Alex");
+                //PACKET_write(s, ds->fd);
+                //Aqui si funciones amb el create i el write millor, perque els necesitrem per el dedicatedserver i si els tenim funcionant ho podem aprofitar
+                IO_write(fd, &p.type, 1);
+
+                p.header = H_CONOK;
+                IO_write(fd, p.header, strlen(p.header));
+    
+                p.data = (*server).name;
+                p.length = sizeof(p.data);
+                write(fd, &p.length, sizeof(uint16_t));
+   
+                IO_write(fd, p.data, strlen(p.data));
+    
+            }
             
-            
+            if (!strcmp(p.header,H_CONOK))
+            {
+                //START CONNECTION TO HAVE FD THE OTHER WAY
+                char buff[100];
+                //int bytes = sprintf(buff, USERCONNECTED,p.data);
+                //write(1,buff, sizeof(buff));
+                //SERVER_startDS(server, fd, s_addr);
+            }
+        }            
         
     }
 
