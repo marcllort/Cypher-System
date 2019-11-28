@@ -7,7 +7,7 @@ DServer *DSERVER_init(
     pthread_t thread,
     struct sockaddr_in addr,
     void *server,
-    void *list_node,
+    char *name,
     int (*remove)(void *))
 {
     DServer *ds = (DServer *)malloc(sizeof(DServer));
@@ -17,11 +17,11 @@ DServer *DSERVER_init(
         ds->id = id;
         ds->fd = fd;
         ds->state = state;
-        ds->name = NULL;
+        ds->name = name;
         ds->thread = (pthread_t)thread;
         ds->addr = addr;
         ds->server = server;
-        ds->list_node = list_node;
+        ds->list_node = NULL;
         ds->remove = remove;
     }
     return ds;
@@ -80,7 +80,7 @@ void *DSERVER_threadFunc(void *data)
 {
     //Aqui caldria posar d'alguna manera una funcio semblant a la de server operate pero sense el accept i aixo que nomes facir read
     DServer *ds = (DServer *)data;
-    IO_write(1, CONNECTED, strlen(CONNECTED));
+    //IO_write(1, CONNECTED, strlen(CONNECTED));
     Packet p;
     int fd = ds->fd;
     while (1)
@@ -88,6 +88,10 @@ void *DSERVER_threadFunc(void *data)
         p = PACKET_read(fd);
         if (p.type == T_MSG)
         {
+            char buff[128];
+            int bytes = sprintf(buff, CLIENT_SAYS, ds->name, p.data);
+            IO_write(1, buff, bytes);
+            
         }
         //free(p);
         //free(&p.data);

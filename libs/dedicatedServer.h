@@ -14,7 +14,7 @@
 #include "packet.h"
 
 #define KEYPHRASE "Bye"
-#define CLIENT_SAYS "[Server] Client says: \n"
+#define CLIENT_SAYS "[%s]: %s \n"
 #define CONNECTED "[Server] Client Connected\n"
 #define BYE "[Server] Bye Client\n"
 
@@ -39,7 +39,7 @@ DServer *DSERVER_init(
     pthread_t thread,
     struct sockaddr_in addr,
     void *server,
-    void *list_node,
+    char *name,
     int (*remove)(void *));
 
 int DSERVER_close(DServer *ds);

@@ -79,7 +79,7 @@ int SERVER_start(Server *server)
 int SERVER_startDS(Server *server, int fd, struct sockaddr_in addr)
 {
 
-    DServer *ds = DSERVER_init(server->ids++, fd, 0, 0, addr, server, NULL, SERVER_removeDS);
+    DServer *ds = DSERVER_init(server->ids++, fd, 0, 0, addr, server, server->name, SERVER_removeDS);
 
     SERVER_addDS(server, ds);
 
