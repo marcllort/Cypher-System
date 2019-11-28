@@ -230,11 +230,11 @@ int CLIENT_connectPort(Config config, int connectPort)
             PACKET_write(p, socket_conn);
 
             //NO PROVA
-            //Packet j = PACKET_read(socket_conn);
+            Packet j = PACKET_read(socket_conn);
             //newServer.name = "data"; //j.data;
 
             //PROVA
-            int fd = socket_conn;
+            /*nt fd = socket_conn;
             Packet pd = PACKET_create("0", strlen("[TR_caca]"), "[TR_caca]", strlen("t"), "t");
 
             if (read(fd, &pd.type, 1) <= 0)
@@ -271,10 +271,10 @@ int CLIENT_connectPort(Config config, int connectPort)
 
             
             //strcpy(newServer.name, "dataa");
-            read(fd, pd.data, pd.length);
+            read(fd, pd.data, pd.length);*/
             
             //END PROVA
-            newServer.name=pd.data;
+            newServer.name=j.data;
 
             int i = LLISTABID_inserirDarrere(&servers, newServer);
 
