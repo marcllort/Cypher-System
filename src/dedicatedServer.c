@@ -100,6 +100,7 @@ void *DSERVER_threadFunc(void *data)
         //IO_write(1, p.data, p.length);
         //IO_write(1, "p.data", sizeof("p.data"));
         //wait(100);
+        PACKET_destroy(&p);
     }
     
 

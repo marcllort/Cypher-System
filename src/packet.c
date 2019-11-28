@@ -26,8 +26,9 @@ Packet PACKET_read(int fd)
      bytes = sprintf(buff, "TYPE RECIVED %d\n", pd.type);
     IO_write(1, buff, bytes);
 
-    //free(pd.header);
+
     pd.headerLength = 0;
+    pd.header = (char*) malloc(sizeof(char));
     do
     {
         pd.header = (char *)realloc((void *)pd.header, ++pd.headerLength * sizeof(char));
