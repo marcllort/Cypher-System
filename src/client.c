@@ -136,40 +136,39 @@ int CLIENT_checkPorts(char *buffer, Config config)
         IO_write(1, buff, bytes);
 
         int trobat = 0;
+
         for (int i = 0; i < availableConnections; i++)
         {
             trobat = 0;
-
-            // Si esta a la llista, printa port i nom, sino el port sol
-            if (LLISTABID_buida(servers))
+            if (availPorts[i] != config.myPort)
             {
-                if (availPorts[i] != config.myPort)
+                // Si esta a la llista, printa port i nom, sino el port sol
+                if (LLISTABID_buida(servers))
                 {
+
                     bytes = sprintf(buff, "%d\n", availPorts[i]);
                     IO_write(1, buff, bytes);
                 }
-            }
-            else
-            {
-                while (!LLISTABID_final(servers) && !trobat)
+                else
                 {
-                    Element server = LLISTABID_consulta(servers);
-                    if (server.port == availPorts[i])
+                    while (!LLISTABID_final(servers) && !trobat)
                     {
-                        bytes = sprintf(buff, "%d %s\n", availPorts[i], server.name);
-                        IO_write(1, buff, bytes);
-                        trobat = 1;
-                        LLISTABID_vesInici(&servers);
+                        Element server = LLISTABID_consulta(servers);
+                        if (server.port == availPorts[i])
+                        {
+                            bytes = sprintf(buff, "%d %s\n", availPorts[i], server.name);
+                            IO_write(1, buff, bytes);
+                            trobat = 1;
+                            LLISTABID_vesInici(&servers);
+                        }
+                        else
+                        {
+                            LLISTABID_avanca(&servers);
+                        }
                     }
-                    else
+                    if (!trobat)
                     {
-                        LLISTABID_avanca(&servers);
-                    }
-                }
-                if (!trobat)
-                {
-                    if (availPorts[i] != config.myPort)
-                    {
+
                         bytes = sprintf(buff, "%d\n", availPorts[i]);
                         IO_write(1, buff, bytes);
                         LLISTABID_vesInici(&servers);
@@ -232,14 +231,55 @@ int CLIENT_connectPort(Config config, int connectPort)
             IO_write(1, buff, bytes);
             PACKET_write(p, socket_conn);
 
-            //AQUI ABANS DE GUARDAR LA CONNEXIO HAURIEM DE LLEGIR EL NOM DEL ALTRE USUARI
-            Packet j = PACKET_read(socket_conn);
-            newServer.name = j.data;
-            int i = LLISTABID_inserirDarrere(&servers, newServer);
-            //bytes = sprintf(buff, "%d Added to list, list size = %d\n", i, LLISTABID_getMida(servers));
+            //NO PROVA
+            //Packet j = PACKET_read(socket_conn);
+            //newServer.name = "data"; //j.data;
+
+            //PROVA
+            int fd = socket_conn;
+            Packet pd = PACKET_create("0", strlen("[TR_caca]"), "[TR_caca]", strlen("t"), "t");
+
+            if (read(fd, &pd.type, 1) <= 0)
+            {
+
+                //return PACKET_destroy(&pd);
+            }
+
+            //char buff[128];
+            //int bytes;
+            //int bytes = sprintf(buff, "TYPE RECIVED %d\n", pd.type);
             //IO_write(1, buff, bytes);
 
+            free(pd.header);
+            pd.headerLength = 0;
+            do
+            {
+                pd.header = (char *)realloc((void *)pd.header, ++pd.headerLength * sizeof(char));
+                read(fd, &pd.header[pd.headerLength - 1], 1);
+                    
+            } while (pd.header[pd.headerLength - 1] != ']');
+            //bytes = sprintf(buff, "STRING RECIVED %s \n", pd.header);
+            //IO_write(1, buff, bytes);
+
+            if (read(fd, &pd.length, sizeof(uint16_t)) <= 0)
+            {
+                //return PACKET_destroy(&pd);
+            }
+
+            char buff2[128];
+            //bytes = sprintf(buff2, "DATA LENGTH char1: %d \n", pd.length);
+            //IO_write(1, buff2, bytes);
+            //newServer.name = (char *)malloc(sizeof(char) * 5);
+
             
+            //strcpy(newServer.name, "dataa");
+            read(fd, pd.data, pd.length);
+            
+            //END PROVA
+            newServer.name=pd.data;
+
+            int i = LLISTABID_inserirDarrere(&servers, newServer);
+
             bytes = sprintf(buff, "%d connected: %s\n", newServer.port, newServer.name);
             IO_write(1, buff, bytes);
         }
