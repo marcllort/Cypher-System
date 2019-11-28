@@ -144,10 +144,16 @@ int SERVER_operate(Server *server)
     return EXIT_SUCCESS;
 }
 
-int removeDS(DServer *ds)
+int removeDS(Server* server,DServer *ds)
 {
+    write(1,"ll",2);
     close(DSERVER_getFd(ds));
-    LLISTADS_eliminaAmbNode(&((Server *)ds->server)->dss, DSERVER_getListNode(ds));
+    write(1,"jj",2);
+    write(1,server->name,sizeof(server->name));
+
+    //LLISTADS_eliminaAmbNode(&()->dss, DSERVER_getListNode(ds));
+     write(1,"jj",2);
+
     //printf("List size: %d\n", (int) LLISTADS_getMida(&((Server*)ds->server)->dss));
     return 0;
 }
@@ -160,7 +166,7 @@ int SERVER_removeDS(void *data)
 
     pthread_mutex_lock(&server->mutex);
 
-    removeDS(ds);
+    removeDS(server,ds);
     DSERVER_close(ds);
 
     pthread_mutex_unlock(&server->mutex);
@@ -189,13 +195,13 @@ int SERVER_removeDSS(Server *server)
 
     while (!LLISTADS_final(server->dss))
     {
-
+write(1,"aa",2);
         DServer *ds = LLISTADS_consulta(server->dss);
-
-        removeDS(ds);
-
+write(1,"bb",2);
+        removeDS(server,ds);
+write(1,"bc",2);
         pthread_join(*DSERVER_getThread(ds), NULL);
-
+write(1,"cc",2);
         DSERVER_close(ds);
 
         LLISTADS_avanca(&server->dss);
@@ -210,10 +216,12 @@ void SERVER_close(Server *server)
 {
 
     SERVER_removeDSS(server);
-
+    write(1,"cc",2);
     server->state = -1;
     close(server->fd);
+    write(1,"dd",2);
     LLISTADS_destrueix(&server->dss);
+
     IO_write(1, GOODBYE, strlen(GOODBYE));
 }
 

@@ -51,7 +51,8 @@ void MAIN_registerSignal()
 void MAIN_freeMemory()
 {
     NETWORK_close();
-    MANAGER_freeMemory();
-    CLIENT_freeMemory();
+
+    //MANAGER_freeMemory();
+    //CLIENT_freeMemory();
     exit(1);
 }

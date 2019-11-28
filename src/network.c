@@ -37,6 +37,7 @@ int NETWORK_close()
     //pthread_cancel(*SERVER_getThread(&trinity));
     CONFIG_close(&config);
     SERVER_close(&trinity);
+
     return 0;
 }
 
