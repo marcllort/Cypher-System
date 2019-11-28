@@ -31,8 +31,8 @@ int UTILS_sizeOf(const char *str)
 // String comparator, case Insensitive
 int UTILS_compareCaseInsensitive(const char *str1, const char *str2)
 {
-    int size1 = UTILS_sizeOf(str1);
-    int size2 = UTILS_sizeOf(str2);
+    int size1 = strlen(str1);
+    int size2 = strlen(str2);
     int size = (size1 < size2) ? size1 : size2;
     int i;
     size1 = 0;

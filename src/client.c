@@ -227,8 +227,6 @@ int CLIENT_connectPort(Config config, int connectPort)
             //IMPORTANT POSAR newServer.name = CLIENT_get_message(socket_conn, '\n');
             char buff[128];
             Packet p = PACKET_create(T_CONNECT, (int)strlen(H_NAME), H_NAME, (int)strlen(config.username), config.username);
-            int bytes = sprintf(buff, "%d PAcketCreation\n", p.length);
-            IO_write(1, buff, bytes);
             PACKET_write(p, socket_conn);
 
             //NO PROVA
@@ -280,7 +278,7 @@ int CLIENT_connectPort(Config config, int connectPort)
 
             int i = LLISTABID_inserirDarrere(&servers, newServer);
 
-            bytes = sprintf(buff, "%d connected: %s\n", newServer.port, newServer.name);
+            int bytes = sprintf(buff, "%d connected: %s\n", newServer.port, newServer.name);
             IO_write(1, buff, bytes);
         }
     }
@@ -317,10 +315,11 @@ int CLIENT_write(char *user, char *message)
             packet.length = UTILS_sizeOf(message);
             packet.data = message;
 
-            IO_write(server.socketfd, &packet.type, 1);
+            PACKET_write(packet,server.socketfd);
+            /*IO_write(server.socketfd, &packet.type, 1);
             IO_write(server.socketfd, packet.header, strlen(packet.header));
             write(server.socketfd, &packet.length, sizeof(uint16_t));
-            IO_write(server.socketfd, packet.data, packet.length);
+            IO_write(server.socketfd, packet.data, packet.length);*/
 
             //void *ptr = &buff; Serveix per provar enviar missatge en comptes de paquet
             //void *ptr = &packet;

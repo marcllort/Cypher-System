@@ -1,15 +1,16 @@
 #include "../libs/packet.h"
 
-Packet pd;
+
 
 Packet PACKET_read(int fd)
 {
-    PACKET_destroy(&pd);
-    pd = PACKET_create("0", strlen("[TR_caca]"), "[TR_caca]", strlen("t"), "t");
+    Packet pd;
+    //PACKET_destroy(&pd);
+    //pd = PACKET_create("0", strlen("[TR_caca]"), "[TR_caca]", strlen("t"), "t");
 
     int error = read(fd, &pd.type, 1);
     if(pd.type != 0x01 && pd.type != 0x02 && pd.type != 0x03 && pd.type != 0x04 && pd.type != 0x05 && pd.type != 0x06){
-        IO_write(1, "buff", 4);
+        IO_write(1, "buffa", 5);
         pd.headerLength=-1;
         return pd;
     }
@@ -22,10 +23,10 @@ Packet PACKET_read(int fd)
 
     char buff[128];
     int bytes;
-    //int bytes = sprintf(buff, "TYPE RECIVED %d\n", pd.type);
-    //IO_write(1, buff, bytes);
+     bytes = sprintf(buff, "TYPE RECIVED %d\n", pd.type);
+    IO_write(1, buff, bytes);
 
-    free(pd.header);
+    //free(pd.header);
     pd.headerLength = 0;
     do
     {
@@ -33,8 +34,8 @@ Packet PACKET_read(int fd)
         if (read(fd, &pd.header[pd.headerLength - 1], 1) <= 0)
             return PACKET_destroy(&pd);
     } while (pd.header[pd.headerLength - 1] != ']');
-    //bytes = sprintf(buff, "STRING RECIVED %s \n", pd.header);
-    //IO_write(1, buff, bytes);
+    bytes = sprintf(buff, "STRING RECIVED %s \n", pd.header);
+    IO_write(1, buff, bytes);
 
     
     if (read(fd, &pd.length, sizeof(uint16_t)) <= 0)
@@ -45,7 +46,7 @@ Packet PACKET_read(int fd)
     char buff2[128];
     //bytes = sprintf(buff2, "DATA LENGTH char1: %d \n", pd.length);
     //IO_write(1, buff2, bytes);
-
+    pd.data = (char*) malloc(sizeof(char) * pd.length);
     if (read(fd, pd.data, pd.length) <= 0)
     {
         return PACKET_destroy(&pd);
@@ -99,6 +100,7 @@ Packet PACKET_create(char type, int headerLength, char *header, unsigned short d
     pd.type = type;
     pd.headerLength = headerLength;
     pd.length = dataLength;
+    
 
     if ((pd.header = (char *)malloc(sizeof(char) * headerLength)) == NULL)
         return pd;

@@ -179,8 +179,6 @@ int SERVER_addDS(void *server, DServer *ds)
 
     ds->state = 1;
 
-    printf("%d List Size: %d DS FD %d \n", i, (int)LLISTADS_getMida(s->dss), ds->fd);
-
     return 0;
 }
 

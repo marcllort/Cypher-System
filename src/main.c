@@ -27,11 +27,17 @@ int main(int argc, char **argv)
     while (1)
     { // Mentre no es tanqui el progama, escrivim nom de programa i llegim la comanda
         UTILS_printName(config);
+        //IO_readUntil(0, &cadena, '\n');
         cadena = UTILS_readKB();
-        if (UTILS_sizeOf(cadena) > 0)
+        
+        if (strlen(cadena) > 3)
         {
             MANAGER_manageCommand(cadena);
+        }else
+        {
+            IO_write(1, COMMAND_ERROR, strlen(COMMAND_ERROR));
         }
+        
     }
 
     return 0;
