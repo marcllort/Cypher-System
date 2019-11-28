@@ -1,21 +1,33 @@
 #include "../libs/packet.h"
 
+Packet pd;
+
 Packet PACKET_read(int fd)
 {
+    //IO_write(1, "PETOOO3", sizeof("PETOOO2"));
+    PACKET_destroy(&pd);
+    pd = PACKET_create("0", strlen("[TR_caca]"), "[TR_caca]", strlen("test"), "test");
+    /*Packet pd;
+    pd.type = '0';
+    //pd.header = "[TR_caca]";
+    strcpy(pd.header,"[TR_caca]");
+    strcpy(pd.data,"message");
+    //pd.data = "message";
+    pd.length = UTILS_sizeOf(pd.data);*/
     
-    Packet pd = PACKET_create("0", strlen("[TR_caca]"), "[TR_caca]", strlen("test"), "test");
 
-    if (read(fd, &pd.type, 1) <= 0)
+    if (read(fd, &pd.type, 1) <= 0){
+        
         return PACKET_destroy(&pd);
+    }
+        
 
     char buff[128];
-    int bytes;
-    if (pd.type == 0x01)
-    {
-        bytes = sprintf(buff, "CHAR RECIVED \n");
-    }
+    int bytes = sprintf(buff, "TYPE RECIVED %d\n", pd.type);
     IO_write(1, buff, bytes);
-    IO_write(1, "buff", sizeof("buff"));
+
+    //IO_write(1, "buff", sizeof("buff"));
+
     free(pd.header);
     pd.headerLength = 0;
     do
@@ -26,6 +38,8 @@ Packet PACKET_read(int fd)
     } while (pd.header[pd.headerLength - 1] != ']');
     bytes = sprintf(buff, "STRING RECIVED %s \n", pd.header);
     IO_write(1, buff, bytes);
+
+    
     if (read(fd, &pd.length, sizeof(uint16_t)) <= 0)
     {
         return PACKET_destroy(&pd);
@@ -37,7 +51,6 @@ Packet PACKET_read(int fd)
 
     if (read(fd, pd.data, pd.length) <= 0)
     {
-
         return PACKET_destroy(&pd);
     }
     bytes = sprintf(buff2, "DATA: %s \n", pd.data);

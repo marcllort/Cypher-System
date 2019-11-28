@@ -81,10 +81,15 @@ void *DSERVER_threadFunc(void *data)
     //Aqui caldria posar d'alguna manera una funcio semblant a la de server operate pero sense el accept i aixo que nomes facir read
     DServer *ds = (DServer *)data;
     IO_write(1, CONNECTED, strlen(CONNECTED));
-    Packet p = PACKET_read(ds->fd);
+    Packet p;
+    int fd = ds->fd;
     while (1)
     {
-        p = PACKET_read(ds->fd);
+        p = PACKET_read(fd);
+        if (p.type == T_MSG)
+        {
+        }
+        //free(p);
         //free(&p.data);
         //free(&p.header);
         //char buff[128];
@@ -92,7 +97,8 @@ void *DSERVER_threadFunc(void *data)
         //IO_write(1, "p.data", sizeof("p.data"));
         //wait(100);
     }
-    //ds->state = 1;
+    
 
-    //pthread_exit(0);
+    pthread_exit(0);
+    return 1;
 }
