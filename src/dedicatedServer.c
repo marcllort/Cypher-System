@@ -78,16 +78,21 @@ void *DSERVER_setListNode(DServer *ds, void *list_node)
 
 void *DSERVER_threadFunc(void *data)
 {
-   //Aqui caldria posar d'alguna manera una funcio semblant a la de server operate pero sense el accept i aixo que nomes facir read
+    //Aqui caldria posar d'alguna manera una funcio semblant a la de server operate pero sense el accept i aixo que nomes facir read
     DServer *ds = (DServer *)data;
     IO_write(1, CONNECTED, strlen(CONNECTED));
     Packet p = PACKET_read(ds->fd);
-        char buff[128];
-        
+    while (1)
+    {
+        p = PACKET_read(ds->fd);
+        //free(&p.data);
+        //free(&p.header);
+        //char buff[128];
+        //IO_write(1, p.data, p.length);
+        //IO_write(1, "p.data", sizeof("p.data"));
+        //wait(100);
+    }
+    //ds->state = 1;
 
-    ds->state = 1;
-    
-    
-
-    pthread_exit(0);
+    //pthread_exit(0);
 }

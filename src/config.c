@@ -24,7 +24,7 @@ Config CONFIG_load(char *filename)
         return config;
     }
 
-    IO_readUntilv2(fd, &(config.username), '\n');
+    IO_readUntil(fd, &(config.username), '\n');
 
     IO_readUntilv2(fd, &(config.audioFolder), '\n');
 

@@ -2,7 +2,7 @@
 
 Packet PACKET_read(int fd)
 {
-
+    
     Packet pd = PACKET_create("0", strlen("[TR_caca]"), "[TR_caca]", strlen("test"), "test");
 
     if (read(fd, &pd.type, 1) <= 0)
@@ -10,12 +10,12 @@ Packet PACKET_read(int fd)
 
     char buff[128];
     int bytes;
-    if(pd.type == 0x01){
-    bytes= sprintf(buff, "CHAR RECIVED \n");
-
+    if (pd.type == 0x01)
+    {
+        bytes = sprintf(buff, "CHAR RECIVED \n");
     }
     IO_write(1, buff, bytes);
-
+    IO_write(1, "buff", sizeof("buff"));
     free(pd.header);
     pd.headerLength = 0;
     do
@@ -26,7 +26,8 @@ Packet PACKET_read(int fd)
     } while (pd.header[pd.headerLength - 1] != ']');
     bytes = sprintf(buff, "STRING RECIVED %s \n", pd.header);
     IO_write(1, buff, bytes);
-    if (read(fd, &pd.length,sizeof(uint16_t)) <= 0){
+    if (read(fd, &pd.length, sizeof(uint16_t)) <= 0)
+    {
         return PACKET_destroy(&pd);
     }
 
@@ -34,8 +35,9 @@ Packet PACKET_read(int fd)
     bytes = sprintf(buff2, "DATA LENGTH char1: %d \n", pd.length);
     IO_write(1, buff2, bytes);
 
-    if (read(fd, pd.data, pd.length) <= 0){
-        
+    if (read(fd, pd.data, pd.length) <= 0)
+    {
+
         return PACKET_destroy(&pd);
     }
     bytes = sprintf(buff2, "DATA: %s \n", pd.data);
@@ -46,17 +48,14 @@ Packet PACKET_read(int fd)
 int PACKET_write(Packet pd, int fd)
 {
 
-    
     IO_write(fd, &pd.type, 1);
 
-    
     IO_write(fd, pd.header, strlen(pd.header));
-    
-    
+
     write(fd, &pd.length, sizeof(uint16_t));
-   
+
     IO_write(fd, pd.data, strlen(pd.data));
-    
+
     return 0;
 }
 
@@ -103,6 +102,6 @@ Packet PACKET_create(char type, int headerLength, char *header, unsigned short d
     }
 
     strcpy(pd.data, data);
-    
+
     return pd;
 }

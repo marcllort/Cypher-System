@@ -132,7 +132,7 @@ int CLIENT_checkPorts(char *buffer, Config config)
         // Si no hi era, el guardem a la llista, per després alhora de enviar saber quin és el nom del server
 
         char buff[128];
-        int bytes = sprintf(buff, MSG_AVAIL_CONN, availableConnections-1);
+        int bytes = sprintf(buff, MSG_AVAIL_CONN, availableConnections - 1);
         IO_write(1, buff, bytes);
 
         int trobat = 0;
@@ -225,18 +225,10 @@ int CLIENT_connectPort(Config config, int connectPort)
             newServer.port = connectPort;
             newServer.socketfd = socket_conn;
 
-            // Per provar amb server sessio lab 4 -- envio nom al server IMPORTANT BORRARRRRRRRRRRRRR QUAN TINGUEM EL NOSTRE SERVEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEER
-            /*char *name = CLIENT_read(0, '\n');
-        IO_write(socket_conn, name, strlen(name));
-        free(name);*/
-            // Cal borrar fins aqui
-            char buff[128];
-            int bytes = sprintf(buff, "%d connected: %s\n", config.myPort, config.username);
-            IO_write(1, buff, bytes);
             //IMPORTANT POSAR newServer.name = CLIENT_get_message(socket_conn, '\n');
-
+            char buff[128];
             Packet p = PACKET_create(T_CONNECT, (int)strlen(H_NAME), H_NAME, (int)strlen(config.username), config.username);
-            bytes = sprintf(buff, "%d PAcketCreation\n", p.length);
+            int bytes = sprintf(buff, "%d PAcketCreation\n", p.length);
             IO_write(1, buff, bytes);
             PACKET_write(p, socket_conn);
 
@@ -244,15 +236,19 @@ int CLIENT_connectPort(Config config, int connectPort)
             Packet j = PACKET_read(socket_conn);
             newServer.name = j.data;
             int i = LLISTABID_inserirDarrere(&servers, newServer);
-            bytes = sprintf(buff, "%d Added to list, list size = %d\n", i, LLISTABID_getMida(servers));
+            //bytes = sprintf(buff, "%d Added to list, list size = %d\n", i, LLISTABID_getMida(servers));
+            //IO_write(1, buff, bytes);
+
+            
+            bytes = sprintf(buff, "%d connected: %s\n", newServer.port, newServer.name);
             IO_write(1, buff, bytes);
         }
     }
     return 0;
 }
 
-int CLIENT_msgConnection(){
-
+int CLIENT_msgConnection()
+{
 }
 
 int CLIENT_write(char *user, char *message)
@@ -268,23 +264,28 @@ int CLIENT_write(char *user, char *message)
     while (!LLISTABID_final(servers) && !trobat)
     {
         Element server = LLISTABID_consulta(servers);
-        bytes = sprintf(buff, "%s , %s ", server.name, user);
-        IO_write(1, buff, bytes);
+        //bytes = sprintf(buff, "%s , %s ", server.name, user);
+        //IO_write(1, buff, bytes);
         if (strcmp(server.name, user) == 0) //strcmp("prova", user) serveix per provar el say, si fas connect i despres say prova sallefest, funciona
         {
 
             Packet packet;
             bytes = sprintf(buff, "%s\n", message);
 
-            packet.type = 0x01;
+            packet.type = 0x02;
             packet.header = "[MSG]";
-            packet.length = bytes;
-            packet.data = buff;
+            packet.length = UTILS_sizeOf(message);
+            packet.data = message;
+
+            IO_write(server.socketfd, &packet.type, 1);
+            IO_write(server.socketfd, packet.header, strlen(packet.header));
+            write(server.socketfd, &packet.length, sizeof(uint16_t));
+            IO_write(server.socketfd, packet.data, packet.length);
 
             //void *ptr = &buff; Serveix per provar enviar missatge en comptes de paquet
-            void *ptr = &packet;
+            //void *ptr = &packet;
 
-            IO_write(server.socketfd, ptr, bytes); //Cal provar si funciona, fent cast desde el server
+            //IO_write(server.socketfd, ptr, bytes); //Cal provar si funciona, fent cast desde el server
             trobat = 1;
         }
         else
