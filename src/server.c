@@ -1,6 +1,6 @@
 #include "../libs/server.h"
 
-Server SERVER_init(char *ip, int port,char *name)
+Server SERVER_init(char *ip, int port, char *name)
 {
 
     Server server;
@@ -20,13 +20,10 @@ pthread_t *SERVER_getThread(Server *server)
     return &(server->thread);
 }
 
-
-
 void SERVER_setMT(Server *server,
                   void *(*threadFunc)(void *))
 {
     server->threadFunc = threadFunc;
-   
 }
 
 int SERVER_start(Server *server)
@@ -85,7 +82,7 @@ int SERVER_startDS(Server *server, int fd, struct sockaddr_in addr)
 
     if (pthread_create(DSERVER_getThread(ds), NULL, DSERVER_threadFunc, ds) != 0)
     {
-        
+
         return EXIT_FAILURE;
     }
 
@@ -98,47 +95,50 @@ int SERVER_operate(Server *server)
 {
 
     server->state = 1;
-    
+
     while (server->state)
     {
 
         int fd;
         struct sockaddr_in s_addr;
         socklen_t len = sizeof(s_addr);
-       
+
         do
         {
 
-            if ((fd = accept(server->fd, (struct sockaddr *)&s_addr, &len)) <= 0 )
+            if ((fd = accept(server->fd, (struct sockaddr *)&s_addr, &len)) <= 0)
             {
                 IO_write(1, ERR_ACCEPT, strlen(ERR_ACCEPT));
             }
 
         } while (fd <= 0);
-        IO_write(1, WAITING, strlen(WAITING));
-        Packet p = PACKET_read(fd);
-        char buff[128];
-        if (p.type == T_CONNECT)
-        {
-            if (!strcmp(p.header,H_NAME))
-            {
-                //Aqui si funciones amb el create i el write millor, perque els necesitrem per el dedicatedserver i si els tenim funcionant ho podem aprofitar
-                IO_write(fd, &p.type, 1);
-                p.header = H_CONOK;
-                IO_write(fd, p.header, strlen(p.header));
-                p.data = (*server).name;
-                p.length = sizeof(p.data);
-                write(fd, &p.length, sizeof(uint16_t));
-                IO_write(fd, p.data, strlen(p.data));
-            }
-            
-            if (!strcmp(p.header,H_CONOK))
-            {
-                //START CONNECTION TO HAVE FD THE OTHER WAY
-                SERVER_startDS(server, fd, s_addr);
-            }
-        }            
         
+        Packet p = PACKET_read(fd);
+        if (p.headerLength != -1)
+        {
+            IO_write(1, WAITING, strlen(WAITING));
+            char buff[128];
+            if (p.type == T_CONNECT)
+            {
+                if (!strcmp(p.header, H_NAME))
+                {
+                    //Aqui si funciones amb el create i el write millor, perque els necesitrem per el dedicatedserver i si els tenim funcionant ho podem aprofitar
+                    IO_write(fd, &p.type, 1);
+                    p.header = H_CONOK;
+                    IO_write(fd, p.header, strlen(p.header));
+                    p.data = (*server).name;
+                    p.length = sizeof(p.data);
+                    write(fd, &p.length, sizeof(uint16_t));
+                    IO_write(fd, p.data, strlen(p.data));
+                }
+
+                if (!strcmp(p.header, H_CONOK))
+                {
+                    //START CONNECTION TO HAVE FD THE OTHER WAY
+                    SERVER_startDS(server, fd, s_addr);
+                }
+            }
+        }
     }
 
     return EXIT_SUCCESS;
@@ -173,13 +173,13 @@ int SERVER_addDS(void *server, DServer *ds)
 
     Server *s = (Server *)server;
 
-    /*Nodeds *node*/int i = LLISTADS_inserirDavant(&s->dss, ds); //NOSE PERQUE HO VOL AFEGIR 2 ABANS
+    /*Nodeds *node*/ int i = LLISTADS_inserirDavant(&s->dss, ds); //NOSE PERQUE HO VOL AFEGIR 2 ABANS
     // ESTA MALAMENT AIXO, LLISTADS INSERIR DAVANAT RETORNA UN INT, NO UN NODE
     //DSERVER_setListNode(ds, node);
 
     ds->state = 1;
 
-    printf("%d List Size: %d DS FD %d \n",i, (int)LLISTADS_getMida(s->dss), ds->fd);
+    printf("%d List Size: %d DS FD %d \n", i, (int)LLISTADS_getMida(s->dss), ds->fd);
 
     return 0;
 }
@@ -222,7 +222,6 @@ void SERVER_close(Server *server)
 void *SERVER_threadFunc(void *data)
 {
     Server *server = (Server *)data;
-    
 
     if (SERVER_start(server) == 0)
         SERVER_operate(server);

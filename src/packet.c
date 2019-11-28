@@ -7,7 +7,14 @@ Packet PACKET_read(int fd)
     PACKET_destroy(&pd);
     pd = PACKET_create("0", strlen("[TR_caca]"), "[TR_caca]", strlen("t"), "t");
 
-    if (read(fd, &pd.type, 1) <= 0){
+    int error = read(fd, &pd.type, 1);
+    if(pd.type != 0x01 && pd.type != 0x02 && pd.type != 0x03 && pd.type != 0x04 && pd.type != 0x05 && pd.type != 0x06){
+        IO_write(1, "buff", 4);
+        pd.headerLength=-1;
+        return pd;
+    }
+
+    if ( error <= 0){
         
         return PACKET_destroy(&pd);
     }
