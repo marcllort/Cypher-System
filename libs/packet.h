@@ -20,6 +20,7 @@
 #define H_NAME "[TR_NAME]"
 #define H_MSG "[MSG]"
 #define H_MSGOK "[MSGOK]"
+#define H_VOID "[]"
 
 typedef struct
 {

@@ -29,6 +29,12 @@ DServer *DSERVER_init(
 
 int DSERVER_close(DServer *ds)
 {
+    Packet p = PACKET_create(T_EXIT, (int)strlen(H_VOID), H_VOID, (int)strlen(ds->name), ds->name);
+    PACKET_write(p,ds->fd);
+    p = PACKET_read(ds->fd);
+    char buff[124];
+    sprintf(buff,"Connexio adeu: %s",p.header);
+    IO_write(1, buff, strlen(buff));
     if (ds->name != NULL)
         free(ds->name);
     free(ds);
@@ -95,6 +101,15 @@ void *DSERVER_threadFunc(void *data)
             char buff[128];
             int bytes = sprintf(buff, CLIENT_SAYS, ds->name, p.data);
             IO_write(1, buff, bytes);
+            
+        }
+        if (p.type == T_EXIT)
+        {
+            //POSAR ALGO AQUI PER ELIMINAR DS DE LISTDS no puc fer la funcio perk necesito el server.h i no el puc incloure
+            //LLISTADS_eliminaAmbNode((&(ds->server)->dss),ds);
+
+            Packet p = PACKET_create(T_EXIT, (int)strlen(H_CONOK), H_CONOK, 0, "");
+            PACKET_write(p,ds->fd);
             
         }
         //free(p);

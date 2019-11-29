@@ -12,6 +12,7 @@
 
 #include "io.h"
 #include "packet.h"
+#include "listds.h"
 
 #define KEYPHRASE "Bye"
 #define CLIENT_SAYS "[%s] Client says: %s\n"
