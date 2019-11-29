@@ -117,7 +117,6 @@ int SERVER_operate(Server *server)
         if (p.headerLength != -1)
         {
             IO_write(1, WAITING, strlen(WAITING));
-            char buff[128];
             if (p.type == T_CONNECT)
             {
                 if (!strcmp(p.header, H_NAME))
@@ -185,7 +184,7 @@ int SERVER_addDS(void *server, DServer *ds)
 
     ds->state = 1;
 
-    return 0;
+    return i;
 }
 
 int SERVER_removeDSS(Server *server)
@@ -195,13 +194,9 @@ int SERVER_removeDSS(Server *server)
 
     while (!LLISTADS_final(server->dss))
     {
-write(1,"aa",2);
         DServer *ds = LLISTADS_consulta(server->dss);
-write(1,"bb",2);
         removeDS(server,ds);
-write(1,"bc",2);
         pthread_join(*DSERVER_getThread(ds), NULL);
-write(1,"cc",2);
         DSERVER_close(ds);
 
         LLISTADS_avanca(&server->dss);

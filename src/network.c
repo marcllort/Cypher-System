@@ -34,7 +34,7 @@ int NETWORK_close()
 {
 
     //tancar server i threads i forks
-    //pthread_cancel(*SERVER_getThread(&trinity));
+    pthread_cancel(*SERVER_getThread(&trinity));
     CONFIG_close(&config);
     SERVER_close(&trinity);
 
@@ -155,9 +155,9 @@ void *MCT_DS_operate(void *dat)
                 IO_write(1, "Error read", sizeof("Error read"));
             }
 
-            IO_write(1, CLIENT_SAYS, strlen(CLIENT_SAYS));
+            /*IO_write(1, CLIENT_SAYS, strlen(CLIENT_SAYS));
             IO_write(1, msg, strlen(msg));
-            IO_write(1, "\n", sizeof(char));
+            IO_write(1, "\n", sizeof(char));*/
 
             if (strcmp(msg, KEYPHRASE) == 0)
             {

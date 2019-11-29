@@ -276,7 +276,7 @@ int CLIENT_connectPort(Config config, int connectPort)
             //END PROVA
             newServer.name=j.data;
 
-            int i = LLISTABID_inserirDarrere(&servers, newServer);
+            LLISTABID_inserirDarrere(&servers, newServer);
 
             int bytes = sprintf(buff, "%d connected: %s\n", newServer.port, newServer.name);
             IO_write(1, buff, bytes);
@@ -287,6 +287,7 @@ int CLIENT_connectPort(Config config, int connectPort)
 
 int CLIENT_msgConnection()
 {
+    return 0;
 }
 
 int CLIENT_write(char *user, char *message)

@@ -44,7 +44,7 @@ Packet PACKET_read(int fd)
         return PACKET_destroy(&pd);
     }
 
-    char buff2[128];
+    //char buff2[128];
     //bytes = sprintf(buff2, "DATA LENGTH char1: %d \n", pd.length);
     //IO_write(1, buff2, bytes);
     pd.data = (char*) malloc(sizeof(char) * pd.length);

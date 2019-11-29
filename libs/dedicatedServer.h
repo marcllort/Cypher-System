@@ -14,7 +14,7 @@
 #include "packet.h"
 
 #define KEYPHRASE "Bye"
-#define CLIENT_SAYS "[%s]: %s \n"
+#define CLIENT_SAYS "[%s] Client says: %s\n"
 #define CONNECTED "[Server] Client Connected\n"
 #define BYE "[Server] Bye Client\n"
 
@@ -28,6 +28,7 @@ typedef struct
     struct sockaddr_in addr;
     void *server;
     void *list_node;
+    void *(*operate)(void *);
     int (*remove)(void *);
     //File                file;
 } DServer;

@@ -83,9 +83,13 @@ void *DSERVER_threadFunc(void *data)
     //IO_write(1, CONNECTED, strlen(CONNECTED));
     Packet p;
     int fd = ds->fd;
-    while (1)
+    ds->state = 1;
+    while (ds->state)
     {
         p = PACKET_read(fd);
+        if(p.headerLength == -1){
+            ds->state = 0;
+        }
         if (p.type == T_MSG)
         {
             char buff[128];
@@ -103,7 +107,7 @@ void *DSERVER_threadFunc(void *data)
         PACKET_destroy(&p);
     }
     
-
+    DSERVER_close(ds);
     pthread_exit(0);
     return 1;
 }
