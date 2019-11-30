@@ -1,5 +1,7 @@
 #include "../libs/utils.h"
 
+char *bufferKB;
+
 // String comparator
 int UTILS_compare(const char *str1, const char *str2, int size)
 {
@@ -93,8 +95,8 @@ char *UTILS_readKB()
 {
     char c = '\0';
     int count = 0;
-
-    char *bufferKB = (char *)malloc(sizeof(char));
+    //El unic memory leak que tenim es aquest, inicialitzem la variable a 1 char
+    bufferKB = (char *)malloc(sizeof(char));
     while (c != '\n')
     {
         int value = read(0, &c, sizeof(char));
@@ -111,4 +113,8 @@ char *UTILS_readKB()
     }
     bufferKB[count - 1] = '\0';
     return bufferKB;
+}
+
+void UTILS_freeMemory(){
+    free(bufferKB);
 }

@@ -7,7 +7,7 @@ Packet PACKET_read(int fd)
     int error = read(fd, &pd.type, 1);
     if (pd.type != 0x01 && pd.type != 0x02 && pd.type != 0x03 && pd.type != 0x04 && pd.type != 0x05 && pd.type != 0x06)
     {
-        IO_write(1, "buffa", 5);
+        //IO_write(1, "buffa", 5);
         pd.headerLength = -1;
         return pd;
     }

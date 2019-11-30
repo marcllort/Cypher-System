@@ -99,53 +99,52 @@ int SERVER_operate(Server *server)
     while (server->state)
     {
 
-        int fd;
         struct sockaddr_in s_addr;
         socklen_t len = sizeof(s_addr);
 
         do
         {
-
-            if ((fd = accept(server->fd, (struct sockaddr *)&s_addr, &len)) <= 0)
+            if ((server->fdserver = accept(server->fd, (struct sockaddr *)&s_addr, &len)) <= 0)
             {
                 IO_write(1, ERR_ACCEPT, strlen(ERR_ACCEPT));
             }
-
-        } while (fd <= 0);
-
-        Packet p = PACKET_read(fd);
-        char name[120];
-        if (p.headerLength != -1)
+        } while (server->fdserver <= 0 && server->state == 1);
+        if (server->state == 1)
         {
-            if (p.type == T_CONNECT)
+            Packet p = PACKET_read(server->fdserver);
+            char name[120];
+            if (p.headerLength != -1)
             {
-                if (!strcmp(p.header, H_NAME))
+                if (p.type == T_CONNECT)
                 {
-                    sprintf(name, "%s", p.data);
-
-                    IO_write(fd, &p.type, 1);
-                    p.header = H_CONOK;
-                    IO_write(fd, p.header, strlen(p.header));
-                    p.data = (*server).name;
-                    p.length = sizeof(p.data) + 1;
-                    int error = write(fd, &p.length, sizeof(uint16_t));
-                    if (error < 0)
+                    if (!strcmp(p.header, H_NAME))
                     {
-                        IO_write(1, "Write error", strlen("Write error"));
-                    }
-                    IO_write(fd, p.data, strlen(p.data));
-                }
+                        sprintf(name, "%s", p.data);
 
-                if (!strcmp(p.header, H_CONOK))
-                {
-                    //START CONNECTION TO HAVE FD THE OTHER WAY
-                    SERVER_startDS(server, fd, s_addr, name);
+                        IO_write(server->fdserver, &p.type, 1);
+                        p.header = H_CONOK;
+                        IO_write(server->fdserver, p.header, strlen(p.header));
+                        p.data = (*server).name;
+                        p.length = sizeof(p.data) + 1;
+                        int error = write(server->fdserver, &p.length, sizeof(uint16_t));
+                        if (error < 0)
+                        {
+                            IO_write(1, "Write error", strlen("Write error"));
+                        }
+                        IO_write(server->fdserver, p.data, strlen(p.data));
+                    }
+
+                    if (!strcmp(p.header, H_CONOK))
+                    {
+                        //START CONNECTION TO HAVE FD THE OTHER WAY
+                        SERVER_startDS(server, server->fdserver, s_addr, name);
+                    }
                 }
             }
         }
     }
 
-    return EXIT_SUCCESS;
+    return 1;
 }
 
 int removeDS(Server *server, DServer *ds)
@@ -216,10 +215,10 @@ void SERVER_close(Server *server)
 {
 
     SERVER_removeDSS(server);
-    IO_write(1, "cc", 2);
     server->state = -1;
+    close(server->fdserver);
     close(server->fd);
-    IO_write(1, "dd", 2);
+    pthread_kill(server->thread, SIGTERM);
     LLISTADS_destrueix(&server->dss);
 
     IO_write(1, GOODBYE, strlen(GOODBYE));
@@ -233,4 +232,5 @@ void *SERVER_threadFunc(void *data)
         SERVER_operate(server);
 
     pthread_exit(0);
+    return (void *)0;
 }

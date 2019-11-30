@@ -21,7 +21,6 @@ int MANAGER_manageCommand(char *inputString)
         // Alliberem memoria i sortim
         MANAGER_freeMemory();
         free(inputString);
-        IO_write(1, EXIT_MSG, strlen(EXIT_MSG));
         raise(SIGINT);
     }
     else if (UTILS_compareCaseInsensitive(CONNECT, words[0]) == 0)

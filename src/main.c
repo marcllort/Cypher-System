@@ -23,7 +23,7 @@ int main(int argc, char **argv)
     CLIENT_initClient();
     NETWORK_init(config);
     MAIN_registerSignal(); // Registrem el signal de ctrl c
-    char *cadena = NULL;
+    char *cadena;
 
     while (1)
     { // Mentre no es tanqui el progama, escrivim nom de programa i llegim la comanda
@@ -49,9 +49,9 @@ void MAIN_registerSignal()
 
 void MAIN_freeMemory()
 {
+    CLIENT_freeMemory();
+    UTILS_freeMemory();
+    MANAGER_freeMemory();
     NETWORK_close();
-
-    //MANAGER_freeMemory();
-    //CLIENT_freeMemory();
     exit(1);
 }

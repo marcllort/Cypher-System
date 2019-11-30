@@ -4,6 +4,7 @@
 #define MSG_CONNECTED "Connection Cyper -%s ready.\n"
 #define MSG_DISCONNECTED "Disconnecting from %s.\n"
 
+
 int NETWORK_init(Config config)
 {
 
@@ -24,17 +25,18 @@ int NETWORK_init(Config config)
     { // CAL FER PTHREAD JOIN AL ACABAR, SINO MEMORY LEAK
         return 1;
     }
-    //pthread_join(*SERVER_getThread(&trinity), NULL);
     return 0;
 }
 
 int NETWORK_close()
 {
-
+    trinity.state=-1;
     //tancar server i threads i forks
-    pthread_cancel(*SERVER_getThread(&trinity));
     CONFIG_close(&config);
     SERVER_close(&trinity);
+    pthread_kill(*SERVER_getThread(&trinity), SIGTERM);
+    //pthread_join(*SERVER_getThread(&trinity), NULL);
+    
 
     return 0;
 }

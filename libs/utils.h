@@ -21,5 +21,6 @@ int UTILS_sizeOf(const char *str);
 int UTILS_printName(char *config);
 void UTILS_removeChar(char *p, int ch);
 char *UTILS_readKB();
+void UTILS_freeMemory();
 
 #endif

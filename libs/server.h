@@ -19,20 +19,14 @@
 #include "packet.h"
 
 
-#define ERR_SOCKET "[Server] Error creating socket\n"
-#define ERR_IP "[Server] Error resolving IP\n"
-#define ERR_BIND "[Server] Error binding socket\n"
-#define ERR_LISTEN "[Server] Error listening socket\n"
-#define ERR_ACCEPT "[Server] Error accepting client\n"
+#define ERR_SOCKET "Error creating socket\n"
+#define ERR_IP "Error  IP\n"
+#define ERR_BIND "Error binding socket\n"
+#define ERR_LISTEN "Error listening socket\n"
+#define ERR_ACCEPT "Error accepting client\n"
 
-#define ERR_SERVER "Error, no se pudo inicar el servidor\n"
-#define WAITING "[Server] Waiting client...\n"
-#define USERCONNECTED "[Server] Connected to user : %s\n"
-#define GOODBYE "[Server] Disconnecting Server\n"
-#define BYE "[Server] Bye Client\n"
+#define GOODBYE "\nDisconnecting Trinity...\n"
 
-//#define PORT 60001
-//#define IP "127.0.0.1"
 #define MAX_CONN 10
 
 typedef struct
@@ -41,6 +35,7 @@ typedef struct
     char *ip;
     int port;
     int fd;
+    int fdserver;
     int state;
     pthread_t thread;
     void *(*threadFunc)(void *);
@@ -54,6 +49,7 @@ Server SERVER_init(char *ip, int port,char *name);
 int SERVER_start(Server *server);
 int SERVER_operate(Server *server);
 void SERVER_close(Server *server);
+void SERVER_signHandler();
 
 pthread_t *SERVER_getThread(Server *server);
 
