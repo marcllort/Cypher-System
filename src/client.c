@@ -1,6 +1,7 @@
 #include "../libs/client.h"
 
 Llista servers;
+Config config;
 
 int CLIENT_initClient()
 {
@@ -63,7 +64,7 @@ int CLIENT_runScript(char *buffer)
     }
 }
 
-int CLIENT_checkPorts(char *buffer, Config config)
+int CLIENT_checkPorts(char *buffer, Config inConfig)
 {
     char *buffr;
     char *openPort;
@@ -73,6 +74,7 @@ int CLIENT_checkPorts(char *buffer, Config config)
     int status;
     pid_t pid;
 
+    config=inConfig;
     int pipereturn = pipe(fd);
     if (pipereturn == -1)
     {
@@ -228,14 +230,18 @@ int CLIENT_connectPort(Config config, int connectPort)
             char buff[128];
             Packet p = PACKET_create(T_CONNECT, (int)strlen(H_NAME), H_NAME, (int)strlen(config.username), config.username);
             PACKET_write(p, socket_conn);
+            
 
             Packet j = PACKET_read(socket_conn);
             newServer.name = j.data;
+            
 
             LLISTABID_inserirDarrere(&servers, newServer);
 
             int bytes = sprintf(buff, "%d connected: %s\n", newServer.port, newServer.name);
             IO_write(1, buff, bytes);
+            PACKET_destroy(&p);
+            //PACKET_destroy(&j);
         }
     }
     return 0;
@@ -290,6 +296,35 @@ int CLIENT_write(char *user, char *message)
     return 1;
 }
 
+int CLIENT_exit()
+{
+    // Funció per enviar un paquet a un altre usuari, al que previament estàs connectat
+
+    LLISTABID_vesInici(&servers);
+
+    while (!LLISTABID_final(servers))
+    {
+        Element server = LLISTABID_consulta(servers);
+
+        Packet packet;
+
+        packet.type = 0x06;
+        packet.header = "[]";
+        packet.length = UTILS_sizeOf(config.username);
+        packet.data = config.username;
+
+        PACKET_write(packet, server.socketfd);
+
+        PACKET_read(server.socketfd); //Llegim desconnexio OK
+        close(server.socketfd);
+        IO_write(1,"DISCONNECT", sizeof("DISCONNECT"));
+
+        LLISTABID_avanca(&servers);
+    }
+
+    return 1;
+}
+
 char *CLIENT_read(int fd, char delimiter)
 {
     char *msg = (char *)malloc(1);
@@ -313,13 +348,13 @@ char *CLIENT_read(int fd, char delimiter)
 int CLIENT_freeMemory()
 {
     // Funció de lliberar memoria del CLIENT
-    LLISTABID_vesInici(&servers);
+    /*LLISTABID_vesInici(&servers);
     while (!LLISTABID_final(servers))
     {
         Element server = LLISTABID_consulta(servers);
-        close(server.socketfd);
-        free(server.name);
-    }
+        //close(server.socketfd);
+        //free(server.name);
+    }*/
     LLISTABID_destrueix(&servers);
 
     return 0;

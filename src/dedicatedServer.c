@@ -31,15 +31,15 @@ DServer *DSERVER_init(
 
 int DSERVER_close(DServer *ds)
 {
-    Packet p = PACKET_create(T_EXIT, (int)strlen(H_VOID), H_VOID, (int)strlen(ds->name), ds->name);
+    Packet p;
+
+    p.type = 0x06;
+    p.header = H_CONOK;
+    p.length = 0;
+    p.data = "";
+
     PACKET_write(p, ds->fd);
-    p = PACKET_read(ds->fd);
-    char buff[124];
-    sprintf(buff, "Connexio adeu: %s", p.header);
-    IO_write(1, buff, strlen(buff));
-    if (ds->name != NULL)
-        free(ds->name);
-    free(ds);
+    ds->state=0;
     return 0;
 }
 
@@ -111,13 +111,17 @@ void *DSERVER_threadFunc(void *data)
             //POSAR ALGO AQUI PER ELIMINAR DS DE LISTDS no puc fer la funcio perk necesito el server.h i no el puc incloure
             //LLISTADS_eliminaAmbNode((&(ds->server)->dss),ds);
 
-            Packet p = PACKET_create(T_EXIT, (int)strlen(H_CONOK), H_CONOK, 0, "");
-            PACKET_write(p, ds->fd);
+            IO_write(1,"DISCONNECT", sizeof("DISCONNECT"));
+            DSERVER_close(ds);
+            IO_write(1,"DISCONNECT2", sizeof("DISCONNECT2"));
+
         }
         PACKET_destroy(&p);
+        IO_write(1,"DISCONNECT3", sizeof("DISCONNECT3"));
     }
 
-    DSERVER_close(ds);
-    pthread_exit(0);
-    return (void *)1;
+    
+    //pthread_exit(0);
+    IO_write(1,"DISCONNECT4", sizeof("DISCONNECT4"));
+    return (void *)0;
 }
