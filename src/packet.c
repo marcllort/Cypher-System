@@ -1,13 +1,12 @@
 #include "../libs/packet.h"
 
-Packet PACKET_read(int fd)
+Packet PACKET_read(int fd) // Funcio encarregada de la lectura de un paquet
 {
     Packet pd;
 
     int error = read(fd, &pd.type, 1);
     if (pd.type != 0x01 && pd.type != 0x02 && pd.type != 0x03 && pd.type != 0x04 && pd.type != 0x05 && pd.type != 0x06)
     {
-        //IO_write(1, "buffa", 5);
         pd.headerLength = -1;
         return pd;
     }
@@ -17,11 +16,6 @@ Packet PACKET_read(int fd)
         return PACKET_destroy(&pd);
     }
 
-    //char buff[128];
-    //int bytes;
-    //bytes = sprintf(buff, "TYPE RECIVED %d\n", pd.type);
-    //IO_write(1, buff, bytes);
-
     pd.headerLength = 0;
     pd.header = (char *)malloc(sizeof(char));
     do
@@ -30,29 +24,22 @@ Packet PACKET_read(int fd)
         if (read(fd, &pd.header[pd.headerLength - 1], 1) <= 0)
             return PACKET_destroy(&pd);
     } while (pd.header[pd.headerLength - 1] != ']');
-    //bytes = sprintf(buff, "STRING RECIVED %s \n", pd.header);
-    //IO_write(1, buff, bytes);
 
     if (read(fd, &pd.length, sizeof(uint16_t)) <= 0)
     {
         return PACKET_destroy(&pd);
     }
 
-    //char buff2[128];
-    //bytes = sprintf(buff2, "DATA LENGTH char1: %d \n", pd.length);
-    //IO_write(1, buff2, bytes);
     pd.data = (char *)malloc(sizeof(char) * pd.length);
     if (read(fd, pd.data, pd.length) <= 0)
     {
         return PACKET_destroy(&pd);
     }
-    //bytes = sprintf(buff2, "DATA: %s \n", pd.data);
-    //IO_write(1, buff2, bytes);
 
     return pd;
 }
 int PACKET_write(Packet pd, int fd)
-{
+{ // Funcio per enviar un paquet per parts
 
     IO_write(fd, &pd.type, 1);
 
@@ -70,7 +57,7 @@ int PACKET_write(Packet pd, int fd)
     return 0;
 }
 
-Packet PACKET_destroy(Packet *p)
+Packet PACKET_destroy(Packet *p) // Funcio per destruir la memoria dinamica de un paquet
 {
     p->type = 0;
     p->length = 0;
@@ -92,7 +79,7 @@ Packet PACKET_destroy(Packet *p)
 }
 
 Packet PACKET_create(char type, int headerLength, char *header, unsigned short dataLength, char *data)
-{
+{ // Creacio de un paquet a partir dels parametres
 
     Packet pd;
 

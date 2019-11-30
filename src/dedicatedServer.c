@@ -29,7 +29,7 @@ DServer *DSERVER_init(
     return ds;
 }
 
-int DSERVER_close(DServer *ds)
+int DSERVER_close(DServer *ds)          // Al tancar enviem el missatge de OK respecte hem rebut missatge desconnexio
 {
     Packet p;
 
@@ -53,38 +53,7 @@ int DSERVER_getFd(DServer *ds)
     return ds->fd;
 }
 
-int DSERVER_getState(DServer *ds)
-{
-    return ds->state;
-}
-
-int DSERVER_setState(DServer *ds, int state)
-{
-    return ds->state = state;
-}
-
-char *DSERVER_setName(DServer *ds, char *name, size_t size)
-{
-
-    if ((ds->name = (char *)malloc(sizeof(char) * (size + 1))) != NULL)
-    {
-        memcpy(ds->name, name, size);
-        ds->name[size] = '\0';
-    }
-    return ds->name;
-}
-
-void *DSERVER_getListNode(DServer *ds)
-{
-    return ds->list_node;
-}
-
-void *DSERVER_setListNode(DServer *ds, void *list_node)
-{
-    return ds->list_node = list_node;
-}
-
-void *DSERVER_threadFunc(void *data)
+void *DSERVER_threadFunc(void *data)                // Funcio que corre al thread, encarregada de identificar cada paquet rebut i actuar corresponentment
 {
     DServer *ds = (DServer *)data;
     Packet p;
@@ -97,7 +66,7 @@ void *DSERVER_threadFunc(void *data)
         {
             ds->state = 0;
         }
-        if (p.type == T_MSG)
+        if (p.type == T_MSG)                // En cas de rebre correcatmen un missatge, responem indicant que hem rebut
         {
             char buff[128];
             int bytes = sprintf(buff, CLIENT_SAYS, ds->user);
@@ -109,7 +78,7 @@ void *DSERVER_threadFunc(void *data)
             Packet pok = PACKET_create(T_MSG, (int)strlen(H_MSGOK), H_MSGOK, 0, "");
             PACKET_write(pok, ds->fd);
         }
-        if (p.type == T_EXIT)
+        if (p.type == T_EXIT)               // Tanquem el dedicated server en cas de desconnexio
         {
             DSERVER_close(ds);
         }

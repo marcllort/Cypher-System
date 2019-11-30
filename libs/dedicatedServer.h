@@ -16,8 +16,8 @@
 
 #define KEYPHRASE "Bye"
 #define CLIENT_SAYS "\n[%s]: "
-#define CONNECTED "[Server] Client Connected\n"
-#define BYE "[Server] Bye Client\n"
+#define CONNECTED "Client Connected\n"
+#define BYE "ByeBye Client\n"
 
 typedef struct
 {
@@ -46,15 +46,8 @@ DServer *DSERVER_init(
     char *user);
 
 int DSERVER_close(DServer *ds);
-
-int DSERVER_getFd(DServer *ds);
-int DSERVER_getState(DServer *ds);
-int DSERVER_setState(DServer *ds, int state);
-char *DSERVER_setName(DServer *ds, char *name, size_t size);
 pthread_t *DSERVER_getThread(DServer *ds);
-void *DSERVER_getListNode(DServer *ds);
-void *DSERVER_setListNode(DServer *ds, void *list_node);
-
+int DSERVER_getFd(DServer *ds);
 void *DSERVER_threadFunc(void *data);
 
 #endif //DSERVER_H

@@ -18,7 +18,6 @@
 #include "dedicatedServer.h"
 #include "packet.h"
 
-
 #define ERR_SOCKET "Error creating socket\n"
 #define ERR_IP "Error  IP\n"
 #define ERR_BIND "Error binding socket\n"
@@ -45,21 +44,17 @@ typedef struct
 
 } Server;
 
-Server SERVER_init(char *ip, int port,char *name);
+Server SERVER_init(char *ip, int port, char *name);
 int SERVER_start(Server *server);
 int SERVER_operate(Server *server);
 void SERVER_close(Server *server);
 void SERVER_signHandler();
-
 pthread_t *SERVER_getThread(Server *server);
-
-void SERVER_setMT(Server *server,
-                  void *(*threadFunc)(void *));
-int SERVER_startDS(Server *server, int fd, struct sockaddr_in addr, char* user);
+void SERVER_setFunc(Server *server, void *(*threadFunc)(void *));
+int SERVER_startDS(Server *server, int fd, struct sockaddr_in addr, char *user);
 int SERVER_addDS(void *server, DServer *ds);
 int SERVER_removeDS(void *data);
-int SERVER_removeDSS(Server *server);
-
+int SERVER_removeAllDS(Server *server);
 void *SERVER_threadFunc(void *ds);
 
 #endif

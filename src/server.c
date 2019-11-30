@@ -1,7 +1,7 @@
 #include "../libs/server.h"
 
 Server SERVER_init(char *ip, int port, char *name)
-{
+{           // Inicialitzacio de les vars principals del tipus server
 
     Server server;
     server.name = name;
@@ -15,20 +15,18 @@ Server SERVER_init(char *ip, int port, char *name)
     return server;
 }
 
-pthread_t *SERVER_getThread(Server *server)
+pthread_t *SERVER_getThread(Server *server)     // Getter thread
 {
     return &(server->thread);
 }
 
-void SERVER_setMT(Server *server,
-                  void *(*threadFunc)(void *))
+void SERVER_setFunc(Server *server, void *(*threadFunc)(void *))        // Setter funcio thread
 {
     server->threadFunc = threadFunc;
 }
 
-int SERVER_start(Server *server)
+int SERVER_start(Server *server)            // Inicializacio server principal, encarregat rebre peticions de connexio
 {
-
     if ((server->fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
     {
         IO_write(1, ERR_SOCKET, strlen(ERR_SOCKET));
@@ -41,10 +39,7 @@ int SERVER_start(Server *server)
     s_addr.sin_family = AF_INET;
     s_addr.sin_port = htons((uint16_t)server->port);
     s_addr.sin_addr.s_addr = inet_addr(server->ip);
-    //char buff [100];
 
-    //int bytes = sprintf(buff, "PORT : %d IP: %s\n", server->port,server->ip);
-    //write(1, buff, bytes);
     if (inet_aton(server->ip, &s_addr.sin_addr) == 0)
     {
 
@@ -73,7 +68,7 @@ int SERVER_start(Server *server)
     return server->state = 0;
 }
 
-int SERVER_startDS(Server *server, int fd, struct sockaddr_in addr, char *user)
+int SERVER_startDS(Server *server, int fd, struct sockaddr_in addr, char *user) // Inicialitzacio de server dedicat
 {
 
     DServer *ds = DSERVER_init(server->ids++, fd, 0, 0, addr, server, server->name, SERVER_removeDS, user);
@@ -82,7 +77,6 @@ int SERVER_startDS(Server *server, int fd, struct sockaddr_in addr, char *user)
 
     if (pthread_create(DSERVER_getThread(ds), NULL, DSERVER_threadFunc, ds) != 0)
     {
-
         return EXIT_FAILURE;
     }
 
@@ -91,7 +85,7 @@ int SERVER_startDS(Server *server, int fd, struct sockaddr_in addr, char *user)
     return 0;
 }
 
-int SERVER_operate(Server *server)
+int SERVER_operate(Server *server)          // Funcio que va llegint paquets i segons el tipus crea un nou dedicated server o respon a la peticio
 {
 
     server->state = 1;
@@ -136,7 +130,6 @@ int SERVER_operate(Server *server)
 
                     if (!strcmp(p.header, H_CONOK))
                     {
-                        //START CONNECTION TO HAVE FD THE OTHER WAY
                         SERVER_startDS(server, server->fdserver, s_addr, name);
                     }
                 }
@@ -147,18 +140,8 @@ int SERVER_operate(Server *server)
     return 1;
 }
 
-int removeDS(Server *server, DServer *ds)
-{
-    close(DSERVER_getFd(ds));
-    IO_write(1, server->name, sizeof(server->name));
 
-    //LLISTADS_eliminaAmbNode(&()->dss, DSERVER_getListNode(ds));
-
-    //printf("List size: %d\n", (int) LLISTADS_getMida(&((Server*)ds->server)->dss));
-    return 0;
-}
-
-int SERVER_removeDS(void *data)
+int SERVER_removeDS(void *data)     // Funcio per borrar el dedicated server passat per parametres
 {
 
     DServer *ds = (DServer *)data;
@@ -166,7 +149,9 @@ int SERVER_removeDS(void *data)
 
     pthread_mutex_lock(&server->mutex);
 
-    removeDS(server, ds);
+    close(DSERVER_getFd(ds));
+    IO_write(1, server->name, sizeof(server->name));
+
     DSERVER_close(ds);
 
     pthread_mutex_unlock(&server->mutex);
@@ -174,21 +159,17 @@ int SERVER_removeDS(void *data)
     return 0;
 }
 
-int SERVER_addDS(void *server, DServer *ds)
+int SERVER_addDS(void *server, DServer *ds)     // Funcio per afegir server dedicat a la llista
 {
-
     Server *s = (Server *)server;
-
-    /*Nodeds *node*/ int i = LLISTADS_inserirDavant(&s->dss, ds); //NOSE PERQUE HO VOL AFEGIR 2 ABANS
-    // ESTA MALAMENT AIXO, LLISTADS INSERIR DAVANAT RETORNA UN INT, NO UN NODE
-    //DSERVER_setListNode(ds, node);
+    int i = LLISTADS_inserirDavant(&s->dss, ds);
 
     ds->state = 1;
 
     return i;
 }
 
-int SERVER_removeDSS(Server *server)
+int SERVER_removeAllDS(Server *server)      // Funcio per borrar tots els dedicated servers
 {
 
     LLISTADS_vesInici(&server->dss);
@@ -196,7 +177,9 @@ int SERVER_removeDSS(Server *server)
     while (!LLISTADS_final(server->dss))
     {
         DServer *ds = LLISTADS_consulta(server->dss);
-        removeDS(server, ds);
+        close(DSERVER_getFd(ds));
+        IO_write(1, server->name, sizeof(server->name));
+
         pthread_join(*DSERVER_getThread(ds), NULL);
         DSERVER_close(ds);
 
@@ -208,10 +191,10 @@ int SERVER_removeDSS(Server *server)
     return 0;
 }
 
-void SERVER_close(Server *server)
+void SERVER_close(Server *server)       // Funcio per tancar server principal
 {
 
-    SERVER_removeDSS(server);
+    SERVER_removeAllDS(server);
     server->state = -1;
     close(server->fdserver);
     close(server->fd);
@@ -219,7 +202,7 @@ void SERVER_close(Server *server)
     IO_write(1, GOODBYE, strlen(GOODBYE));
 }
 
-void *SERVER_threadFunc(void *data)
+void *SERVER_threadFunc(void *data)     // Funcio executada per el thread del server principal
 {
     Server *server = (Server *)data;
 

@@ -212,7 +212,7 @@ int CLIENT_connectPort(Config config, int connectPort)
             s_addr.sin_port = htons(connectPort);
             s_addr.sin_addr.s_addr = inet_addr(ip);
 
-            if (connect(socket_conn, (void *)&s_addr, sizeof(s_addr)) < 0)
+            if (connect(socket_conn, (void *)&s_addr, sizeof(s_addr)) < 0) // Creem socket de connexio
             {
                 char buff[128];
                 int bytes = sprintf(buff, MSG_ERR_CONN, connectPort);
@@ -222,11 +222,10 @@ int CLIENT_connectPort(Config config, int connectPort)
             }
         }
         if (socket_conn != -1)
-        {
+        { // Enviem primer missatge seguint protocol comunicacio
             newServer.port = connectPort;
             newServer.socketfd = socket_conn;
 
-            //IMPORTANT POSAR newServer.name = CLIENT_get_message(socket_conn, '\n');
             char buff[128];
             Packet p = PACKET_create(T_CONNECT, (int)strlen(H_NAME), H_NAME, (int)strlen(config.username), config.username);
             PACKET_write(p, socket_conn);
@@ -243,11 +242,6 @@ int CLIENT_connectPort(Config config, int connectPort)
             PACKET_destroy(&p);
         }
     }
-    return 0;
-}
-
-int CLIENT_msgConnection()
-{
     return 0;
 }
 
@@ -293,7 +287,7 @@ int CLIENT_write(char *user, char *message)
 
 int CLIENT_exit()
 {
-    // Funció per enviar un paquet a un altre usuari, al que previament estàs connectat
+    // Funció per enviar paquets de desconnexio a tots els usuaris connectats
 
     LLISTABID_vesInici(&servers);
 

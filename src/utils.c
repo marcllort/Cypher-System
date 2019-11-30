@@ -95,7 +95,7 @@ char *UTILS_readKB()
 {
     char c = '\0';
     int count = 0;
-    //El unic memory leak que tenim es aquest, inicialitzem la variable a 1 char
+
     bufferKB = (char *)malloc(sizeof(char));
     while (c != '\n')
     {
