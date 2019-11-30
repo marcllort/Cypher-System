@@ -32,7 +32,6 @@ typedef struct
     void *(*operate)(void *);
     int (*remove)(void *);
     char *user;
-    //File                file;
 } DServer;
 
 DServer *DSERVER_init(

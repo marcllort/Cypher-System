@@ -129,7 +129,7 @@ int SERVER_operate(Server *server)
                         int error = write(server->fdserver, &p.length, sizeof(uint16_t));
                         if (error < 0)
                         {
-                            IO_write(1, "Write error", strlen("Write error"));
+                            IO_write(1, " ", strlen(" "));
                         }
                         IO_write(server->fdserver, p.data, strlen(p.data));
                     }
@@ -149,13 +149,10 @@ int SERVER_operate(Server *server)
 
 int removeDS(Server *server, DServer *ds)
 {
-    IO_write(1, "ll", 2);
     close(DSERVER_getFd(ds));
-    IO_write(1, "jj", 2);
     IO_write(1, server->name, sizeof(server->name));
 
     //LLISTADS_eliminaAmbNode(&()->dss, DSERVER_getListNode(ds));
-    IO_write(1, "jj", 2);
 
     //printf("List size: %d\n", (int) LLISTADS_getMida(&((Server*)ds->server)->dss));
     return 0;
@@ -220,8 +217,6 @@ void SERVER_close(Server *server)
     close(server->fd);
     LLISTADS_destrueix(&server->dss);
     IO_write(1, GOODBYE, strlen(GOODBYE));
-
-    //pthread_kill(server->thread, SIGTERM);
 }
 
 void *SERVER_threadFunc(void *data)

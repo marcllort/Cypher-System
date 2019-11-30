@@ -170,8 +170,6 @@ int MANAGER_manageCommand(char *inputString)
         IO_write(1, COMMAND_ERROR, strlen(COMMAND_ERROR));
     }
 
-    //free(inputString);
-
     return 1;
 }
 void MANAGER_freeMemory()

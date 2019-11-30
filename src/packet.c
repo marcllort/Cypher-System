@@ -62,7 +62,7 @@ int PACKET_write(Packet pd, int fd)
 
     if (error < 0)
     {
-        IO_write(1, "Write error", strlen("Write error"));
+        IO_write(1, " ", strlen(" "));
     }
 
     IO_write(fd, pd.data, strlen(pd.data));

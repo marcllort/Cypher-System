@@ -241,7 +241,6 @@ int CLIENT_connectPort(Config config, int connectPort)
             int bytes = sprintf(buff, "%d connected: %s\n", newServer.port, newServer.name);
             IO_write(1, buff, bytes);
             PACKET_destroy(&p);
-            //PACKET_destroy(&j);
         }
     }
     return 0;
@@ -314,7 +313,6 @@ int CLIENT_exit()
         PACKET_read(server.socketfd); //Llegim desconnexio OK
         close(server.socketfd);
         free(server.name);
-        IO_write(1, "DISCONNECT", sizeof("DISCONNECT"));
 
         LLISTABID_avanca(&servers);
     }

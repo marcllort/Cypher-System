@@ -50,14 +50,9 @@ void MAIN_registerSignal()
 void MAIN_freeMemory()
 {
     CLIENT_exit();
-    IO_write(1,"CLIENT_exit", sizeof("CLIENT_exit"));
     CLIENT_freeMemory();
-    IO_write(1,"CLIENT_freeMemory", sizeof("CLIENT_freeMemory"));
     UTILS_freeMemory();
-    IO_write(1,"UTILS_freeMemory", sizeof("UTILS_freeMemory"));
     MANAGER_freeMemory();
-    IO_write(1,"MANAGER_freeMemory", sizeof("MANAGER_freeMemory"));
     NETWORK_close();
-    IO_write(1,"NETWORK_close", sizeof("NETWORK_close"));
     exit(1);
 }

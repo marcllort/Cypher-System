@@ -39,7 +39,7 @@ int DSERVER_close(DServer *ds)
     p.data = "";
 
     PACKET_write(p, ds->fd);
-    ds->state=0;
+    ds->state = 0;
     return 0;
 }
 
@@ -111,16 +111,10 @@ void *DSERVER_threadFunc(void *data)
         }
         if (p.type == T_EXIT)
         {
-            //POSAR ALGO AQUI PER ELIMINAR DS DE LISTDS no puc fer la funcio perk necesito el server.h i no el puc incloure
-            //LLISTADS_eliminaAmbNode((&(ds->server)->dss),ds);
-
             DSERVER_close(ds);
-
         }
         PACKET_destroy(&p);
     }
 
-    
-    //pthread_exit(0);
     return (void *)0;
 }
