@@ -100,7 +100,10 @@ void *DSERVER_threadFunc(void *data)
         if (p.type == T_MSG)
         {
             char buff[128];
-            int bytes = sprintf(buff, CLIENT_SAYS, ds->user, p.data);
+            int bytes = sprintf(buff, CLIENT_SAYS, ds->user);
+            IO_write(1, buff, bytes);
+            IO_write(1, p.data, p.length);
+            bytes = sprintf(buff, "\n");
             IO_write(1, buff, bytes);
             UTILS_printName(ds->name);
             Packet pok = PACKET_create(T_MSG, (int)strlen(H_MSGOK), H_MSGOK, 0, "");
@@ -111,17 +114,13 @@ void *DSERVER_threadFunc(void *data)
             //POSAR ALGO AQUI PER ELIMINAR DS DE LISTDS no puc fer la funcio perk necesito el server.h i no el puc incloure
             //LLISTADS_eliminaAmbNode((&(ds->server)->dss),ds);
 
-            IO_write(1,"DISCONNECT", sizeof("DISCONNECT"));
             DSERVER_close(ds);
-            IO_write(1,"DISCONNECT2", sizeof("DISCONNECT2"));
 
         }
         PACKET_destroy(&p);
-        IO_write(1,"DISCONNECT3", sizeof("DISCONNECT3"));
     }
 
     
     //pthread_exit(0);
-    IO_write(1,"DISCONNECT4", sizeof("DISCONNECT4"));
     return (void *)0;
 }

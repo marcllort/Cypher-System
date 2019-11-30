@@ -74,7 +74,7 @@ int CLIENT_checkPorts(char *buffer, Config inConfig)
     int status;
     pid_t pid;
 
-    config=inConfig;
+    config = inConfig;
     int pipereturn = pipe(fd);
     if (pipereturn == -1)
     {
@@ -230,13 +230,11 @@ int CLIENT_connectPort(Config config, int connectPort)
             char buff[128];
             Packet p = PACKET_create(T_CONNECT, (int)strlen(H_NAME), H_NAME, (int)strlen(config.username), config.username);
             PACKET_write(p, socket_conn);
-            
 
             Packet j = PACKET_read(socket_conn);
 
-
             newServer.name = j.data;
-            free(j.header);    
+            free(j.header);
 
             LLISTABID_inserirDarrere(&servers, newServer);
 
@@ -270,10 +268,7 @@ int CLIENT_write(char *user, char *message)
 
         if (strcmp(server.name, user) == 0)
         {
-
             Packet packet;
-            bytes = sprintf(buff, "%s\n", message);
-
             packet.type = 0x02;
             packet.header = "[MSG]";
             packet.length = UTILS_sizeOf(message);
@@ -282,7 +277,6 @@ int CLIENT_write(char *user, char *message)
             PACKET_write(packet, server.socketfd);
 
             PACKET_read(server.socketfd);
-
             trobat = 1;
         }
         else
@@ -316,11 +310,11 @@ int CLIENT_exit()
         packet.data = config.username;
 
         PACKET_write(packet, server.socketfd);
-        
+
         PACKET_read(server.socketfd); //Llegim desconnexio OK
         close(server.socketfd);
         free(server.name);
-        IO_write(1,"DISCONNECT", sizeof("DISCONNECT"));
+        IO_write(1, "DISCONNECT", sizeof("DISCONNECT"));
 
         LLISTABID_avanca(&servers);
     }
@@ -351,7 +345,7 @@ char *CLIENT_read(int fd, char delimiter)
 int CLIENT_freeMemory()
 {
     // Funció de lliberar memoria del CLIENT
-    
+
     LLISTABID_destrueix(&servers);
 
     return 0;

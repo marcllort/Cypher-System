@@ -15,7 +15,7 @@
 #include "packet.h"
 
 #define KEYPHRASE "Bye"
-#define CLIENT_SAYS "\n[%s]: %s\n"
+#define CLIENT_SAYS "\n[%s]: "
 #define CONNECTED "[Server] Client Connected\n"
 #define BYE "[Server] Bye Client\n"
 
