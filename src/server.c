@@ -218,10 +218,10 @@ void SERVER_close(Server *server)
     server->state = -1;
     close(server->fdserver);
     close(server->fd);
-    pthread_kill(server->thread, SIGTERM);
     LLISTADS_destrueix(&server->dss);
-
     IO_write(1, GOODBYE, strlen(GOODBYE));
+
+    //pthread_kill(server->thread, SIGTERM);
 }
 
 void *SERVER_threadFunc(void *data)

@@ -34,8 +34,8 @@ int NETWORK_close()
     //tancar server i threads i forks
     CONFIG_close(&config);
     SERVER_close(&trinity);
-    pthread_kill(*SERVER_getThread(&trinity), SIGTERM);
-    //pthread_join(*SERVER_getThread(&trinity), NULL);
+    pthread_cancel(*SERVER_getThread(&trinity));
+    pthread_join(*SERVER_getThread(&trinity), NULL);
     
 
     return 0;
