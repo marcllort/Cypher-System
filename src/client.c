@@ -233,8 +233,10 @@ int CLIENT_connectPort(Config config, int connectPort)
             
 
             Packet j = PACKET_read(socket_conn);
+
+
             newServer.name = j.data;
-            
+            free(j.header);    
 
             LLISTABID_inserirDarrere(&servers, newServer);
 
@@ -314,9 +316,10 @@ int CLIENT_exit()
         packet.data = config.username;
 
         PACKET_write(packet, server.socketfd);
-
+        
         PACKET_read(server.socketfd); //Llegim desconnexio OK
         close(server.socketfd);
+        free(server.name);
         IO_write(1,"DISCONNECT", sizeof("DISCONNECT"));
 
         LLISTABID_avanca(&servers);
@@ -348,13 +351,7 @@ char *CLIENT_read(int fd, char delimiter)
 int CLIENT_freeMemory()
 {
     // Funció de lliberar memoria del CLIENT
-    /*LLISTABID_vesInici(&servers);
-    while (!LLISTABID_final(servers))
-    {
-        Element server = LLISTABID_consulta(servers);
-        //close(server.socketfd);
-        //free(server.name);
-    }*/
+    
     LLISTABID_destrueix(&servers);
 
     return 0;
