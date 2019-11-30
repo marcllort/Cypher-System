@@ -24,20 +24,19 @@ int main(int argc, char **argv)
     NETWORK_init(config);
     MAIN_registerSignal(); // Registrem el signal de ctrl c
     char *cadena = NULL;
+
     while (1)
     { // Mentre no es tanqui el progama, escrivim nom de programa i llegim la comanda
         UTILS_printName(CONFIG_getUsername(config));
-        //IO_readUntil(0, &cadena, '\n');
         cadena = UTILS_readKB();
-        
         if (strlen(cadena) > 3)
         {
             MANAGER_manageCommand(cadena);
-        }else
+        }
+        else
         {
             IO_write(1, COMMAND_ERROR, strlen(COMMAND_ERROR));
         }
-        
     }
 
     return 0;

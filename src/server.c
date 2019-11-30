@@ -73,7 +73,7 @@ int SERVER_start(Server *server)
     return server->state = 0;
 }
 
-int SERVER_startDS(Server *server, int fd, struct sockaddr_in addr, char* user)
+int SERVER_startDS(Server *server, int fd, struct sockaddr_in addr, char *user)
 {
 
     DServer *ds = DSERVER_init(server->ids++, fd, 0, 0, addr, server, server->name, SERVER_removeDS, user);
@@ -112,36 +112,34 @@ int SERVER_operate(Server *server)
             }
 
         } while (fd <= 0);
-        
+
         Packet p = PACKET_read(fd);
         char name[120];
         if (p.headerLength != -1)
         {
-            IO_write(1, WAITING, strlen(WAITING));
             if (p.type == T_CONNECT)
             {
                 if (!strcmp(p.header, H_NAME))
                 {
-                    //Aqui si funciones amb el create i el write millor, perque els necesitrem per el dedicatedserver i si els tenim funcionant ho podem aprofitar
-                    //Packet psend = PACKET_create(T_CONNECT, (int)strlen(H_CONOK), H_CONOK, (int)strlen((*server).name), (*server).name);
-                    //PACKET_write(psend, fd);
-                    //name = malloc(sizeof(p.data));
-                    //strcpy(name,p.data);
-                    int bytes = sprintf(name, "%s", p.data);
+                    sprintf(name, "%s", p.data);
 
                     IO_write(fd, &p.type, 1);
                     p.header = H_CONOK;
                     IO_write(fd, p.header, strlen(p.header));
                     p.data = (*server).name;
-                    p.length = sizeof(p.data)+1;
-                    write(fd, &p.length, sizeof(uint16_t));
+                    p.length = sizeof(p.data) + 1;
+                    int error = write(fd, &p.length, sizeof(uint16_t));
+                    if (error < 0)
+                    {
+                        IO_write(1, "Write error", strlen("Write error"));
+                    }
                     IO_write(fd, p.data, strlen(p.data));
                 }
 
                 if (!strcmp(p.header, H_CONOK))
                 {
                     //START CONNECTION TO HAVE FD THE OTHER WAY
-                    SERVER_startDS(server, fd, s_addr,name);
+                    SERVER_startDS(server, fd, s_addr, name);
                 }
             }
         }
@@ -150,15 +148,15 @@ int SERVER_operate(Server *server)
     return EXIT_SUCCESS;
 }
 
-int removeDS(Server* server,DServer *ds)
+int removeDS(Server *server, DServer *ds)
 {
-    write(1,"ll",2);
+    IO_write(1, "ll", 2);
     close(DSERVER_getFd(ds));
-    write(1,"jj",2);
-    write(1,server->name,sizeof(server->name));
+    IO_write(1, "jj", 2);
+    IO_write(1, server->name, sizeof(server->name));
 
     //LLISTADS_eliminaAmbNode(&()->dss, DSERVER_getListNode(ds));
-     write(1,"jj",2);
+    IO_write(1, "jj", 2);
 
     //printf("List size: %d\n", (int) LLISTADS_getMida(&((Server*)ds->server)->dss));
     return 0;
@@ -172,7 +170,7 @@ int SERVER_removeDS(void *data)
 
     pthread_mutex_lock(&server->mutex);
 
-    removeDS(server,ds);
+    removeDS(server, ds);
     DSERVER_close(ds);
 
     pthread_mutex_unlock(&server->mutex);
@@ -202,7 +200,7 @@ int SERVER_removeDSS(Server *server)
     while (!LLISTADS_final(server->dss))
     {
         DServer *ds = LLISTADS_consulta(server->dss);
-        removeDS(server,ds);
+        removeDS(server, ds);
         pthread_join(*DSERVER_getThread(ds), NULL);
         DSERVER_close(ds);
 
@@ -218,10 +216,10 @@ void SERVER_close(Server *server)
 {
 
     SERVER_removeDSS(server);
-    write(1,"cc",2);
+    IO_write(1, "cc", 2);
     server->state = -1;
     close(server->fd);
-    write(1,"dd",2);
+    IO_write(1, "dd", 2);
     LLISTADS_destrueix(&server->dss);
 
     IO_write(1, GOODBYE, strlen(GOODBYE));

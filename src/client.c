@@ -229,52 +229,8 @@ int CLIENT_connectPort(Config config, int connectPort)
             Packet p = PACKET_create(T_CONNECT, (int)strlen(H_NAME), H_NAME, (int)strlen(config.username), config.username);
             PACKET_write(p, socket_conn);
 
-            //NO PROVA
             Packet j = PACKET_read(socket_conn);
-            //newServer.name = "data"; //j.data;
-
-            //PROVA
-            /*nt fd = socket_conn;
-            Packet pd = PACKET_create("0", strlen("[TR_caca]"), "[TR_caca]", strlen("t"), "t");
-
-            if (read(fd, &pd.type, 1) <= 0)
-            {
-
-                //return PACKET_destroy(&pd);
-            }
-
-            //char buff[128];
-            //int bytes;
-            //int bytes = sprintf(buff, "TYPE RECIVED %d\n", pd.type);
-            //IO_write(1, buff, bytes);
-
-            free(pd.header);
-            pd.headerLength = 0;
-            do
-            {
-                pd.header = (char *)realloc((void *)pd.header, ++pd.headerLength * sizeof(char));
-                read(fd, &pd.header[pd.headerLength - 1], 1);
-                    
-            } while (pd.header[pd.headerLength - 1] != ']');
-            //bytes = sprintf(buff, "STRING RECIVED %s \n", pd.header);
-            //IO_write(1, buff, bytes);
-
-            if (read(fd, &pd.length, sizeof(uint16_t)) <= 0)
-            {
-                //return PACKET_destroy(&pd);
-            }
-
-            char buff2[128];
-            //bytes = sprintf(buff2, "DATA LENGTH char1: %d \n", pd.length);
-            //IO_write(1, buff2, bytes);
-            //newServer.name = (char *)malloc(sizeof(char) * 5);
-
-            
-            //strcpy(newServer.name, "dataa");
-            read(fd, pd.data, pd.length);*/
-            
-            //END PROVA
-            newServer.name=j.data;
+            newServer.name = j.data;
 
             LLISTABID_inserirDarrere(&servers, newServer);
 
@@ -303,9 +259,8 @@ int CLIENT_write(char *user, char *message)
     while (!LLISTABID_final(servers) && !trobat)
     {
         Element server = LLISTABID_consulta(servers);
-        //bytes = sprintf(buff, "%s , %s ", server.name, user);
-        //IO_write(1, buff, bytes);
-        if (strcmp(server.name, user) == 0) //strcmp("prova", user) serveix per provar el say, si fas connect i despres say prova sallefest, funciona
+
+        if (strcmp(server.name, user) == 0)
         {
 
             Packet packet;
@@ -316,16 +271,10 @@ int CLIENT_write(char *user, char *message)
             packet.length = UTILS_sizeOf(message);
             packet.data = message;
 
-            PACKET_write(packet,server.socketfd);
-            /*IO_write(server.socketfd, &packet.type, 1);
-            IO_write(server.socketfd, packet.header, strlen(packet.header));
-            write(server.socketfd, &packet.length, sizeof(uint16_t));
-            IO_write(server.socketfd, packet.data, packet.length);*/
+            PACKET_write(packet, server.socketfd);
 
-            //void *ptr = &buff; Serveix per provar enviar missatge en comptes de paquet
-            //void *ptr = &packet;
+            PACKET_read(server.socketfd);
 
-            //IO_write(server.socketfd, ptr, bytes); //Cal provar si funciona, fent cast desde el server
             trobat = 1;
         }
         else

@@ -1,7 +1,5 @@
 #include "../libs/commandManager.h"
 
-
-
 Config config;
 
 int MANAGER_setConfig(Config newConfig)
@@ -56,10 +54,6 @@ int MANAGER_manageCommand(char *inputString)
             if (words[2])
             {
                 free(inputString);
-
-                /*char buff[124];
-                    sprintf(buff,"Ultima lletra: %c",words[2][UTILS_sizeOf(words[2]) - 1]);
-                     IO_write(1, buff, strlen(buff));*/
 
                 if (words[2][0] == '"' && words[2][UTILS_sizeOf(words[2]) - 1] == '"') // Comprovem que el text a enviar estigui envoltat de cometes
                 {

@@ -13,7 +13,7 @@ int NETWORK_init(Config config)
     //char buff [100];
     int port = CONFIG_getMyPort(config);
     char *ip = CONFIG_getMyIP(config);
-    char * name = CONFIG_getUsername(config);
+    char *name = CONFIG_getUsername(config);
     //int bytes = sprintf(buff, "NETWORK PORT : %d IP: %s knjk\n",port ,ip);
     //write(1,buff, sizeof(buff));
 
@@ -26,8 +26,6 @@ int NETWORK_init(Config config)
     }
     //pthread_join(*SERVER_getThread(&trinity), NULL);
     return 0;
-
-    
 }
 
 int NETWORK_close()
@@ -154,10 +152,6 @@ void *MCT_DS_operate(void *dat)
             {
                 IO_write(1, "Error read", sizeof("Error read"));
             }
-
-            /*IO_write(1, CLIENT_SAYS, strlen(CLIENT_SAYS));
-            IO_write(1, msg, strlen(msg));
-            IO_write(1, "\n", sizeof(char));*/
 
             if (strcmp(msg, KEYPHRASE) == 0)
             {

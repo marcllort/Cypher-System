@@ -9,7 +9,7 @@ DServer *DSERVER_init(
     void *server,
     char *name,
     int (*remove)(void *),
-    char* user)
+    char *user)
 {
     DServer *ds = (DServer *)malloc(sizeof(DServer));
 
@@ -24,7 +24,7 @@ DServer *DSERVER_init(
         ds->server = server;
         ds->list_node = NULL;
         ds->remove = remove;
-        ds->user=user;
+        ds->user = user;
     }
     return ds;
 }
@@ -32,10 +32,10 @@ DServer *DSERVER_init(
 int DSERVER_close(DServer *ds)
 {
     Packet p = PACKET_create(T_EXIT, (int)strlen(H_VOID), H_VOID, (int)strlen(ds->name), ds->name);
-    PACKET_write(p,ds->fd);
+    PACKET_write(p, ds->fd);
     p = PACKET_read(ds->fd);
     char buff[124];
-    sprintf(buff,"Connexio adeu: %s",p.header);
+    sprintf(buff, "Connexio adeu: %s", p.header);
     IO_write(1, buff, strlen(buff));
     if (ds->name != NULL)
         free(ds->name);
@@ -86,16 +86,15 @@ void *DSERVER_setListNode(DServer *ds, void *list_node)
 
 void *DSERVER_threadFunc(void *data)
 {
-    //Aqui caldria posar d'alguna manera una funcio semblant a la de server operate pero sense el accept i aixo que nomes facir read
     DServer *ds = (DServer *)data;
-    //IO_write(1, CONNECTED, strlen(CONNECTED));
     Packet p;
     int fd = ds->fd;
     ds->state = 1;
     while (ds->state)
     {
         p = PACKET_read(fd);
-        if(p.headerLength == -1){
+        if (p.headerLength == -1)
+        {
             ds->state = 0;
         }
         if (p.type == T_MSG)
@@ -104,6 +103,8 @@ void *DSERVER_threadFunc(void *data)
             int bytes = sprintf(buff, CLIENT_SAYS, ds->user, p.data);
             IO_write(1, buff, bytes);
             UTILS_printName(ds->name);
+            Packet pok = PACKET_create(T_MSG, (int)strlen(H_MSGOK), H_MSGOK, 0, "");
+            PACKET_write(pok, ds->fd);
         }
         if (p.type == T_EXIT)
         {
@@ -111,20 +112,12 @@ void *DSERVER_threadFunc(void *data)
             //LLISTADS_eliminaAmbNode((&(ds->server)->dss),ds);
 
             Packet p = PACKET_create(T_EXIT, (int)strlen(H_CONOK), H_CONOK, 0, "");
-            PACKET_write(p,ds->fd);
-            
+            PACKET_write(p, ds->fd);
         }
-        //free(p);
-        //free(&p.data);
-        //free(&p.header);
-        //char buff[128];
-        //IO_write(1, p.data, p.length);
-        //IO_write(1, "p.data", sizeof("p.data"));
-        //wait(100);
         PACKET_destroy(&p);
     }
-    
+
     DSERVER_close(ds);
     pthread_exit(0);
-    return 1;
+    return (void *)1;
 }
