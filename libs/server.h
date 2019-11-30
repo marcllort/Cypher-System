@@ -59,7 +59,7 @@ pthread_t *SERVER_getThread(Server *server);
 
 void SERVER_setMT(Server *server,
                   void *(*threadFunc)(void *));
-
+int SERVER_startDS(Server *server, int fd, struct sockaddr_in addr, char* user);
 int SERVER_addDS(void *server, DServer *ds);
 int SERVER_removeDS(void *data);
 int SERVER_removeDSS(Server *server);

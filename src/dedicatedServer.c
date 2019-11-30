@@ -8,7 +8,8 @@ DServer *DSERVER_init(
     struct sockaddr_in addr,
     void *server,
     char *name,
-    int (*remove)(void *))
+    int (*remove)(void *),
+    char* user)
 {
     DServer *ds = (DServer *)malloc(sizeof(DServer));
 
@@ -23,6 +24,7 @@ DServer *DSERVER_init(
         ds->server = server;
         ds->list_node = NULL;
         ds->remove = remove;
+        ds->user=user;
     }
     return ds;
 }
@@ -99,9 +101,9 @@ void *DSERVER_threadFunc(void *data)
         if (p.type == T_MSG)
         {
             char buff[128];
-            int bytes = sprintf(buff, CLIENT_SAYS, ds->name, p.data);
+            int bytes = sprintf(buff, CLIENT_SAYS, ds->user, p.data);
             IO_write(1, buff, bytes);
-            
+            UTILS_printName(ds->name);
         }
         if (p.type == T_EXIT)
         {

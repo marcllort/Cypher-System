@@ -73,10 +73,10 @@ int SERVER_start(Server *server)
     return server->state = 0;
 }
 
-int SERVER_startDS(Server *server, int fd, struct sockaddr_in addr)
+int SERVER_startDS(Server *server, int fd, struct sockaddr_in addr, char* user)
 {
 
-    DServer *ds = DSERVER_init(server->ids++, fd, 0, 0, addr, server, server->name, SERVER_removeDS);
+    DServer *ds = DSERVER_init(server->ids++, fd, 0, 0, addr, server, server->name, SERVER_removeDS, user);
 
     SERVER_addDS(server, ds);
 
@@ -114,6 +114,7 @@ int SERVER_operate(Server *server)
         } while (fd <= 0);
         
         Packet p = PACKET_read(fd);
+        char name[120];
         if (p.headerLength != -1)
         {
             IO_write(1, WAITING, strlen(WAITING));
@@ -122,11 +123,17 @@ int SERVER_operate(Server *server)
                 if (!strcmp(p.header, H_NAME))
                 {
                     //Aqui si funciones amb el create i el write millor, perque els necesitrem per el dedicatedserver i si els tenim funcionant ho podem aprofitar
+                    //Packet psend = PACKET_create(T_CONNECT, (int)strlen(H_CONOK), H_CONOK, (int)strlen((*server).name), (*server).name);
+                    //PACKET_write(psend, fd);
+                    //name = malloc(sizeof(p.data));
+                    //strcpy(name,p.data);
+                    int bytes = sprintf(name, "%s", p.data);
+
                     IO_write(fd, &p.type, 1);
                     p.header = H_CONOK;
                     IO_write(fd, p.header, strlen(p.header));
                     p.data = (*server).name;
-                    p.length = sizeof(p.data);
+                    p.length = sizeof(p.data)+1;
                     write(fd, &p.length, sizeof(uint16_t));
                     IO_write(fd, p.data, strlen(p.data));
                 }
@@ -134,7 +141,7 @@ int SERVER_operate(Server *server)
                 if (!strcmp(p.header, H_CONOK))
                 {
                     //START CONNECTION TO HAVE FD THE OTHER WAY
-                    SERVER_startDS(server, fd, s_addr);
+                    SERVER_startDS(server, fd, s_addr,name);
                 }
             }
         }

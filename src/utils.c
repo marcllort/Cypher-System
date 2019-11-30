@@ -70,10 +70,10 @@ int UTILS_valid_digit(char *ip_str)
 }
 
 // Function to print name of the Trinity program
-int UTILS_printName(Config config)
+int UTILS_printName(char *config)
 {
     char buff[128];
-    int n = sprintf(buff, "$%s: ", CONFIG_getUsername(config));
+    int n = sprintf(buff, "$%s: ", config);
     IO_write(1, buff, n);
 
     return n;

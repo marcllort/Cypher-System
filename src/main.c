@@ -26,7 +26,7 @@ int main(int argc, char **argv)
     char *cadena = NULL;
     while (1)
     { // Mentre no es tanqui el progama, escrivim nom de programa i llegim la comanda
-        UTILS_printName(config);
+        UTILS_printName(CONFIG_getUsername(config));
         //IO_readUntil(0, &cadena, '\n');
         cadena = UTILS_readKB();
         
