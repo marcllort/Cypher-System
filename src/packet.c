@@ -13,7 +13,8 @@ Packet PACKET_read(int fd) // Funcio encarregada de la lectura de un paquet
 
     if (error <= 0)
     {
-        return PACKET_destroy(&pd);
+        pd.headerLength = -1;//nose si esta be
+        return pd;
     }
 
     pd.headerLength = 0;

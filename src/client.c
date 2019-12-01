@@ -2,6 +2,7 @@
 
 Llista servers;
 Config config;
+int lastfd;
 
 int CLIENT_initClient()
 {
@@ -245,6 +246,11 @@ int CLIENT_connectPort(Config config, int connectPort)
     return 0;
 }
 
+int fd_is_valid(int fd)
+{
+    return fcntl(fd, F_GETFD) != -1 || errno != EBADF;
+}
+
 int CLIENT_write(char *user, char *message)
 {
     // Funció per enviar un paquet a un altre usuari, al que previament estàs connectat
@@ -261,6 +267,7 @@ int CLIENT_write(char *user, char *message)
 
         if (strcmp(server.name, user) == 0)
         {
+
             Packet packet;
             packet.type = 0x02;
             packet.header = "[MSG]";
@@ -268,6 +275,8 @@ int CLIENT_write(char *user, char *message)
             packet.data = message;
 
             PACKET_write(packet, server.socketfd);
+
+            lastfd = server.socketfd;
 
             PACKET_read(server.socketfd);
             trobat = 1;
@@ -332,6 +341,45 @@ char *CLIENT_read(int fd, char delimiter)
     msg[i] = '\0';
 
     return msg;
+}
+
+int CLIENT_borraUser(int fd)
+{
+    int trobat = 0;
+
+    LLISTABID_vesInici(&servers);
+    while (!LLISTABID_final(servers) && !trobat)
+    {
+        Element server = LLISTABID_consulta(servers);
+
+        if (server.socketfd == fd)
+        {
+            LLISTABID_elimina(&servers);
+            trobat = 1;
+        }
+        else
+        {
+            LLISTABID_avanca(&servers);
+        }
+    }
+    if (!trobat)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+void CLIENT_messageError()
+{
+    int i = CLIENT_borraUser(lastfd);
+
+    if (i == 0)
+    {
+        IO_write(1, UNKNOWN_CONNECTION2, sizeof(UNKNOWN_CONNECTION2));
+    }
 }
 
 int CLIENT_freeMemory()

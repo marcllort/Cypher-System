@@ -37,9 +37,10 @@ int DSERVER_close(DServer *ds)          // Al tancar enviem el missatge de OK re
     p.header = H_CONOK;
     p.length = 0;
     p.data = "";
-
     PACKET_write(p, ds->fd);
+    //CLIENT_borraUser(ds->fd);
     ds->state = 0;
+    //free(ds);
     return 0;
 }
 

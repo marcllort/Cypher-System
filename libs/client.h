@@ -27,6 +27,7 @@
 #define MSG_ERR_PORT "Error! No puedes connectarte a tu propio puerto.\n"
 #define MSG_CONNECTED "%d connected: %s\n"
 #define UNKNOWN_CONNECTION "Couldn't send message. Unknown connection %s\n"
+#define UNKNOWN_CONNECTION2 "Couldn't send message. Unknown connection\n"
 
 
 int CLIENT_runScript(char *buffer);
@@ -38,5 +39,7 @@ char *CLIENT_get_message(int fd, char delimiter);
 int CLIENT_write(char *user, char *message);
 int CLIENT_exit();
 int CLIENT_freeMemory();
+void CLIENT_messageError();
+int CLIENT_borraUser(int fd);
 char *CLIENT_read(int fd, char delimiter);
 #endif //_CLIENT_H

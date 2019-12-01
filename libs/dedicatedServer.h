@@ -13,6 +13,7 @@
 #include "io.h"
 #include "utils.h"
 #include "packet.h"
+#include "client.h"
 
 #define KEYPHRASE "Bye"
 #define CLIENT_SAYS "\n[%s]: "

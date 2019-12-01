@@ -79,8 +79,8 @@ int SERVER_startDS(Server *server, int fd, struct sockaddr_in addr, char *user) 
     {
         return EXIT_FAILURE;
     }
-
-    pthread_detach(*DSERVER_getThread(ds));
+    //free(ds);
+    //pthread_detach(DSERVER_getThread(ds));
 
     return 0;
 }
@@ -92,7 +92,6 @@ int SERVER_operate(Server *server)          // Funcio que va llegint paquets i s
 
     while (server->state)
     {
-
         struct sockaddr_in s_addr;
         socklen_t len = sizeof(s_addr);
 
@@ -114,23 +113,15 @@ int SERVER_operate(Server *server)          // Funcio que va llegint paquets i s
                     if (!strcmp(p.header, H_NAME))
                     {
                         sprintf(name, "%s", p.data);
-
-                        IO_write(server->fdserver, &p.type, 1);
-                        p.header = H_CONOK;
-                        IO_write(server->fdserver, p.header, strlen(p.header));
-                        p.data = (*server).name;
-                        p.length = sizeof(p.data) + 1;
-                        int error = write(server->fdserver, &p.length, sizeof(uint16_t));
-                        if (error < 0)
-                        {
-                            IO_write(1, " ", strlen(" "));
-                        }
-                        IO_write(server->fdserver, p.data, strlen(p.data));
-                    }
-
+                        PACKET_destroy(&p);
+                        p = PACKET_create(T_CONNECT, (int)strlen(H_CONOK), H_CONOK, UTILS_sizeOf((*server).name), (*server).name);
+                        PACKET_write(p,server->fdserver);
+                        //PACKET_destroy(&p);
+                    } 
                     if (!strcmp(p.header, H_CONOK))
                     {
                         SERVER_startDS(server, server->fdserver, s_addr, name);
+                        PACKET_destroy(&p);
                     }
                 }
             }
@@ -153,7 +144,7 @@ int SERVER_removeDS(void *data)     // Funcio per borrar el dedicated server pas
     IO_write(1, server->name, sizeof(server->name));
 
     DSERVER_close(ds);
-
+    
     pthread_mutex_unlock(&server->mutex);
 
     return 0;
@@ -178,11 +169,10 @@ int SERVER_removeAllDS(Server *server)      // Funcio per borrar tots els dedica
     {
         DServer *ds = LLISTADS_consulta(server->dss);
         close(DSERVER_getFd(ds));
-        IO_write(1, server->name, sizeof(server->name));
-
+        
         pthread_join(*DSERVER_getThread(ds), NULL);
         DSERVER_close(ds);
-
+        free(ds);
         LLISTADS_avanca(&server->dss);
     }
 
@@ -193,7 +183,6 @@ int SERVER_removeAllDS(Server *server)      // Funcio per borrar tots els dedica
 
 void SERVER_close(Server *server)       // Funcio per tancar server principal
 {
-
     SERVER_removeAllDS(server);
     server->state = -1;
     close(server->fdserver);

@@ -15,6 +15,9 @@ int NETWORK_init(Config config)
     {
         return 1;
     }
+    if (pthread_detach(SERVER_getThread(&trinity)) != 0) {
+        return 1;
+    }
     return 0;
 }
 

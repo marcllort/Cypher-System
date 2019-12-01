@@ -45,6 +45,7 @@ int main(int argc, char **argv)
 void MAIN_registerSignal()
 { // En cas de ctrl+c, cridarem freeMemory
     signal(SIGINT, MAIN_freeMemory);
+    signal(SIGPIPE, CLIENT_messageError);
 }
 
 void MAIN_freeMemory()
