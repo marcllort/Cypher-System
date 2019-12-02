@@ -6,7 +6,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <dirent.h>
 #include <stdio.h>
 #include <signal.h>
 
@@ -14,6 +14,8 @@
 #include "utils.h"
 #include "packet.h"
 #include "client.h"
+#include "config.h"
+
 
 #define KEYPHRASE "Bye"
 #define CLIENT_SAYS "\n[%s]: "
@@ -33,6 +35,7 @@ typedef struct
     void *(*operate)(void *);
     int (*remove)(void *);
     char *user;
+    void* config;
 } DServer;
 
 DServer *DSERVER_init(
@@ -44,11 +47,13 @@ DServer *DSERVER_init(
     void *server,
     char *name,
     int (*remove)(void *),
-    char *user);
+    char *user,
+    void  *config);
 
 int DSERVER_close(DServer *ds);
 pthread_t *DSERVER_getThread(DServer *ds);
 int DSERVER_getFd(DServer *ds);
 void *DSERVER_threadFunc(void *data);
+char* DSERVER_showFiles(Config* config);
 
 #endif //DSERVER_H

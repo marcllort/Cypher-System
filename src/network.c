@@ -7,8 +7,9 @@ int NETWORK_init(Config config)
     int port = CONFIG_getMyPort(config);
     char *ip = CONFIG_getMyIP(config);
     char *name = CONFIG_getUsername(config);
+    char *audios = CONFIG_getAudioFolder(config);
 
-    trinity = SERVER_init(ip, port, name);
+    trinity = SERVER_init(ip, port, name, audios);
     SERVER_setFunc(&trinity, SERVER_threadFunc);
 
     if (pthread_create(SERVER_getThread(&trinity), NULL, SERVER_threadFunc, &trinity) != 0)

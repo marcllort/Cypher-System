@@ -12,6 +12,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 
+
 #include "io.h"
 #include "list.h"
 #include "listds.h"
@@ -31,6 +32,7 @@
 typedef struct
 {
     char *name;
+    void *config;
     char *ip;
     int port;
     int fd;
@@ -44,7 +46,7 @@ typedef struct
 
 } Server;
 
-Server SERVER_init(char *ip, int port, char *name);
+Server SERVER_init(char *ip, int port, char *name, void *config);
 int SERVER_start(Server *server);
 int SERVER_operate(Server *server);
 void SERVER_close(Server *server);

@@ -1,10 +1,11 @@
 #include "../libs/server.h"
 
-Server SERVER_init(char *ip, int port, char *name)
+Server SERVER_init(char *ip, int port, char *name, void *config)
 {           // Inicialitzacio de les vars principals del tipus server
 
     Server server;
     server.name = name;
+    server.config = config;
     server.ip = ip;
     server.port = port;
     server.fd = -1;
@@ -71,7 +72,7 @@ int SERVER_start(Server *server)            // Inicializacio server principal, e
 int SERVER_startDS(Server *server, int fd, struct sockaddr_in addr, char *user) // Inicialitzacio de server dedicat
 {
 
-    DServer *ds = DSERVER_init(server->ids++, fd, 0, 0, addr, server, server->name, SERVER_removeDS, user);
+    DServer *ds = DSERVER_init(server->ids++, fd, 0, 0, addr, server, server->name, SERVER_removeDS, user,server->config);
 
     SERVER_addDS(server, ds);
 
@@ -124,12 +125,16 @@ int SERVER_operate(Server *server)          // Funcio que va llegint paquets i s
                         PACKET_destroy(&p);
                     }
                 }
+                
+                
             }
         }
     }
 
     return 1;
 }
+
+
 
 
 int SERVER_removeDS(void *data)     // Funcio per borrar el dedicated server passat per parametres

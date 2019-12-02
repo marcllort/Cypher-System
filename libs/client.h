@@ -42,4 +42,5 @@ int CLIENT_freeMemory();
 void CLIENT_messageError();
 int CLIENT_borraUser(int fd);
 char *CLIENT_read(int fd, char delimiter);
+int CLIENT_showAudios(char *user);
 #endif //_CLIENT_H

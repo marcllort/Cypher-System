@@ -9,7 +9,8 @@ DServer *DSERVER_init(
     void *server,
     char *name,
     int (*remove)(void *),
-    char *user)
+    char *user,
+    void *config)
 {
     DServer *ds = (DServer *)malloc(sizeof(DServer));
 
@@ -25,6 +26,7 @@ DServer *DSERVER_init(
         ds->list_node = NULL;
         ds->remove = remove;
         ds->user = user;
+        ds->config = config;
     }
     return ds;
 }
@@ -63,6 +65,8 @@ void *DSERVER_threadFunc(void *data)                // Funcio que corre al threa
     while (ds->state)
     {
         p = PACKET_read(fd);
+        write(1,"CC\n",3);
+        write(1,p.header, strlen(p.header));
         if (p.headerLength == -1)
         {
             ds->state = 0;
@@ -76,15 +80,61 @@ void *DSERVER_threadFunc(void *data)                // Funcio que corre al threa
             bytes = sprintf(buff, "\n");
             IO_write(1, buff, bytes);
             UTILS_printName(ds->name);
-            Packet pok = PACKET_create(T_MSG, (int)strlen(H_MSGOK), H_MSGOK, 0, "");
+            Packet pok = PACKET_create(T_MSG, (int)strlen(H_MSGOK), H_MSGOK, 1, " ");
             PACKET_write(pok, ds->fd);
         }
         if (p.type == T_EXIT)               // Tanquem el dedicated server en cas de desconnexio
         {
             DSERVER_close(ds);
         }
+        if (p.type == T_SHOWAUDIOS)
+                {
+                    IO_write(1, "aaaa", 4);
+                    if (!strcmp(p.header,H_LISTAUDIOS) )
+                    {
+                        IO_write(1, "aaaa", 4);
+                        IO_write(1, p.data, p.length);
+                    }
+                    if (!strcmp(p.header,H_SHOWAUDIOS) )
+                    {
+                        char* a = DSERVER_showFiles((Config*)ds->config);
+                        IO_write(1, a, strlen(a));
+                        Packet pack = PACKET_create(T_SHOWAUDIOS, (int)strlen(H_LISTAUDIOS), H_LISTAUDIOS, 1, " ");
+                        PACKET_write(pack, fd);
+                    }
+                    
+                    
+                }
         PACKET_destroy(&p);
     }
 
     return (void *)0;
+}
+
+char* DSERVER_showFiles(Config* config){
+    char *audios = CONFIG_getAudioFolder(*config);
+    DIR *dir;
+    struct dirent *ent;
+    char buff2[128];
+    char buff[128];
+    int bytes2 = sprintf(buff2, "./%s \n", audios);
+    IO_write(1, buff2, bytes2);
+    bytes2 = 0;
+    if ((dir = opendir ("./Audios1")) != NULL) {
+    /* print all the files and directories within directory */
+    while ((ent = readdir (dir)) != NULL) {
+        
+        int bytes = sprintf(buff, "%s \n %s",buff, ent->d_name);
+        bytes2 =+bytes;
+    }
+    
+    buff[bytes2++] = ']';
+    buff[bytes2++] = '\0';
+    closedir (dir);
+    audios = &buff[0];
+    return audios;
+    } else {
+    /* could not open directory */
+    return EXIT_FAILURE;
+    }
 }
