@@ -17,10 +17,7 @@
 #include "config.h"
 
 
-#define KEYPHRASE "Bye"
 #define CLIENT_SAYS "\n[%s]: "
-#define CONNECTED "Client Connected\n"
-#define BYE "ByeBye Client\n"
 
 typedef struct
 {

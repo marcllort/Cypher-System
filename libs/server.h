@@ -20,13 +20,11 @@
 #include "packet.h"
 
 #define ERR_SOCKET "Error creating socket\n"
-#define ERR_IP "Error  IP\n"
+#define ERR_IP "Error IP\n"
 #define ERR_BIND "Error binding socket\n"
 #define ERR_LISTEN "Error listening socket\n"
 #define ERR_ACCEPT "Error accepting client\n"
-
 #define GOODBYE "\nDisconnecting Trinity...\n"
-
 #define MAX_CONN 10
 
 typedef struct
@@ -43,14 +41,12 @@ typedef struct
     Llistads dss;
     int ids;
     pthread_mutex_t mutex;
-
 } Server;
 
 Server SERVER_init(char *ip, int port, char *name, void *config);
 int SERVER_start(Server *server);
 int SERVER_operate(Server *server);
 void SERVER_close(Server *server);
-void SERVER_signHandler();
 pthread_t *SERVER_getThread(Server *server);
 void SERVER_setFunc(Server *server, void *(*threadFunc)(void *));
 int SERVER_startDS(Server *server, int fd, struct sockaddr_in addr, char *user);

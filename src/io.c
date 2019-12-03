@@ -3,23 +3,14 @@
 // Funcions relacionades amb IO
 
 int IO_openFile(const char *filename)
-{ //Obrim fitxer
+{ 
+    //Obrim fitxer
     return open(filename, O_RDWR);
 }
 
-int IO_createFile(const char *filename)
-{ // Creem arxiu
-    return open(filename, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
-}
-
-long IO_read(int fd, char **data, long size)
-{ //Llegim de un fd
-    *data = (char *)malloc(sizeof(char) * size);
-    return read(fd, *data, size);
-}
-
 long IO_readUntil(int fd, char **data, char delimiter)
-{ //Llegim de un fd fins un cert delimitador
+{ 
+    //Llegim de un fd fins un cert delimitador
     size_t size = 0;
     ssize_t bytes;
     *data = NULL;
@@ -41,7 +32,8 @@ long IO_readUntil(int fd, char **data, char delimiter)
 }
 
 long IO_readUntilv2(int fd, char **data, char delimiter)
-{ //Llegim de un fd fins un cert delimitador
+{ 
+    //Llegim de un fd fins un cert delimitador
     size_t size = 0;
     ssize_t bytes;
     *data = NULL;
@@ -63,7 +55,8 @@ long IO_readUntilv2(int fd, char **data, char delimiter)
 }
 
 long IO_write(int fd, char *data, long size)
-{ // Escrivim  a un fd
+{ 
+    // Escrivim  a un fd
     int curr = lseek(fd, 0, SEEK_CUR);
     lseek(fd, 0, SEEK_END);
 
@@ -73,18 +66,9 @@ long IO_write(int fd, char *data, long size)
     return status;
 }
 
-int IO_close(int fd)
-{ // Tanquem arxiu
-    return close(fd);
-}
-
-int IO_deleteFile(const char *filename)
-{ // Borrem fitxer
-    return unlink(filename);
-}
-
-inline int checkEOF(int fd)
-{ // Mirem si hem arribat al final de un fitxer
+inline int IO_checkEOF(int fd)
+{ 
+    // Mirem si hem arribat al final de un fitxer
     char c;
     ssize_t n = read(fd, &c, sizeof(char));
 

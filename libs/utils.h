@@ -6,6 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <assert.h>
+#include <ctype.h>
 
 #include "io.h"
 #include "config.h"
@@ -20,6 +21,7 @@ int UTILS_ip_checker(char *ip_str);
 int UTILS_sizeOf(const char *str);
 int UTILS_printName(char *config);
 void UTILS_removeChar(char *p, int ch);
+int UTILS_isEmpty(const char *s);
 char *UTILS_readKB();
 void UTILS_freeMemory();
 

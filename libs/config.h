@@ -24,10 +24,6 @@ char *CONFIG_getUsername(Config config);
 char *CONFIG_getAudioFolder(Config config);
 char *CONFIG_getMyIP(Config config);
 int CONFIG_getMyPort(Config config);
-char *CONFIG_getCypherIP(Config config);
-int CONFIG_getCypherStartPort(Config config);
-int CONFIG_getCypherEndPort(Config config);
-int CONFIG_getState(Config config);
 void CONFIG_close(Config *config);
 
 #endif

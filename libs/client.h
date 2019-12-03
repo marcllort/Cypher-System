@@ -23,19 +23,16 @@
 #define MSG_ERR_CONN "Puerto %d Cerrado\n"
 #define MSG_AVAIL_CONN "%d connections available\n"
 #define TESTING "Testing...\n"
-#define MSG_ERR_SOCKET "Error durante la creacion del socket.\n"
-#define MSG_ERR_PORT "Error! No puedes connectarte a tu propio puerto.\n"
+#define MSG_ERR_SOCKET "Error durante la creacion del socket\n"
+#define MSG_ERR_PORT "Error! No puedes connectarte a tu propio puerto\n"
 #define MSG_CONNECTED "%d connected: %s\n"
 #define UNKNOWN_CONNECTION "Couldn't send message. Unknown connection %s\n"
 #define UNKNOWN_CONNECTION2 "Couldn't send message. Unknown connection\n"
 
-
-int CLIENT_runScript(char *buffer);
 int CLIENT_checkPorts(char *buffer, Config inConfig);
 int CLIENT_sayMessage(char *user, char *message);
 int CLIENT_connectPort(Config config, int connectPort);
 int CLIENT_initClient();
-char *CLIENT_get_message(int fd, char delimiter);
 int CLIENT_write(char *user, char *message);
 int CLIENT_exit();
 int CLIENT_freeMemory();

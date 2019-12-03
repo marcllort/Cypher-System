@@ -56,14 +56,12 @@ int UTILS_valid_digit(char *ip_str)
     int i = 0;
     while (size < i)
     {
-        printf("CARACTER: %c\n", *ip_str);
         if (*ip_str >= '0' && *ip_str <= '9')
         {
             ++ip_str;
         }
         else
         {
-            printf("no va:  %c\n", *ip_str);
             return 0;
         }
         i++;
@@ -88,6 +86,18 @@ void UTILS_removeChar(char *p, int ch)
 
     while ((ptr = strchr(p, ch)))
         strcpy(ptr, ptr + 1);
+}
+
+int UTILS_isEmpty(const char *s)
+{
+    // Function to check if string is empty
+    while (*s != '\0')
+    {
+        if (!isspace((unsigned char)*s))
+            return 0;
+        s++;
+    }
+    return 1;
 }
 
 // Funciton to read keyboard dynamically

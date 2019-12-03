@@ -7,20 +7,23 @@ Config CONFIG_load(char *filename)
 
     IO_write(1, START_TRINITY, strlen(START_TRINITY));
 
-    Config config; // Guardem la informació en el tipus Config
+    // Guardem la informació en el tipus Config
+    Config config; 
     char *temp = NULL;
     config.username = NULL;
     config.audioFolder = NULL;
     config.myIP = NULL;
     config.cypherIP = NULL;
 
+    // Obrim el fitxer de configuracio
     int fd = IO_openFile(filename);
 
+    // En cas de no trobar el fitxer tanquem el programa
     if (fd < 0)
     {
         IO_write(1, ERR_INVALID_CONFIG_FILE, strlen(ERR_INVALID_CONFIG_FILE));
         config.state = -1;
-        exit(-1); // En cas de no trobar el fitxer tanquem el programa
+        exit(-1); 
         return config;
     }
 
@@ -34,9 +37,11 @@ Config CONFIG_load(char *filename)
     config.myPort = (int)strtol(temp, NULL, 10);
     free(temp);
 
+    // Caldra borrar per entrega FINAL, serveix per saber quin port executem
     char buff[100];
     int bytes = sprintf(buff, "PORT : %d \n", config.myPort);
     IO_write(1, buff, bytes);
+
     IO_readUntilv2(fd, &(config.cypherIP), '\n');
 
     IO_readUntilv2(fd, &temp, '\n');
@@ -47,7 +52,7 @@ Config CONFIG_load(char *filename)
     config.cypherEndPort = (int)strtol(temp, NULL, 10);
     free(temp);
 
-    IO_close(fd);
+    close(fd);
 
     config.state = 0;
 
@@ -73,26 +78,6 @@ char *CONFIG_getMyIP(Config config)
 int CONFIG_getMyPort(Config config)
 {
     return config.myPort;
-}
-
-char *CONFIG_getCypherIP(Config config)
-{
-    return config.cypherIP;
-}
-
-int CONFIG_getCypherStartPort(Config config)
-{
-    return config.cypherStartPort;
-}
-
-int CONFIG_getCypherEndPort(Config config)
-{
-    return config.cypherEndPort;
-}
-
-int CONFIG_getState(Config config)
-{
-    return config.state;
 }
 
 // Tancar/Alliberar el fitxer config
