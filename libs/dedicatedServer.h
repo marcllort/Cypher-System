@@ -23,6 +23,7 @@ typedef struct
 {
     int id;
     int fd;
+    int fdserver;
     int state;
     char *name;
     pthread_t thread;
@@ -38,6 +39,7 @@ typedef struct
 DServer *DSERVER_init(
     int id,
     int fd,
+    int fdserver,
     int state,
     pthread_t thread,
     struct sockaddr_in addr,

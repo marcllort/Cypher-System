@@ -3,6 +3,7 @@
 DServer *DSERVER_init(
     int id,
     int fd,
+    int fdserver,
     int state,
     pthread_t thread,
     struct sockaddr_in addr,
@@ -20,6 +21,7 @@ DServer *DSERVER_init(
     {
         ds->id = id;
         ds->fd = fd;
+        ds->fdserver = fdserver;
         ds->state = state;
         ds->name = name;
         ds->thread = (pthread_t)thread;
@@ -105,23 +107,25 @@ void *DSERVER_threadFunc(void *data)
             DSERVER_close(ds);
         }
         if (p.type == T_SHOWAUDIOS)
-                {
-                    IO_write(1, "aaaa", 4);
-                    if (!strcmp(p.header,H_LISTAUDIOS) )
-                    {
-                        IO_write(1, "aaaa", 4);
-                        IO_write(1, p.data, p.length);
-                    }
-                    if (!strcmp(p.header,H_SHOWAUDIOS) )
-                    {
-                        char* a = DSERVER_showFiles((Config*)ds->config);
-                        IO_write(1, a, strlen(a));
-                        Packet pack = PACKET_create(T_SHOWAUDIOS, (int)strlen(H_LISTAUDIOS), H_LISTAUDIOS, 1, " ");
-                        PACKET_write(pack, fd);
-                    }
+        {
+            IO_write(1, "aaba", 4);
+           if (!strcmp(p.header,H_LISTAUDIOS) )
+            {
+                IO_write(1, "aaaa", 4);
+                IO_write(1, p.data, p.length);
+                    
+            }
+            if (!strcmp(p.header,H_SHOWAUDIOS) )
+            {
+                char* a = DSERVER_showFiles((Config*)ds->config);
+                IO_write(1, a, strlen(a));
+                Packet pack = PACKET_create(T_SHOWAUDIOS, (int)strlen(H_LISTAUDIOS), H_LISTAUDIOS, strlen(a), a);
+                PACKET_write(pack,ds->fdserver);
+                IO_write(1, pack.header, strlen(pack.header));  //Nose perque arriba aqui pero nomes escriu algo al desconectarse
+            }
                     
                     
-                }
+        }
         PACKET_destroy(&p);
     }
 
@@ -129,14 +133,16 @@ void *DSERVER_threadFunc(void *data)
 }
 
 char* DSERVER_showFiles(Config* config){
-    char *audios = CONFIG_getAudioFolder(*config);
+    char *audios; //= CONFIG_getAudioFolder(*config);
     DIR *dir;
     struct dirent *ent;
     char buff2[128];
     char buff[128];
-    int bytes2 = sprintf(buff2, "./%s \n", audios);
-    IO_write(1, buff2, bytes2);
-    bytes2 = 0;
+    //int bytes2 = sprintf(buff2, "./%s \n", audios);
+    //IO_write(1, buff2, bytes2);
+    int bytes2 = 0;
+
+    
     if ((dir = opendir ("./Audios1")) != NULL) {
     /* print all the files and directories within directory */
     while ((ent = readdir (dir)) != NULL) {

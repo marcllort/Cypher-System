@@ -159,6 +159,7 @@ int MANAGER_manageCommand(char *inputString)
                     {
                         free(inputString);
                         IO_write(1, SHOW_AUDIOS, strlen(SHOW_AUDIOS));
+                        CLIENT_showAudios(words[2]);
                     }
                     else
                     {
