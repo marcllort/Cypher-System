@@ -80,7 +80,7 @@ int SERVER_startDS(Server *server, int fd, struct sockaddr_in addr, char *user) 
         return EXIT_FAILURE;
     }
     //free(ds);
-    //pthread_detach(DSERVER_getThread(ds));
+    pthread_detach(*DSERVER_getThread(ds));
 
     return 0;
 }
@@ -164,18 +164,19 @@ int SERVER_removeAllDS(Server *server)      // Funcio per borrar tots els dedica
 {
 
     LLISTADS_vesInici(&server->dss);
-
+    IO_write(1, "LLISTADS_vesInici", strlen("LLISTADS_vesInici"));
     while (!LLISTADS_final(server->dss))
     {
         DServer *ds = LLISTADS_consulta(server->dss);
         close(DSERVER_getFd(ds));
-        
+        IO_write(1, "close(DSERVER_getFd(ds));", strlen("close(DSERVER_getFd(ds));"));
         pthread_join(*DSERVER_getThread(ds), NULL);
+        IO_write(1, "close(DSERVER_getFd(ds));", strlen("close(DSERVER_getFd(ds));"));
         DSERVER_close(ds);
         free(ds);
         LLISTADS_avanca(&server->dss);
     }
-
+    IO_write(1, "while", strlen("while"));
     LLISTADS_destrueix(&server->dss);
 
     return 0;
@@ -184,9 +185,12 @@ int SERVER_removeAllDS(Server *server)      // Funcio per borrar tots els dedica
 void SERVER_close(Server *server)       // Funcio per tancar server principal
 {
     SERVER_removeAllDS(server);
+    IO_write(1, "SERVER_removeAllDS", strlen("SERVER_removeAllDS"));
     server->state = -1;
     close(server->fdserver);
+    IO_write(1, "close(server->fdserver);", strlen("close(server->fdserver);"));
     close(server->fd);
+    IO_write(1, "close(server->fd);", strlen("close(server->fd);"));
     LLISTADS_destrueix(&server->dss);
     IO_write(1, GOODBYE, strlen(GOODBYE));
 }

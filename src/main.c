@@ -55,5 +55,6 @@ void MAIN_freeMemory()
     UTILS_freeMemory();
     MANAGER_freeMemory();
     NETWORK_close();
+    IO_write(1, "NETWORK_close", strlen("NETWORK_close"));
     exit(1);
 }

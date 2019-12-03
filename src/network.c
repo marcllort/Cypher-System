@@ -15,7 +15,7 @@ int NETWORK_init(Config config)
     {
         return 1;
     }
-    if (pthread_detach(SERVER_getThread(&trinity)) != 0) {
+    if (pthread_detach(*SERVER_getThread(&trinity)) != 0) {
         return 1;
     }
     return 0;
@@ -27,6 +27,7 @@ int NETWORK_close()
     //tancar server i threads i forks
     CONFIG_close(&config);
     SERVER_close(&trinity);
+    IO_write(1, "SERVER_close", strlen("SERVER_close"));
     pthread_cancel(*SERVER_getThread(&trinity));
     pthread_join(*SERVER_getThread(&trinity), NULL);
 
