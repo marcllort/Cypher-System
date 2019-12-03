@@ -15,6 +15,6 @@ long IO_readUntilv2(int fd, char **data, char delimiter);
 long IO_write(int fd, char *data, long size);
 int IO_close(int fd);
 int IO_deleteFile(const char *filename);
-int checkEOF(int fd);
+int IO_checkEOF(int fd);
 
 #endif

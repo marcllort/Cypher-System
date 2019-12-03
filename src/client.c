@@ -110,7 +110,7 @@ int CLIENT_checkPorts(char *buffer, Config inConfig)
 
         while (1) // El script ha guardat en un pipe, el llegim
         {
-            if (checkEOF(fd[0]) == 1)
+            if (IO_checkEOF(fd[0]) == 1)
                 break;
 
             IO_readUntil(fd[0], &buffr, ' '); // Ens quedem només amb el nombre del port obert
@@ -127,7 +127,7 @@ int CLIENT_checkPorts(char *buffer, Config inConfig)
                 availableConnections++;
             }
 
-            if (checkEOF(fd[0]) == 1)
+            if (IO_checkEOF(fd[0]) == 1)
                 break;
         }
 
