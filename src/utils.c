@@ -88,6 +88,18 @@ void UTILS_removeChar(char *p, int ch)
         strcpy(ptr, ptr + 1);
 }
 
+int UTILS_isEmpty(const char *s)
+{
+    // Function to check if string is empty
+    while (*s != '\0')
+    {
+        if (!isspace((unsigned char)*s))
+            return 0;
+        s++;
+    }
+    return 1;
+}
+
 // Funciton to read keyboard dynamically
 char *UTILS_readKB()
 {
