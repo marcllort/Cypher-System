@@ -78,6 +78,7 @@ void *DSERVER_threadFunc(void *data)                // Funcio que corre al threa
             UTILS_printName(ds->name);
             Packet pok = PACKET_create(T_MSG, (int)strlen(H_MSGOK), H_MSGOK, 0, "");
             PACKET_write(pok, ds->fd);
+            PACKET_destroy(&pok);
         }
         if (p.type == T_EXIT)               // Tanquem el dedicated server en cas de desconnexio
         {
