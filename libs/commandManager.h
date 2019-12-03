@@ -43,6 +43,5 @@
 
 int MANAGER_setConfig(Config newConfig);
 int MANAGER_manageCommand(char *str1);
-void MANAGER_freeMemory();
 
 #endif

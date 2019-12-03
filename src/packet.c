@@ -1,7 +1,8 @@
 #include "../libs/packet.h"
 
-Packet PACKET_read(int fd) // Funcio encarregada de la lectura de un paquet
+Packet PACKET_read(int fd)
 {
+    // Funcio encarregada de la lectura de un paquet
     Packet pd;
 
     int error = read(fd, &pd.type, 1);
@@ -13,7 +14,7 @@ Packet PACKET_read(int fd) // Funcio encarregada de la lectura de un paquet
 
     if (error <= 0)
     {
-        pd.headerLength = -1;//nose si esta be
+        pd.headerLength = -1;
         return pd;
     }
 
@@ -39,15 +40,15 @@ Packet PACKET_read(int fd) // Funcio encarregada de la lectura de un paquet
 
     return pd;
 }
+
 int PACKET_write(Packet pd, int fd)
-{ // Funcio per enviar un paquet per parts
+{
+    // Funcio per enviar un paquet per parts
 
     IO_write(fd, &pd.type, 1);
-
     IO_write(fd, pd.header, strlen(pd.header));
 
     int error = write(fd, &pd.length, sizeof(uint16_t));
-
     if (error < 0)
     {
         IO_write(1, " ", strlen(" "));
@@ -58,8 +59,10 @@ int PACKET_write(Packet pd, int fd)
     return 0;
 }
 
-Packet PACKET_destroy(Packet *p) // Funcio per destruir la memoria dinamica de un paquet
+Packet PACKET_destroy(Packet *p)
 {
+    // Funcio per destruir la memoria dinamica de un paquet
+
     p->type = 0;
     p->length = 0;
     p->headerLength = 0;
@@ -80,8 +83,8 @@ Packet PACKET_destroy(Packet *p) // Funcio per destruir la memoria dinamica de u
 }
 
 Packet PACKET_create(char type, int headerLength, char *header, unsigned short dataLength, char *data)
-{ // Creacio de un paquet a partir dels parametres
-
+{
+    // Creacio de un paquet a partir dels parametres
     Packet pd;
 
     pd.type = type;
@@ -89,8 +92,9 @@ Packet PACKET_create(char type, int headerLength, char *header, unsigned short d
     pd.length = dataLength;
 
     if ((pd.header = (char *)malloc(sizeof(char) * headerLength)) == NULL)
+    {
         return pd;
-
+    }
     strcpy(pd.header, header);
 
     if ((pd.data = (char *)malloc(sizeof(char) * dataLength)) == NULL)
@@ -98,7 +102,6 @@ Packet PACKET_create(char type, int headerLength, char *header, unsigned short d
         free(pd.header);
         return pd;
     }
-
     strcpy(pd.data, data);
 
     return pd;

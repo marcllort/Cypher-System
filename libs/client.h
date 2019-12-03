@@ -29,16 +29,13 @@
 #define UNKNOWN_CONNECTION "Couldn't send message. Unknown connection %s\n"
 #define UNKNOWN_CONNECTION2 "Couldn't send message. Unknown connection\n"
 
-int CLIENT_runScript(char *buffer);
 int CLIENT_checkPorts(char *buffer, Config inConfig);
 int CLIENT_sayMessage(char *user, char *message);
 int CLIENT_connectPort(Config config, int connectPort);
 int CLIENT_initClient();
-char *CLIENT_get_message(int fd, char delimiter);
 int CLIENT_write(char *user, char *message);
 int CLIENT_exit();
 int CLIENT_freeMemory();
 void CLIENT_messageError();
 int CLIENT_borraUser(int fd);
-char *CLIENT_read(int fd, char delimiter);
 #endif //_CLIENT_H

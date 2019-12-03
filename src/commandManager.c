@@ -4,7 +4,8 @@ Config config;
 
 int MANAGER_setConfig(Config newConfig)
 {
-    config = newConfig; // Emmagatzemem la configuració llegida anteriorment al main
+    // Emmagatzemem la configuració llegida anteriorment al main
+    config = newConfig;
     return 1;
 }
 
@@ -19,7 +20,6 @@ int MANAGER_manageCommand(char *inputString)
     if (UTILS_compareCaseInsensitive(EXIT, words[0]) == 0)
     {
         // Alliberem memoria i sortim
-        MANAGER_freeMemory();
         free(inputString);
         raise(SIGINT);
     }
@@ -29,9 +29,10 @@ int MANAGER_manageCommand(char *inputString)
         if (words[1] && UTILS_valid_digit(words[1]))
         {
             free(inputString);
-            //UTILS_sizeOf(words[1]);
             int port = atoi(words[1]);
             IO_write(1, CONNECT_MSG, strlen(CONNECT_MSG));
+
+            // Cridem a la funcio de connectarnos passant la nostra configuracio i el seu port
             CLIENT_connectPort(config, port);
         }
         else
@@ -47,6 +48,7 @@ int MANAGER_manageCommand(char *inputString)
         char user[128];
         sprintf(user, "%s", words[1]);
 
+        // Fem les comprovacions necessaries per saber que la comanda esta ben formada, sino mostrem error
         if (words[1])
         {
             words[2] = strtok(0, "\n");
@@ -54,7 +56,8 @@ int MANAGER_manageCommand(char *inputString)
             {
                 free(inputString);
 
-                if (words[2][0] == '"' && words[2][UTILS_sizeOf(words[2]) - 1] == '"') // Comprovem que el text a enviar estigui envoltat de cometes
+                // Comprovem que el text a enviar estigui envoltat de cometes
+                if (words[2][0] == '"' && words[2][UTILS_sizeOf(words[2]) - 1] == '"')
                 {
                     UTILS_removeChar(words[2], '"');
 
@@ -82,8 +85,8 @@ int MANAGER_manageCommand(char *inputString)
         words[1] = strtok(0, "\n");
         if (words[1])
         {
-
-            if (words[1][0] == '"' && words[1][UTILS_sizeOf(words[1]) - 1] == '"') // Comprovem que el text a enviar estigui envoltat de cometes
+            // Comprovem que el text a enviar estigui envoltat de cometes
+            if (words[1][0] == '"' && words[1][UTILS_sizeOf(words[1]) - 1] == '"')
             {
                 UTILS_removeChar(words[1], '"');
                 IO_write(1, words[1], strlen(words[1])); //Cal borrar
@@ -134,15 +137,16 @@ int MANAGER_manageCommand(char *inputString)
         else if (UTILS_compareCaseInsensitive(CONNECTIONS, words[1]) == 0)
         {
             free(inputString);
+            // Muntem la comanda que caldra executar el CLIENT_checkPorts
             char *buffer = (char *)malloc(50 * sizeof(char));
             sprintf(buffer, "./show_connections.sh %d %d", config.cypherStartPort, config.cypherEndPort);
-
+            // Executem checkports
             CLIENT_checkPorts(buffer, config);
             free(buffer);
         }
         else
         {
-
+            // Distingim els diferents tipus de SHOW
             if (UTILS_compareCaseInsensitive(AUDIOS, words[1]) == 0)
             {
                 words[2] = strtok(0, " ");
@@ -171,8 +175,4 @@ int MANAGER_manageCommand(char *inputString)
     }
 
     return 1;
-}
-void MANAGER_freeMemory()
-{
-    //IO_write(1, FREE_MEM, strlen(FREE_MEM));
 }
