@@ -46,12 +46,9 @@ int DSERVER_getFd(DServer *ds)
 int DSERVER_close(DServer *ds) 
 {
     // Al tancar enviem el missatge de OK respecte hem rebut missatge desconnexio
-    Packet p;
-    p.type = 0x06;
-    p.header = H_CONOK;
-    p.length = 0;
-    p.data = "";
+    Packet p = PACKET_create(T_EXIT, (int)strlen(H_CONOK), H_CONOK, 0, "");
     PACKET_write(p, ds->fd);
+    PACKET_destroy(&p);
     ds->state = 0;
 
     return 0;

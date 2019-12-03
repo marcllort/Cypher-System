@@ -216,13 +216,9 @@ int CLIENT_write(char *user, char *message)
         // Enviem packet amb el missatge i esperem resposta (protocol comunicacio)
         if (strcmp(server.name, user) == 0)
         {
-            Packet packet;
-            packet.type = 0x02;
-            packet.header = "[MSG]";
-            packet.length = UTILS_sizeOf(message);
-            packet.data = message;
-
+            Packet packet = PACKET_create(T_MSG, (int)strlen(H_MSG), H_MSG, UTILS_sizeOf(message), message);
             PACKET_write(packet, server.socketfd);
+            PACKET_destroy(&packet);
 
             lastfd = server.socketfd;
 
@@ -253,14 +249,9 @@ int CLIENT_exit()
     {
         Element server = LLISTABID_consulta(servers);
 
-        Packet packet;
-
-        packet.type = 0x06;
-        packet.header = "[]";
-        packet.length = UTILS_sizeOf(config.username);
-        packet.data = config.username;
-
+        Packet packet = PACKET_create(T_EXIT, (int)strlen(H_VOID), H_VOID, UTILS_sizeOf(config.username), config.username);
         PACKET_write(packet, server.socketfd);
+        PACKET_destroy(&packet);
 
         // Llegim resposta de desconnexio OK (protocol desconnexio)
         PACKET_read(server.socketfd);
