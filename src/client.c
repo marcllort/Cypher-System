@@ -242,7 +242,6 @@ int CLIENT_write(char *user, char *message)
 int CLIENT_showAudios(char *user)
 {
     // Funció per enviar un paquet a un altre usuari, al que previament estàs connectat
-
     int trobat = 0;
     LLISTABID_vesInici(&servers);
     char buff[128];
@@ -251,25 +250,30 @@ int CLIENT_showAudios(char *user)
     // Busquem a la llista la relació de nom i port per així saber a quin fd hem de enviar
     while (!LLISTABID_final(servers) && !trobat)
     {
-            Element server = LLISTABID_consulta(servers);
-            if (strcmp(server.name, user) == 0)
-            {
-                Packet p;
-                
-                p = PACKET_create(T_SHOWAUDIOS, (int)strlen(H_SHOWAUDIOS), H_SHOWAUDIOS, 1, " ");
-                PACKET_write(p,server.socketfd);
-                trobat=1;
-               }else
-            {
-                LLISTABID_avanca(&servers);
-            }
-        }
-        if (!trobat)
+        Element server = LLISTABID_consulta(servers);
+        if (strcmp(server.name, user) == 0)
         {
-            bytes = sprintf(buff, UNKNOWN_CONNECTION, user);
-            IO_write(1, buff, bytes);
+            Packet p = PACKET_create(T_SHOWAUDIOS, (int)strlen(H_SHOWAUDIOS), H_SHOWAUDIOS, 1, " ");
+            PACKET_write(p, server.socketfd);
+            PACKET_destroy(&p);
+
+            Packet pa = PACKET_read(server.socketfd);
+            IO_write(1, pa.data, strlen(pa.data));
+            PACKET_destroy(&pa);
+
+            trobat = 1;
         }
-        return 1;
+        else
+        {
+            LLISTABID_avanca(&servers);
+        }
+    }
+    if (!trobat)
+    {
+        bytes = sprintf(buff, UNKNOWN_CONNECTION, user);
+        IO_write(1, buff, bytes);
+    }
+    return 1;
 }
 
 int CLIENT_exit()

@@ -47,7 +47,7 @@ int DSERVER_getFd(DServer *ds)
     return ds->fd;
 }
 
-int DSERVER_close(DServer *ds) 
+int DSERVER_close(DServer *ds)
 {
     // Al tancar enviem el missatge de OK respecte hem rebut missatge desconnexio
     Packet p = PACKET_create(T_EXIT, (int)strlen(H_CONOK), H_CONOK, 0, "");
@@ -58,7 +58,7 @@ int DSERVER_close(DServer *ds)
     return 0;
 }
 
-void *DSERVER_threadFunc(void *data) 
+void *DSERVER_threadFunc(void *data)
 {
     // Funcio que corre al thread, encarregada de identificar cada paquet rebut i actuar corresponentment
 
@@ -71,13 +71,12 @@ void *DSERVER_threadFunc(void *data)
     while (ds->state)
     {
         p = PACKET_read(fd);
-        write(1,"CC\n",3);
-        write(1,p.header, strlen(p.header));
+        write(1, p.header, strlen(p.header));
         if (p.headerLength == -1)
         {
             ds->state = 0;
         }
-        if (p.type == T_MSG) 
+        if (p.type == T_MSG)
         {
             // En cas de rebre correcatmen un missatge, responem indicant que hem rebut
 
@@ -101,30 +100,26 @@ void *DSERVER_threadFunc(void *data)
             // Alliberem memoria
             PACKET_destroy(&pok);
         }
-        if (p.type == T_EXIT) 
+        if (p.type == T_EXIT)
         {
             // Tanquem el dedicated server en cas de desconnexio
             DSERVER_close(ds);
         }
         if (p.type == T_SHOWAUDIOS)
         {
-            IO_write(1, "aaba", 4);
-           if (!strcmp(p.header,H_LISTAUDIOS) )
+
+            if (!strcmp(p.header, H_LISTAUDIOS))
             {
                 IO_write(1, "aaaa", 4);
                 IO_write(1, p.data, p.length);
-                    
             }
-            if (!strcmp(p.header,H_SHOWAUDIOS) )
+            if (!strcmp(p.header, H_SHOWAUDIOS))
             {
-                char* a = DSERVER_showFiles((Config*)ds->config);
-                IO_write(1, a, strlen(a));
-                Packet pack = PACKET_create(T_SHOWAUDIOS, (int)strlen(H_LISTAUDIOS), H_LISTAUDIOS, strlen(a), a);
-                PACKET_write(pack,ds->fdserver);
-                IO_write(1, pack.header, strlen(pack.header));  //Nose perque arriba aqui pero nomes escriu algo al desconectarse
+                char *a = DSERVER_showFiles((Config *)ds->config);
+                Packet pack = PACKET_create(T_SHOWAUDIOS, (int)strlen(H_LISTAUDIOS), H_LISTAUDIOS, UTILS_sizeOf(a), a);
+                PACKET_write(pack, fd);
+
             }
-                    
-                    
         }
         PACKET_destroy(&p);
     }
@@ -132,32 +127,36 @@ void *DSERVER_threadFunc(void *data)
     return (void *)0;
 }
 
-char* DSERVER_showFiles(Config* config){
-    char *audios; //= CONFIG_getAudioFolder(*config);
+char *DSERVER_showFiles(Config *config)
+{
+    char *audios = CONFIG_getAudioFolder(*config);
     DIR *dir;
     struct dirent *ent;
+    char* audiosData = (char*) malloc(sizeof(char));
     char buff2[128];
-    char buff[128];
-    //int bytes2 = sprintf(buff2, "./%s \n", audios);
-    //IO_write(1, buff2, bytes2);
-    int bytes2 = 0;
 
-    
-    if ((dir = opendir ("./Audios1")) != NULL) {
-    /* print all the files and directories within directory */
-    while ((ent = readdir (dir)) != NULL) {
-        
-        int bytes = sprintf(buff, "%s \n %s",buff, ent->d_name);
-        bytes2 =+bytes;
+    int bytes2 = sprintf(buff2, "./%s", audios);
+    IO_write(1, buff2, bytes2);
+
+    if ((dir = opendir("./Audios1")) != NULL)
+    {
+        while ((ent = readdir(dir)) != NULL)
+        {
+            if (ent->d_type != DT_DIR)
+            {
+                
+                audiosData = (char *)realloc((void *)audiosData, UTILS_sizeOf(ent->d_name)+1);
+                strcat(audiosData,ent->d_name);
+                strcat(audiosData,"\n");
+            }
+        }
+        IO_write(1, audiosData, UTILS_sizeOf(audiosData));
+        closedir(dir);
+
+        return audiosData;
     }
-    
-    buff[bytes2++] = ']';
-    buff[bytes2++] = '\0';
-    closedir (dir);
-    audios = &buff[0];
-    return audios;
-    } else {
-    /* could not open directory */
-    return EXIT_FAILURE;
+    else
+    {
+        return EXIT_FAILURE;
     }
 }
