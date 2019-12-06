@@ -119,6 +119,7 @@ void *DSERVER_threadFunc(void *data)
                 Packet pack = PACKET_create(T_SHOWAUDIOS, (int)strlen(H_LISTAUDIOS), H_LISTAUDIOS, UTILS_sizeOf(a), a);
                 PACKET_write(pack, fd);
                 // Alliberem memoria
+                free(a);
                 PACKET_destroy(&pack);
             }
         }
@@ -153,7 +154,9 @@ char *DSERVER_showFiles(char *audios)
                 strcat(audiosData, "\n");
             }
         }
+        
         closedir(dir);
+        free(fold);
 
         return audiosData;
     }
