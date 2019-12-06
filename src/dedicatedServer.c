@@ -120,7 +120,6 @@ void *DSERVER_threadFunc(void *data)
                 PACKET_write(pack, fd);
                 // Alliberem memoria
                 PACKET_destroy(&pack);
-                UTILS_printName(ds->name);
             }
         }
         PACKET_destroy(&p);
@@ -135,12 +134,15 @@ char *DSERVER_showFiles(char *audios)
     DIR *dir;
     struct dirent *ent;
     char *audiosData = (char *)malloc(sizeof(char));
-    char buff2[128];
+    char *audioFolder = (char *)malloc(sizeof(char));
 
-    int bytes2 = sprintf(buff2, "./%s", audios);
-    IO_write(1, buff2, bytes2);
+    audioFolder = (char *)realloc((void *)audioFolder, strlen(audios));
+    sprintf(audioFolder, "./%s", audios);
 
-    if ((dir = opendir("./Audios1")) != NULL)
+    char *fold = strtok(audioFolder, "\n");
+    fold[strlen(fold) - 1] = 0;
+
+    if ((dir = opendir(fold)) != NULL)
     {
         while ((ent = readdir(dir)) != NULL)
         {
@@ -157,6 +159,6 @@ char *DSERVER_showFiles(char *audios)
     }
     else
     {
-        return "No audios found";
+        return "No audios found\n";
     }
 }
