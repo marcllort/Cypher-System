@@ -8,6 +8,7 @@
 #include <stdint.h>
 
 #include "io.h"
+#include "utils.h"
 
 #define T_CONNECT 0x01
 #define T_MSG 0x02

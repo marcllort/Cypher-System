@@ -71,7 +71,6 @@ void *DSERVER_threadFunc(void *data)
     while (ds->state)
     {
         p = PACKET_read(fd);
-
         if (p.headerLength == -1)
         {
             ds->state = 0;
@@ -100,12 +99,12 @@ void *DSERVER_threadFunc(void *data)
             // Alliberem memoria
             PACKET_destroy(&pok);
         }
-        if (p.type == T_EXIT)
+        else if (p.type == T_EXIT)
         {
             // Tanquem el dedicated server en cas de desconnexio
             DSERVER_close(ds);
         }
-        if (p.type == T_SHOWAUDIOS)
+        else if (p.type == T_SHOWAUDIOS)
         {
 
             if (!strcmp(p.header, H_LISTAUDIOS))
@@ -123,22 +122,27 @@ void *DSERVER_threadFunc(void *data)
                 PACKET_destroy(&pack);
             }
         }
-        if (p.type == T_DOWNLOAD)
+        else if (p.type == T_DOWNLOAD)
         {
             if (!strcmp(p.header, H_AUDREQ))
             {
+
                 char *audioFolder = (char *)malloc(sizeof(char));
                 audioFolder = (char *)realloc((void *)audioFolder, strlen(ds->audios));
                 sprintf(audioFolder, "./%s", ds->audios);
                 char *fold = strtok(audioFolder, "\n");
                 fold[strlen(fold) - 1] = 0;
-
+                strcat(fold, "/");
                 strcat(fold, p.data);
 
                 if (UTILS_fileExists(fold) != -1)
                 {
-                    IO_write(1, "Existe\n", strlen("Existe\n"));
+                    //IO_write(1, "Existe\n", strlen("Existe\n"));
                     Packet pack;
+
+                    pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDRESP), H_AUDRESP, 0, NULL);
+                    PACKET_write(pack, fd);
+                    PACKET_destroy(&pack);
                     /*do{
                         pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDRESP), H_AUDRESP, 0, NULL);
                         PACKET_write(pack, fd);
@@ -147,7 +151,7 @@ void *DSERVER_threadFunc(void *data)
                 }
                 else
                 {
-                    IO_write(1, "No existe\n",  strlen("No Existe\n"));
+                    //IO_write(1, "No existe\n", strlen("No Existe\n"));
                     Packet pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDKO), H_AUDKO, 0, NULL);
                     PACKET_write(pack, fd);
                     PACKET_destroy(&pack);
@@ -172,6 +176,7 @@ char *DSERVER_showFiles(char *audios)
     sprintf(audioFolder, "./%s", audios);
 
     char *fold = strtok(audioFolder, "\n");
+    //free(audioFolder);
     fold[strlen(fold) - 1] = 0;
 
     if ((dir = opendir(fold)) != NULL)

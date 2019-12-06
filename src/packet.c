@@ -27,6 +27,9 @@ Packet PACKET_read(int fd)
             return PACKET_destroy(&pd);
     } while (pd.header[pd.headerLength - 1] != ']');
 
+    pd.header[pd.headerLength] = '\0';
+
+
     if (read(fd, &pd.length, sizeof(uint16_t)) <= 0)
     {
         return PACKET_destroy(&pd);
@@ -52,7 +55,7 @@ int PACKET_write(Packet pd, int fd)
     // Funcio per enviar un paquet per parts
 
     IO_write(fd, &pd.type, 1);
-    IO_write(fd, pd.header, strlen(pd.header));
+    IO_write(fd, pd.header, UTILS_sizeOf(pd.header));
 
     int error = write(fd, &pd.length, sizeof(uint16_t));
     if (error < 0)
@@ -77,12 +80,14 @@ Packet PACKET_destroy(Packet *p)
 
     if (p->header != NULL)
     {
+        strcpy(p->header, " ");
         free(p->header);
         p->header = NULL;
     }
 
     if (p->data != NULL)
     {
+        strcpy(p->data, " ");
         free(p->data);
         p->data = NULL;
     }

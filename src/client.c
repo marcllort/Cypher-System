@@ -188,7 +188,7 @@ int CLIENT_connectPort(Config config, int connectPort)
 
             newServer.name = j.data;
             free(j.header);
-
+            
             LLISTABID_inserirDarrere(&servers, newServer);
 
             int bytes = sprintf(buff, "%d connected: %s\n", newServer.port, newServer.name);
@@ -222,7 +222,8 @@ int CLIENT_write(char *user, char *message)
 
             lastfd = server.socketfd;
 
-            PACKET_read(server.socketfd);
+            Packet readed =PACKET_read(server.socketfd);
+            PACKET_destroy(&readed);
             trobat = 1;
         }
         else
@@ -253,7 +254,7 @@ int CLIENT_showAudios(char *user)
         Element server = LLISTABID_consulta(servers);
         if (strcmp(server.name, user) == 0)
         {
-            Packet p = PACKET_create(T_SHOWAUDIOS, (int)strlen(H_SHOWAUDIOS), H_SHOWAUDIOS, 0, NULL);
+            Packet p = PACKET_create(T_SHOWAUDIOS, (int)UTILS_sizeOf(H_SHOWAUDIOS), H_SHOWAUDIOS, 0, NULL);
             PACKET_write(p, server.socketfd);
             PACKET_destroy(&p);
 
@@ -296,20 +297,17 @@ int CLIENT_download(char *user, char *filename)
             
             Packet pa = PACKET_read(server.socketfd);
 
-            pa.header[strlen(pa.header) -2] = 0;
-            //int bytes = sprintf(buff, "Value1: %d  Value2:%d\n", UTILS_sizeOf(pa.header), UTILS_sizeOf(H_AUDKO));
-            //IO_write(1, buff, bytes);
-            
             if (!strcmp(H_AUDKO,pa.header))
             {
-                IO_write(1, "ERROR, fichero inexistente\n", strlen("ERROR, fichero inexistente\n"));
+                IO_write(1, "Error, fichero inexistente\n", strlen("Error, fichero inexistente\n"));
             }
             if (!strcmp(pa.header, H_AUDRESP))
             {
-                do
+                IO_write(1, "Descargando...\n", strlen("Descargando...\n"));
+                /*do
                 {
 
-                } while (!strcmp(pa.header, H_AUDEOF));
+                } while (!strcmp(pa.header, H_AUDEOF));*/
             }
 
             //IO_write(1, pa.data, strlen(pa.data) - 1);
@@ -345,7 +343,8 @@ int CLIENT_exit()
         PACKET_destroy(&packet);
 
         // Llegim resposta de desconnexio OK (protocol desconnexio)
-        PACKET_read(server.socketfd);
+        Packet p =PACKET_read(server.socketfd);
+        PACKET_destroy(&p);
 
         // Tanquem els fd i free de memoria
         close(server.socketfd);
