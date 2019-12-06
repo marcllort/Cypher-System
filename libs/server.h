@@ -32,6 +32,7 @@ typedef struct
     char *name;
     void *config;
     char *ip;
+    char *audios;
     int port;
     int fd;
     int fdserver;
@@ -43,7 +44,7 @@ typedef struct
     pthread_mutex_t mutex;
 } Server;
 
-Server SERVER_init(char *ip, int port, char *name, void *config);
+Server SERVER_init(char *ip, int port, char *name, char *audios);
 int SERVER_start(Server *server);
 int SERVER_operate(Server *server);
 void SERVER_close(Server *server);

@@ -258,7 +258,7 @@ int CLIENT_showAudios(char *user)
             PACKET_destroy(&p);
 
             Packet pa = PACKET_read(server.socketfd);
-            IO_write(1, pa.data, strlen(pa.data));
+            IO_write(1, pa.data, strlen(pa.data)-1);
             PACKET_destroy(&pa);
 
             trobat = 1;

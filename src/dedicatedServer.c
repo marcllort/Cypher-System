@@ -11,7 +11,7 @@ DServer *DSERVER_init(
     char *name,
     int (*remove)(void *),
     char *user,
-    void *config)
+    char *audios)
 {
     // Inicialitzacio de la variable DServer
 
@@ -30,7 +30,7 @@ DServer *DSERVER_init(
         ds->list_node = NULL;
         ds->remove = remove;
         ds->user = user;
-        ds->config = config;
+        ds->audios = audios;
     }
     return ds;
 }
@@ -71,7 +71,7 @@ void *DSERVER_threadFunc(void *data)
     while (ds->state)
     {
         p = PACKET_read(fd);
-        write(1, p.header, strlen(p.header));
+
         if (p.headerLength == -1)
         {
             ds->state = 0;
@@ -115,10 +115,12 @@ void *DSERVER_threadFunc(void *data)
             }
             if (!strcmp(p.header, H_SHOWAUDIOS))
             {
-                char *a = DSERVER_showFiles((Config *)ds->config);
+                char *a = DSERVER_showFiles(ds->audios);
                 Packet pack = PACKET_create(T_SHOWAUDIOS, (int)strlen(H_LISTAUDIOS), H_LISTAUDIOS, UTILS_sizeOf(a), a);
                 PACKET_write(pack, fd);
-
+                // Alliberem memoria
+                PACKET_destroy(&pack);
+                UTILS_printName(ds->name);
             }
         }
         PACKET_destroy(&p);
@@ -127,12 +129,12 @@ void *DSERVER_threadFunc(void *data)
     return (void *)0;
 }
 
-char *DSERVER_showFiles(Config *config)
+char *DSERVER_showFiles(char *audios)
 {
-    char *audios = CONFIG_getAudioFolder(*config);
+
     DIR *dir;
     struct dirent *ent;
-    char* audiosData = (char*) malloc(sizeof(char));
+    char *audiosData = (char *)malloc(sizeof(char));
     char buff2[128];
 
     int bytes2 = sprintf(buff2, "./%s", audios);
@@ -144,19 +146,17 @@ char *DSERVER_showFiles(Config *config)
         {
             if (ent->d_type != DT_DIR)
             {
-                
-                audiosData = (char *)realloc((void *)audiosData, UTILS_sizeOf(ent->d_name)+1);
-                strcat(audiosData,ent->d_name);
-                strcat(audiosData,"\n");
+                audiosData = (char *)realloc((void *)audiosData, UTILS_sizeOf(ent->d_name) + 1);
+                strcat(audiosData, ent->d_name);
+                strcat(audiosData, "\n");
             }
         }
-        IO_write(1, audiosData, UTILS_sizeOf(audiosData));
         closedir(dir);
 
         return audiosData;
     }
     else
     {
-        return EXIT_FAILURE;
+        return "No audios found";
     }
 }

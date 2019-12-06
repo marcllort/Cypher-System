@@ -33,7 +33,7 @@ typedef struct
     void *(*operate)(void *);
     int (*remove)(void *);
     char *user;
-    void* config;
+    char *audios;
 } DServer;
 
 DServer *DSERVER_init(
@@ -47,12 +47,12 @@ DServer *DSERVER_init(
     char *name,
     int (*remove)(void *),
     char *user,
-    void  *config);
+    char *audios);
 
 int DSERVER_close(DServer *ds);
 pthread_t *DSERVER_getThread(DServer *ds);
 int DSERVER_getFd(DServer *ds);
 void *DSERVER_threadFunc(void *data);
-char* DSERVER_showFiles(Config* config);
+char* DSERVER_showFiles(char *audios);
 
 #endif //DSERVER_H
