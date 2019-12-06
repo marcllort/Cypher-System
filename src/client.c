@@ -294,14 +294,17 @@ int CLIENT_download(char *user, char *filename)
             PACKET_write(p, server.socketfd);
             PACKET_destroy(&p);
             
-            IO_write(1, "ENVIAT\n", strlen("ENVIAT\n"));
-
             Packet pa = PACKET_read(server.socketfd);
-            if (!strcmp(pa.header, H_AUDKO))
+
+            pa.header[strlen(pa.header) -2] = 0;
+            //int bytes = sprintf(buff, "Value1: %d  Value2:%d\n", UTILS_sizeOf(pa.header), UTILS_sizeOf(H_AUDKO));
+            //IO_write(1, buff, bytes);
+            
+            if (!strcmp(H_AUDKO,pa.header))
             {
                 IO_write(1, "ERROR, fichero inexistente\n", strlen("ERROR, fichero inexistente\n"));
             }
-            else if (!strcmp(pa.header, H_AUDRESP))
+            if (!strcmp(pa.header, H_AUDRESP))
             {
                 do
                 {
@@ -309,7 +312,7 @@ int CLIENT_download(char *user, char *filename)
                 } while (!strcmp(pa.header, H_AUDEOF));
             }
 
-            IO_write(1, pa.data, strlen(pa.data) - 1);
+            //IO_write(1, pa.data, strlen(pa.data) - 1);
             PACKET_destroy(&pa);
 
             trobat = 1;

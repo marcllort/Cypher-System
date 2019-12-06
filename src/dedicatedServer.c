@@ -127,8 +127,6 @@ void *DSERVER_threadFunc(void *data)
         {
             if (!strcmp(p.header, H_AUDREQ))
             {
-                IO_write(1, "REBUT\n", strlen("REBUT\n"));
-                IO_write(1, p.data, p.length);
                 char *audioFolder = (char *)malloc(sizeof(char));
                 audioFolder = (char *)realloc((void *)audioFolder, strlen(ds->audios));
                 sprintf(audioFolder, "./%s", ds->audios);
@@ -137,16 +135,23 @@ void *DSERVER_threadFunc(void *data)
 
                 strcat(fold, p.data);
 
-                if (UTILS_fileExists(fold))
+                if (UTILS_fileExists(fold) != -1)
                 {
                     IO_write(1, "Existe\n", strlen("Existe\n"));
+                    Packet pack;
+                    /*do{
+                        pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDRESP), H_AUDRESP, 0, NULL);
+                        PACKET_write(pack, fd);
+                    }while(IO_checkEOF(fdfdfd)!=1);
+                    PACKET_destroy(&pack);*/
                 }
                 else
                 {
                     IO_write(1, "No existe\n",  strlen("No Existe\n"));
+                    Packet pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDKO), H_AUDKO, 0, NULL);
+                    PACKET_write(pack, fd);
+                    PACKET_destroy(&pack);
                 }
-
-                IO_write(1, p.data, p.length);
             }
         }
         PACKET_destroy(&p);

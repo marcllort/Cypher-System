@@ -7,6 +7,8 @@
 #include <sys/types.h>
 #include <string.h>
 
+#define FRAGMENT_SIZE 8192
+
 int IO_openFile(const char *filename);
 long IO_readUntil(int fd, char **data, char delimiter);
 long IO_readUntilv2(int fd, char **data, char delimiter);
