@@ -115,7 +115,7 @@ int MANAGER_manageCommand(char *inputString)
                 if (words[2])
                 {
                     free(inputString);
-                    CLIENT_showAudios(words[2]);
+                    CLIENT_download(words[1], words[2]);
                 }
                 else
                 {

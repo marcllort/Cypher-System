@@ -31,11 +31,17 @@ Packet PACKET_read(int fd)
     {
         return PACKET_destroy(&pd);
     }
-
-    pd.data = (char *)malloc(sizeof(char) * pd.length);
-    if (read(fd, pd.data, pd.length) <= 0)
+    if (pd.length != 0)
     {
-        return PACKET_destroy(&pd);
+        pd.data = (char *)malloc(sizeof(char) * pd.length);
+        if (read(fd, pd.data, pd.length) <= 0)
+        {
+            return PACKET_destroy(&pd);
+        }
+    }
+    else
+    {
+        pd.data = NULL;
     }
 
     return pd;
@@ -53,8 +59,10 @@ int PACKET_write(Packet pd, int fd)
     {
         IO_write(1, " ", strlen(" "));
     }
-
-    IO_write(fd, pd.data, strlen(pd.data));
+    if (pd.length != 0)
+    {
+        IO_write(fd, pd.data, strlen(pd.data));
+    }
 
     return 0;
 }
@@ -102,7 +110,9 @@ Packet PACKET_create(char type, int headerLength, char *header, unsigned short d
         free(pd.header);
         return pd;
     }
-    strcpy(pd.data, data);
+    if(pd.length!=0){
+        strcpy(pd.data, data);
+    }   
 
     return pd;
 }

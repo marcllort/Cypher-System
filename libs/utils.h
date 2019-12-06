@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <assert.h>
 #include <ctype.h>
+#include <sys/wait.h>
 
 #include "io.h"
 #include "config.h"
@@ -23,6 +24,8 @@ int UTILS_printName(char *config);
 void UTILS_removeChar(char *p, int ch);
 int UTILS_isEmpty(const char *s);
 char *UTILS_readKB();
+int UTILS_fileExists(char *filename);
+char *UTILS_md5(char *filename);
 void UTILS_freeMemory();
 
 #endif

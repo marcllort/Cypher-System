@@ -125,6 +125,51 @@ char *UTILS_readKB()
     return bufferKB;
 }
 
-void UTILS_freeMemory(){
+int UTILS_fileExists(char *filename)
+{
+    return access(filename, F_OK);
+}
+
+int digits(long num)
+{
+    int digits;
+    for (digits = 0; num > 0; num /= 10, digits++);
+    return digits;
+}
+
+char *UTILS_md5(char *filename)
+{
+    int pid = fork();
+
+    if (pid == 0)
+    {
+        char *data[4];
+        data[0] = "sh";
+        data[1] = "-c";
+        data[2] = (char *)malloc(sizeof(char) * (strlen(filename) + 36 + digits(getpid())));
+        sprintf(data[2], "md5sum \"%s\" | awk '{print $1}' > %d.txt", filename, getpid());
+        data[3] = NULL;
+        execvp(data[0], data);
+    }
+
+    waitpid(pid, NULL, 0);
+
+    char *md5 = NULL;
+    char *name = (char *)malloc(sizeof(char) * (digits(pid) + 5));
+    sprintf(name, "%d.txt", pid);
+
+    int fd = open(name, O_RDWR);
+
+    IO_read(fd, &md5, 32);
+    IO_close(fd);
+    IO_deleteFile(name);
+
+    free(name);
+
+    return md5;
+}
+
+void UTILS_freeMemory()
+{
     free(bufferKB);
 }

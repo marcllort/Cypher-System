@@ -123,6 +123,32 @@ void *DSERVER_threadFunc(void *data)
                 PACKET_destroy(&pack);
             }
         }
+        if (p.type == T_DOWNLOAD)
+        {
+            if (!strcmp(p.header, H_AUDREQ))
+            {
+                IO_write(1, "REBUT\n", strlen("REBUT\n"));
+                IO_write(1, p.data, p.length);
+                char *audioFolder = (char *)malloc(sizeof(char));
+                audioFolder = (char *)realloc((void *)audioFolder, strlen(ds->audios));
+                sprintf(audioFolder, "./%s", ds->audios);
+                char *fold = strtok(audioFolder, "\n");
+                fold[strlen(fold) - 1] = 0;
+
+                strcat(fold, p.data);
+
+                if (UTILS_fileExists(fold))
+                {
+                    IO_write(1, "Existe\n", strlen("Existe\n"));
+                }
+                else
+                {
+                    IO_write(1, "No existe\n",  strlen("No Existe\n"));
+                }
+
+                IO_write(1, p.data, p.length);
+            }
+        }
         PACKET_destroy(&p);
     }
 
@@ -154,7 +180,7 @@ char *DSERVER_showFiles(char *audios)
                 strcat(audiosData, "\n");
             }
         }
-        
+
         closedir(dir);
         free(fold);
 

@@ -253,12 +253,63 @@ int CLIENT_showAudios(char *user)
         Element server = LLISTABID_consulta(servers);
         if (strcmp(server.name, user) == 0)
         {
-            Packet p = PACKET_create(T_SHOWAUDIOS, (int)strlen(H_SHOWAUDIOS), H_SHOWAUDIOS, 1, " ");
+            Packet p = PACKET_create(T_SHOWAUDIOS, (int)strlen(H_SHOWAUDIOS), H_SHOWAUDIOS, 0, NULL);
             PACKET_write(p, server.socketfd);
             PACKET_destroy(&p);
 
             Packet pa = PACKET_read(server.socketfd);
-            IO_write(1, pa.data, strlen(pa.data)-1);
+            IO_write(1, pa.data, strlen(pa.data) - 1);
+            PACKET_destroy(&pa);
+
+            trobat = 1;
+        }
+        else
+        {
+            LLISTABID_avanca(&servers);
+        }
+    }
+    if (!trobat)
+    {
+        bytes = sprintf(buff, UNKNOWN_CONNECTION, user);
+        IO_write(1, buff, bytes);
+    }
+    return 1;
+}
+
+int CLIENT_download(char *user, char *filename)
+{
+    // Funció per enviar un paquet a un altre usuari, al que previament estàs connectat
+    int trobat = 0;
+    LLISTABID_vesInici(&servers);
+    char buff[128];
+    int bytes;
+
+    // Busquem a la llista la relació de nom i port per així saber a quin fd hem de enviar
+    while (!LLISTABID_final(servers) && !trobat)
+    {
+        Element server = LLISTABID_consulta(servers);
+        if (strcmp(server.name, user) == 0)
+        {
+            Packet p = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDREQ), H_AUDREQ, UTILS_sizeOf(filename), filename);
+            PACKET_write(p, server.socketfd);
+            PACKET_destroy(&p);
+            
+            IO_write(1, "ENVIAT\n", strlen("ENVIAT\n"));
+
+            Packet pa = PACKET_read(server.socketfd);
+            if (!strcmp(pa.header, H_AUDKO))
+            {
+                IO_write(1, "ERROR, fichero inexistente\n", strlen("ERROR, fichero inexistente\n"));
+            }
+            else if (!strcmp(pa.header, H_AUDRESP))
+            {
+                do
+                {
+
+                } while (!strcmp(pa.header, H_AUDEOF));
+            }
+
+            IO_write(1, pa.data, strlen(pa.data) - 1);
             PACKET_destroy(&pa);
 
             trobat = 1;

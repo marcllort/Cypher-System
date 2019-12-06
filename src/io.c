@@ -54,6 +54,12 @@ long IO_readUntilv2(int fd, char **data, char delimiter)
     return size;
 }
 
+long IO_read(int fd, char **data, long size)
+{
+    *data = (char*) malloc(sizeof(char) * size);
+    return read(fd, *data, size);
+}
+
 long IO_write(int fd, char *data, long size)
 { 
     // Escrivim  a un fd
@@ -64,6 +70,16 @@ long IO_write(int fd, char *data, long size)
     lseek(fd, curr, SEEK_SET);
 
     return status;
+}
+
+int IO_close(int fd)
+{
+    return close(fd);
+}
+
+int IO_deleteFile(const char* filename)
+{
+    return unlink(filename);
 }
 
 inline int IO_checkEOF(int fd)
