@@ -71,6 +71,7 @@ void *DSERVER_threadFunc(void *data)
     // Ens quedem al bucle metre no canvii el estat del server dedicat
     while (ds->state)
     {
+        PACKET_destroy(&p);
         p = PACKET_read(fd);
         if (p.headerLength == -1)
         {
@@ -120,9 +121,9 @@ void *DSERVER_threadFunc(void *data)
                 Packet pack = PACKET_create(T_SHOWAUDIOS, (int)strlen(H_LISTAUDIOS), H_LISTAUDIOS, UTILS_sizeOf(a), a);
 
                 char buff[126];
-                int bytes= sprintf(buff,"\nVALUE DATA: %d\n", UTILS_sizeOf(a));
+                int bytes = sprintf(buff, "\nVALUE DATA: %d\n", UTILS_sizeOf(a));
                 IO_write(1, buff, UTILS_sizeOf(buff));
-                
+
                 PACKET_write(pack, fd);
                 // Alliberem memoria
                 free(a);
@@ -131,32 +132,24 @@ void *DSERVER_threadFunc(void *data)
         }
         else if (p.type == T_DOWNLOAD)
         {
-            IO_write(1, "Dins DOWNLOAD\n", strlen("Dins DOWNLOAD\n"));
             if (!strcmp(p.header, H_AUDREQ))
             {
-                IO_write(1, "Dins H_AUDREQ\n", strlen("Dins H_AUDREQ\n"));
-                int sizes = UTILS_sizeOf(ds->audios)+p.length +3;
+                int sizes = UTILS_sizeOf(ds->audios) + p.length + 3;
 
                 char buff[126];
-                int bytes= sprintf(buff,"\nVALUE DATA: %d\n", sizes);
+                int bytes = sprintf(buff, "\nVALUE DATA: %d\n", sizes);
                 IO_write(1, buff, UTILS_sizeOf(buff));
 
                 char *audioFolderr = (char *)malloc(sizes);
-                //audioFolder = (char *)realloc((void *)audioFolder, );
-                
-                int gg = sprintf(audioFolderr, "./%s/%s", ds->audios,p.data);
-                /*strtok(audioFolder, "\n");
-                audioFolder[strlen(audioFolder) - 1] = 0;
-                strcat(audioFolder, "/");
-                strcat(audioFolder, p.data);*/
+                int gg = sprintf(audioFolderr, "./%s/%s", ds->audios, p.data);
 
                 IO_write(1, "\n", 1);
                 IO_write(1, audioFolderr, sizes);
                 IO_write(1, "\n", 1);
 
-                char buffer[124]="";
+                char buffer[124] = "";
                 strcpy(buffer, audioFolderr);
-                buffer[sizes]=0;
+                buffer[sizes] = 0;
                 IO_write(1, "\n", 1);
                 IO_write(1, buffer, sizes);
                 IO_write(1, "\n", 1);
@@ -168,21 +161,22 @@ void *DSERVER_threadFunc(void *data)
 
                     pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDRESP), H_AUDRESP, 0, NULL);
                     PACKET_write(pack, fd);
-                    //PACKET_destroy(&pack);
+
                     /*do{
                         pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDRESP), H_AUDRESP, 0, NULL);
                         PACKET_write(pack, fd);
                     }while(IO_checkEOF(fdfdfd)!=1);
-                    PACKET_destroy(&pack);*/
+                    */
+                    //PACKET_destroy(&pack);
                 }
                 else
                 {
                     IO_write(1, "No existe\n", strlen("No Existe\n"));
                     Packet pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDKO), H_AUDKO, 0, NULL);
                     PACKET_write(pack, fd);
-                    //PACKET_destroy(&pack);
+                    PACKET_destroy(&pack);
                 }
-                free(audioFolderr);
+                //free(audioFolderr);
             }
         }
         //PACKET_destroy(&p);
@@ -203,10 +197,7 @@ char *DSERVER_showFiles(char *audios)
 
     audioFolder = (char *)realloc((void *)audioFolder, strlen(audios));
     sprintf(audioFolder, "./%s", audios);
-    //strtok(audioFolder, "\n");
-    //audioFolder[strlen(audioFolder) - 1] = 0;
-    IO_write(1, audioFolder, strlen(audioFolder));
-    IO_write(1, "\n", 1);
+
     if ((dir = opendir(audioFolder)) != NULL)
     {
         int i = 0;
@@ -218,7 +209,7 @@ char *DSERVER_showFiles(char *audios)
                 {
                     IO_write(1, audiosData, strlen(audiosData));
                     audiosData = (char *)realloc((void *)audiosData, UTILS_sizeOf(ent->d_name) + 1);
-                    strcpy(audiosData,ent->d_name);
+                    strcpy(audiosData, ent->d_name);
                     IO_write(1, i, 1);
                     i++;
                 }
