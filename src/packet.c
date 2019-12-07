@@ -84,7 +84,7 @@ Packet PACKET_destroy(Packet *p)
         p->header = NULL;
     }
 
-    if (p->headerLength != -12)
+    if (p->data != NULL)
     {
         //strcpy(p->data, " ");
         free(p->data);

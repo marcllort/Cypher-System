@@ -7,6 +7,7 @@ int NETWORK_init(Config config)
     char *ip = CONFIG_getMyIP(config);
     char *name = CONFIG_getUsername(config);
     char *audios = CONFIG_getAudioFolder(config);
+    audios[strlen(audios) - 1] = 0;
 
     trinity = SERVER_init(ip, port, name, audios);
     SERVER_setFunc(&trinity, SERVER_threadFunc);

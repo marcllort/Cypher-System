@@ -31,7 +31,6 @@ DServer *DSERVER_init(
         ds->remove = remove;
         ds->user = user;
         ds->audios = audios;
-        ds->audios[strlen(ds->audios) - 1] = 0;
     }
     return ds;
 }
@@ -51,10 +50,10 @@ int DSERVER_getFd(DServer *ds)
 int DSERVER_close(DServer *ds)
 {
     // Al tancar enviem el missatge de OK respecte hem rebut missatge desconnexio
-    Packet p = PACKET_create(T_EXIT, (int)strlen(H_CONOK), H_CONOK, 0, "");
+    Packet p = PACKET_create(T_EXIT, (int)strlen(H_CONOK), H_CONOK, 0, NULL);
     PACKET_write(p, ds->fd);
     PACKET_destroy(&p);
-    ds->state = 0;
+    ds->state = -1;
 
     return 0;
 }
@@ -75,7 +74,8 @@ void *DSERVER_threadFunc(void *data)
         p = PACKET_read(fd);
         if (p.headerLength == -1)
         {
-            ds->state = 0;
+            ds->state = -1;
+            //PACKET_destroy(&p);
         }
         if (p.type == T_MSG)
         {
@@ -100,11 +100,13 @@ void *DSERVER_threadFunc(void *data)
 
             // Alliberem memoria
             PACKET_destroy(&pok);
+            //PACKET_destroy(&p);
         }
         else if (p.type == T_EXIT)
         {
             // Tanquem el dedicated server en cas de desconnexio
             DSERVER_close(ds);
+            //PACKET_destroy(&p);
         }
         else if (p.type == T_SHOWAUDIOS)
         {
@@ -119,9 +121,11 @@ void *DSERVER_threadFunc(void *data)
 
                 PACKET_write(pack, fd);
                 // Alliberem memoria
-                free(a);
+                
                 PACKET_destroy(&pack);
+                free(a);
             }
+            //PACKET_destroy(&p);
         }
         else if (p.type == T_DOWNLOAD)
         {
@@ -132,11 +136,12 @@ void *DSERVER_threadFunc(void *data)
                 char *audioFolderr = (char *)malloc(sizes);
                 sprintf(audioFolderr, "./%s/%s", ds->audios, p.data);
 
-                char buffer[124] = "";
+                /*char buffer[124] = "";
                 strcpy(buffer, audioFolderr);
-                buffer[sizes] = 0;
+                buffer[sizes] = 0;*/
+                audioFolderr[sizes]=0;
 
-                if (UTILS_fileExists(buffer) != -1)
+                if (UTILS_fileExists(audioFolderr) != -1)
                 {
                     //IO_write(1, "Existe\n", strlen("Existe\n"));
 
@@ -159,8 +164,24 @@ void *DSERVER_threadFunc(void *data)
                 }
                 free(audioFolderr);
             }
+            //free(p.header);
         }
-        PACKET_destroy(&p);
+
+        //free(p.header);
+        /*if(p.data != NULL){
+            char bufff[128];
+            sprintf(bufff, "\nData: %s  Header: %s  Type: %d\n", p.data, p.header, p.type);
+            IO_write(1, bufff,UTILS_sizeOf(bufff));
+        }
+        if(p.type!=6){
+            char bufff[128];
+            sprintf(bufff, "\nDELETE Data: %s  Header: %s  Type: %d\n", p.data, p.header, p.type);
+            IO_write(1, bufff,UTILS_sizeOf(bufff));
+            PACKET_destroy(&p);
+        }*/
+        if(p.type!=6){
+            PACKET_destroy(&p);
+        }
     }
 
     return (void *)0;
@@ -172,9 +193,8 @@ char *DSERVER_showFiles(char *audios)
     DIR *dir;
     struct dirent *ent;
     char *audiosData = (char *)malloc(sizeof(char));
-    char *audioFolder = (char *)malloc(sizeof(char));
+    char *audioFolder = (char *)malloc(UTILS_sizeOf(audios));
 
-    audioFolder = (char *)realloc((void *)audioFolder, strlen(audios));
     sprintf(audioFolder, "./%s", audios);
 
     if ((dir = opendir(audioFolder)) != NULL)
