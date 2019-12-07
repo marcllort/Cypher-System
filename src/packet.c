@@ -78,16 +78,16 @@ Packet PACKET_destroy(Packet *p)
     p->length = 0;
     p->headerLength = 0;
 
-    if (p->header != NULL)
+    if (p->length != 0)
     {
-        strcpy(p->header, " ");
+        //strcpy(p->header, " ");
         free(p->header);
         p->header = NULL;
     }
 
-    if (p->data != NULL)
+    if (p->length != 0)
     {
-        strcpy(p->data, " ");
+        //strcpy(p->data, " ");
         free(p->data);
         p->data = NULL;
     }

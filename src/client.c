@@ -261,11 +261,7 @@ int CLIENT_showAudios(char *user)
             Packet pa = PACKET_read(server.socketfd);
             IO_write(1, pa.data, pa.length);
             IO_write(1, "\n", 1);
-            IO_write(1, "\n", 1);
 
-            int bytes= sprintf(buff,"VALUE DATA: %d", pa.length);
-            IO_write(1, buff, UTILS_sizeOf(buff));
-            IO_write(1, "\n", 1);
             PACKET_destroy(&pa);
 
             trobat = 1;
@@ -298,7 +294,6 @@ int CLIENT_download(char *user, char *filename)
         if (strcmp(server.name, user) == 0)
         {
             Packet psend = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDREQ), H_AUDREQ, UTILS_sizeOf(filename), filename);
-            IO_write(1, psend.data, strlen(psend.data));
 
             PACKET_write(psend, server.socketfd);
             PACKET_destroy(&psend);
@@ -307,11 +302,11 @@ int CLIENT_download(char *user, char *filename)
 
             if (!strcmp(H_AUDKO,pa.header))
             {
-                IO_write(1, "Error, fichero inexistente\n", strlen("Error, fichero inexistente\n"));
+                IO_write(1, "\nError, fichero inexistente\n", strlen("\nError, fichero inexistente\n"));
             }
             if (!strcmp(pa.header, H_AUDRESP))
             {
-                IO_write(1, "Descargando...\n", strlen("Descargando...\n"));
+                IO_write(1, "\nDescargando...\n", strlen("\nDescargando...\n"));
                 /*do
                 {
 

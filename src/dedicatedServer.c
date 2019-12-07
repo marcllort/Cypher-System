@@ -108,21 +108,14 @@ void *DSERVER_threadFunc(void *data)
         }
         else if (p.type == T_SHOWAUDIOS)
         {
-
             if (!strcmp(p.header, H_LISTAUDIOS))
             {
-                IO_write(1, "aaaa", 4);
                 IO_write(1, p.data, p.length);
             }
             if (!strcmp(p.header, H_SHOWAUDIOS))
             {
                 char *a = DSERVER_showFiles(ds->audios);
-                IO_write(1, a, strlen(a));
                 Packet pack = PACKET_create(T_SHOWAUDIOS, (int)strlen(H_LISTAUDIOS), H_LISTAUDIOS, UTILS_sizeOf(a), a);
-
-                char buff[126];
-                int bytes = sprintf(buff, "\nVALUE DATA: %d\n", UTILS_sizeOf(a));
-                IO_write(1, buff, UTILS_sizeOf(buff));
 
                 PACKET_write(pack, fd);
                 // Alliberem memoria
@@ -136,32 +129,20 @@ void *DSERVER_threadFunc(void *data)
             {
                 int sizes = UTILS_sizeOf(ds->audios) + p.length + 3;
 
-                char buff[126];
-                int bytes = sprintf(buff, "\nVALUE DATA: %d\n", sizes);
-                IO_write(1, buff, UTILS_sizeOf(buff));
-
                 char *audioFolderr = (char *)malloc(sizes);
-                int gg = sprintf(audioFolderr, "./%s/%s", ds->audios, p.data);
-
-                IO_write(1, "\n", 1);
-                IO_write(1, audioFolderr, sizes);
-                IO_write(1, "\n", 1);
+                sprintf(audioFolderr, "./%s/%s", ds->audios, p.data);
 
                 char buffer[124] = "";
                 strcpy(buffer, audioFolderr);
                 buffer[sizes] = 0;
-                IO_write(1, "\n", 1);
-                IO_write(1, buffer, sizes);
-                IO_write(1, "\n", 1);
 
                 if (UTILS_fileExists(buffer) != -1)
                 {
-                    IO_write(1, "Existe\n", strlen("Existe\n"));
-                    Packet pack;
+                    //IO_write(1, "Existe\n", strlen("Existe\n"));
 
-                    pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDRESP), H_AUDRESP, 0, NULL);
+                    Packet pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDRESP), H_AUDRESP, 0, NULL);
                     PACKET_write(pack, fd);
-
+                    PACKET_destroy(&pack);
                     /*do{
                         pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDRESP), H_AUDRESP, 0, NULL);
                         PACKET_write(pack, fd);
@@ -171,17 +152,15 @@ void *DSERVER_threadFunc(void *data)
                 }
                 else
                 {
-                    IO_write(1, "No existe\n", strlen("No Existe\n"));
+                    //IO_write(1, "No existe\n", strlen("No Existe\n"));
                     Packet pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDKO), H_AUDKO, 0, NULL);
                     PACKET_write(pack, fd);
                     PACKET_destroy(&pack);
                 }
-                //free(audioFolderr);
+                free(audioFolderr);
             }
         }
-        //PACKET_destroy(&p);
-        //free(p.data);
-        //free(p.header);
+
     }
 
     return (void *)0;
@@ -207,17 +186,14 @@ char *DSERVER_showFiles(char *audios)
             {
                 if (i == 0)
                 {
-                    IO_write(1, audiosData, strlen(audiosData));
                     audiosData = (char *)realloc((void *)audiosData, UTILS_sizeOf(ent->d_name) + 1);
                     strcpy(audiosData, ent->d_name);
-                    IO_write(1, i, 1);
                     i++;
                 }
                 else
                 {
                     audiosData = (char *)realloc((void *)audiosData, UTILS_sizeOf(audiosData) + UTILS_sizeOf(ent->d_name) + 1);
                     sprintf(audiosData, "%s\n%s", audiosData, ent->d_name);
-                    IO_write(1, i, 1);
                 }
             }
         }
