@@ -71,7 +71,7 @@ void *DSERVER_threadFunc(void *data)
     // Ens quedem al bucle metre no canvii el estat del server dedicat
     while (ds->state)
     {
-        PACKET_destroy(&p);
+        
         p = PACKET_read(fd);
         if (p.headerLength == -1)
         {
@@ -160,7 +160,7 @@ void *DSERVER_threadFunc(void *data)
                 free(audioFolderr);
             }
         }
-
+        PACKET_destroy(&p);
     }
 
     return (void *)0;

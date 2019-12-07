@@ -29,7 +29,6 @@ Packet PACKET_read(int fd)
 
     pd.header[pd.headerLength] = '\0';
 
-
     if (read(fd, &pd.length, sizeof(uint16_t)) <= 0)
     {
         return PACKET_destroy(&pd);
@@ -78,14 +77,14 @@ Packet PACKET_destroy(Packet *p)
     p->length = 0;
     p->headerLength = 0;
 
-    if (p->length != 0)
+    if (p->header != NULL)
     {
         //strcpy(p->header, " ");
         free(p->header);
         p->header = NULL;
     }
 
-    if (p->length != 0)
+    if (p->headerLength != -12)
     {
         //strcpy(p->data, " ");
         free(p->data);
@@ -110,14 +109,19 @@ Packet PACKET_create(char type, int headerLength, char *header, unsigned short d
     }
     strcpy(pd.header, header);
 
-    if ((pd.data = (char *)malloc(sizeof(char) * dataLength)) == NULL)
+    if (pd.length != 0)
     {
-        free(pd.header);
-        return pd;
-    }
-    if(pd.length!=0){
+        if ((pd.data = (char *)malloc(sizeof(char) * dataLength)) == NULL)
+        {
+            return pd;
+        }
         strcpy(pd.data, data);
-    }   
+    }
+    else
+    {
+        pd.data = NULL;
+        pd.headerLength=-12;
+    }
 
     return pd;
 }
