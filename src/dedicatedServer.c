@@ -134,7 +134,7 @@ void *DSERVER_threadFunc(void *data)
             if (!strcmp(p.header, H_AUDREQ))
             {
                 IO_write(1, "Dins H_AUDREQ\n", strlen("Dins H_AUDREQ\n"));
-                int sizes = UTILS_sizeOf(ds->audios)+p.length +4;
+                int sizes = UTILS_sizeOf(ds->audios)+p.length +3;
 
                 char buff[126];
                 int bytes= sprintf(buff,"\nVALUE DATA: %d\n", sizes);
@@ -149,7 +149,7 @@ void *DSERVER_threadFunc(void *data)
                 strcat(audioFolder, p.data);
 
                 IO_write(1, "\n", 1);
-                IO_write(1, audioFolder, gg);
+                IO_write(1, audioFolder, sizes);
                 IO_write(1, "\n", 1);
 
                 if (UTILS_fileExists(audioFolder) != -1)
@@ -173,6 +173,7 @@ void *DSERVER_threadFunc(void *data)
                     PACKET_write(pack, fd);
                     PACKET_destroy(&pack);
                 }
+                free(audioFolder);
             }
         }
         PACKET_destroy(&p);
@@ -191,11 +192,11 @@ char *DSERVER_showFiles(char *audios)
 
     audioFolder = (char *)realloc((void *)audioFolder, strlen(audios));
     sprintf(audioFolder, "./%s", audios);
-    char *fold = strtok(audioFolder, "\n");
-    fold[strlen(fold) - 1] = 0;
-    IO_write(1, fold, strlen(fold));
+    strtok(audioFolder, "\n");
+    audioFolder[strlen(audioFolder) - 1] = 0;
+    IO_write(1, audioFolder, strlen(audioFolder));
     IO_write(1, "\n", 1);
-    if ((dir = opendir(fold)) != NULL)
+    if ((dir = opendir(audioFolder)) != NULL)
     {
         int i = 0;
         while ((ent = readdir(dir)) != NULL)
@@ -220,7 +221,7 @@ char *DSERVER_showFiles(char *audios)
         }
 
         closedir(dir);
-        free(fold);
+        free(audioFolder);
 
         return audiosData;
     }
