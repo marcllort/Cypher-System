@@ -64,7 +64,7 @@ int PACKET_write(Packet pd, int fd)
     }
     if (pd.length != 0)
     {
-        IO_write(fd, pd.data, strlen(pd.data));
+        IO_write(fd, pd.data, pd.length);
     }
 
     return 0;
