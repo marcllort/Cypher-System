@@ -1,7 +1,7 @@
 #include "../libs/server.h"
 
 Server SERVER_init(char *ip, int port, char *name, char *audios)
-{           // Inicialitzacio de les vars principals del tipus server
+{ // Inicialitzacio de les vars principals del tipus server
 
     Server server;
     server.name = name;
@@ -72,11 +72,11 @@ int SERVER_start(Server *server)
     return server->state = 0;
 }
 
-int SERVER_startDS(Server *server, int fd,int fdserver, struct sockaddr_in addr, char *user) //He provat de passarli aquest fdserver per veure si fent el write aqui funciona pero sembla que no
+int SERVER_startDS(Server *server, int fd, int fdserver, struct sockaddr_in addr, char *user)
 {
     // Inicialitzacio de server dedicat
 
-    DServer *ds = DSERVER_init(server->ids++, fd,fdserver, 0, 0, addr, server, server->name, SERVER_removeDS, user,server->audios);
+    DServer *ds = DSERVER_init(server->ids++, fd, fdserver, 0, 0, addr, server, server->name, SERVER_removeDS, user, server->audios);
 
     // Afegim el ds a la llista de servers dedicats
     SERVER_addDS(server, ds);
@@ -131,12 +131,10 @@ int SERVER_operate(Server *server)
                     if (!strcmp(p.header, H_CONOK))
                     {
                         // Creem el dedicated server si tot ha anat be
-                        SERVER_startDS(server, server->fdserver,server->fd, s_addr, name);
+                        SERVER_startDS(server, server->fdserver, server->fd, s_addr, name);
                         PACKET_destroy(&p);
                     }
                 }
-                
-                
             }
         }
     }

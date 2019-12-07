@@ -4,11 +4,10 @@ Config CONFIG_load(char *filename)
 {
 
     // Llegim el fitxer de configuració rebut per parametres
-
     IO_write(1, START_TRINITY, strlen(START_TRINITY));
 
     // Guardem la informació en el tipus Config
-    Config config; 
+    Config config;
     char *temp = NULL;
     config.username = NULL;
     config.audioFolder = NULL;
@@ -23,7 +22,7 @@ Config CONFIG_load(char *filename)
     {
         IO_write(1, ERR_INVALID_CONFIG_FILE, strlen(ERR_INVALID_CONFIG_FILE));
         config.state = -1;
-        exit(-1); 
+        exit(-1);
         return config;
     }
 

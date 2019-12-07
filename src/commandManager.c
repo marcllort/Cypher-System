@@ -115,6 +115,7 @@ int MANAGER_manageCommand(char *inputString)
                 if (words[2])
                 {
                     free(inputString);
+                    // Per descarregar, li passem el usuari i el nom del fitxer a descarregar
                     CLIENT_download(words[1], words[2]);
                 }
                 else
@@ -156,6 +157,7 @@ int MANAGER_manageCommand(char *inputString)
                     if (words[2])
                     {
                         free(inputString);
+                        // Passem el usuari del que volem saber quins audios te
                         CLIENT_showAudios(words[2]);
                     }
                     else
