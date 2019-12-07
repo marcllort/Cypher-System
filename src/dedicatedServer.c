@@ -31,6 +31,7 @@ DServer *DSERVER_init(
         ds->remove = remove;
         ds->user = user;
         ds->audios = audios;
+        ds->audios[strlen(ds->audios) - 1] = 0;
     }
     return ds;
 }
@@ -140,26 +141,34 @@ void *DSERVER_threadFunc(void *data)
                 int bytes= sprintf(buff,"\nVALUE DATA: %d\n", sizes);
                 IO_write(1, buff, UTILS_sizeOf(buff));
 
-                char *audioFolder = (char *)malloc(sizes);
+                char *audioFolderr = (char *)malloc(sizes);
                 //audioFolder = (char *)realloc((void *)audioFolder, );
-                int gg = sprintf(audioFolder, "./%s", ds->audios);
-                strtok(audioFolder, "\n");
+                
+                int gg = sprintf(audioFolderr, "./%s/%s", ds->audios,p.data);
+                /*strtok(audioFolder, "\n");
                 audioFolder[strlen(audioFolder) - 1] = 0;
                 strcat(audioFolder, "/");
-                strcat(audioFolder, p.data);
+                strcat(audioFolder, p.data);*/
 
                 IO_write(1, "\n", 1);
-                IO_write(1, audioFolder, sizes);
+                IO_write(1, audioFolderr, sizes);
                 IO_write(1, "\n", 1);
 
-                if (UTILS_fileExists(audioFolder) != -1)
+                char buffer[124]="";
+                strcpy(buffer, audioFolderr);
+                buffer[sizes]=0;
+                IO_write(1, "\n", 1);
+                IO_write(1, buffer, sizes);
+                IO_write(1, "\n", 1);
+
+                if (UTILS_fileExists(buffer) != -1)
                 {
                     IO_write(1, "Existe\n", strlen("Existe\n"));
                     Packet pack;
 
                     pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDRESP), H_AUDRESP, 0, NULL);
                     PACKET_write(pack, fd);
-                    PACKET_destroy(&pack);
+                    //PACKET_destroy(&pack);
                     /*do{
                         pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDRESP), H_AUDRESP, 0, NULL);
                         PACKET_write(pack, fd);
@@ -171,12 +180,14 @@ void *DSERVER_threadFunc(void *data)
                     IO_write(1, "No existe\n", strlen("No Existe\n"));
                     Packet pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDKO), H_AUDKO, 0, NULL);
                     PACKET_write(pack, fd);
-                    PACKET_destroy(&pack);
+                    //PACKET_destroy(&pack);
                 }
-                free(audioFolder);
+                free(audioFolderr);
             }
         }
-        PACKET_destroy(&p);
+        //PACKET_destroy(&p);
+        //free(p.data);
+        //free(p.header);
     }
 
     return (void *)0;
@@ -192,8 +203,8 @@ char *DSERVER_showFiles(char *audios)
 
     audioFolder = (char *)realloc((void *)audioFolder, strlen(audios));
     sprintf(audioFolder, "./%s", audios);
-    strtok(audioFolder, "\n");
-    audioFolder[strlen(audioFolder) - 1] = 0;
+    //strtok(audioFolder, "\n");
+    //audioFolder[strlen(audioFolder) - 1] = 0;
     IO_write(1, audioFolder, strlen(audioFolder));
     IO_write(1, "\n", 1);
     if ((dir = opendir(audioFolder)) != NULL)
