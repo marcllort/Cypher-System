@@ -184,9 +184,10 @@ int SERVER_removeAllDS(Server *server)
         DServer *ds = LLISTADS_consulta(server->dss);
 
         close(DSERVER_getFd(ds));
-        pthread_cancel(*DSERVER_getThread(ds));
-        pthread_join(*DSERVER_getThread(ds), NULL);
         DSERVER_close(ds);
+        pthread_cancel(*DSERVER_getThread(ds));
+        //pthread_join(*DSERVER_getThread(ds), NULL);
+        
 
         free(ds);
         LLISTADS_avanca(&server->dss);

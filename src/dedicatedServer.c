@@ -61,7 +61,7 @@ int DSERVER_close(DServer *ds)
 void *DSERVER_threadFunc(void *data)
 {
     // Funcio que corre al thread, encarregada de identificar cada paquet rebut i actuar corresponentment
-
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
     DServer *ds = (DServer *)data;
     Packet p;
     int fd = ds->fd;
