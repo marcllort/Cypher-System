@@ -84,7 +84,7 @@ int SERVER_startDS(Server *server, int fd, int fdserver, struct sockaddr_in addr
     // Creem el thread on ha de correr el dedicated server
     if (pthread_create(DSERVER_getThread(ds), NULL, DSERVER_threadFunc, ds) != 0)
     {
-        // Detach perquè s'alliberi la memoria al tancar el threadç
+        // Detach perquè s'alliberi la memoria al tancar el thread
         pthread_detach(*DSERVER_getThread(ds));
     }
 

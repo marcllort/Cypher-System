@@ -89,6 +89,8 @@ Packet PACKET_destroy(Packet *p)
         //strcpy(p->data, " ");
         free(p->data);
         p->data = NULL;
+    }else{
+        p->data = NULL;
     }
 
     return *p;

@@ -130,12 +130,16 @@ void *DSERVER_threadFunc(void *data)
                 sprintf(audioFolderr, "./%s/%s", ds->audios, p.data);
 
                 audioFolderr[sizes] = 0;
-
                 if (UTILS_fileExists(audioFolderr) != -1)
                 {
-                    Packet pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDRESP), H_AUDRESP, 0, NULL);
+                    Packet pack;
+                    pack.type=T_DOWNLOAD;
+                    pack.header=H_AUDRESP;
+                    pack.length=0;
+                    pack.data=NULL;
+
                     PACKET_write(pack, fd);
-                    PACKET_destroy(&pack);
+
                     /*do{
                         pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDRESP), H_AUDRESP, 0, NULL);
                         PACKET_write(pack, fd);
@@ -145,15 +149,16 @@ void *DSERVER_threadFunc(void *data)
                 else
                 {
                     Packet pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDKO), H_AUDKO, 0, NULL);
+                    IO_write(1, pack.header, pack.headerLength);
                     PACKET_write(pack, fd);
                     PACKET_destroy(&pack);
                 }
+
                 free(audioFolderr);
             }
         }
 
         PACKET_destroy(&p);
-
     }
     pthread_exit(0);
     return (void *)0;
@@ -190,9 +195,9 @@ char *DSERVER_showFiles(char *audios)
             }
         }
 
-        //closedir(dir);
+        
         free(audioFolder);
-
+        closedir(dir);
         return audiosData;
     }
     else
