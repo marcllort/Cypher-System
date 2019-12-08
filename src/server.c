@@ -217,7 +217,6 @@ void *SERVER_threadFunc(void *data)
     Server *server = (Server *)data;
     if (SERVER_start(server) == 0)
         SERVER_operate(server);
-    IO_write(1,"exiit server", sizeof("exiit server"));
     pthread_exit(0);
 
     return (void *)0;

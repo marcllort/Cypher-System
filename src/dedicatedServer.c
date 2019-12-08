@@ -54,7 +54,6 @@ int DSERVER_close(DServer *ds)
     PACKET_write(p, ds->fd);
     PACKET_destroy(&p);
     ds->state = -1;
-    IO_write(1,"state 1", sizeof("state 1"));
     return 0;
 }
 
@@ -68,15 +67,12 @@ void *DSERVER_threadFunc(void *data)
     ds->state = 1;
 
     // Ens quedem al bucle metre no canvii el estat del server dedicat
-    while (ds->state==1)
+    while (ds->state == 1)
     {
-        
         p = PACKET_read(fd);
         if (p.headerLength == -1)
         {
             ds->state = -1;
-            IO_write(1,"state 1", sizeof("state 1"));
-            //PACKET_destroy(&p);
         }
         if (p.type == T_MSG)
         {
@@ -101,13 +97,11 @@ void *DSERVER_threadFunc(void *data)
 
             // Alliberem memoria
             PACKET_destroy(&pok);
-            //PACKET_destroy(&p);
         }
         else if (p.type == T_EXIT)
         {
             // Tanquem el dedicated server en cas de desconnexio
             DSERVER_close(ds);
-            //PACKET_destroy(&p);
         }
         else if (p.type == T_SHOWAUDIOS)
         {
@@ -119,14 +113,12 @@ void *DSERVER_threadFunc(void *data)
             {
                 char *a = DSERVER_showFiles(ds->audios);
                 Packet pack = PACKET_create(T_SHOWAUDIOS, (int)strlen(H_LISTAUDIOS), H_LISTAUDIOS, UTILS_sizeOf(a), a);
-
                 PACKET_write(pack, fd);
                 // Alliberem memoria
-                
+
                 PACKET_destroy(&pack);
                 free(a);
             }
-            //PACKET_destroy(&p);
         }
         else if (p.type == T_DOWNLOAD)
         {
@@ -137,15 +129,10 @@ void *DSERVER_threadFunc(void *data)
                 char *audioFolderr = (char *)malloc(sizes);
                 sprintf(audioFolderr, "./%s/%s", ds->audios, p.data);
 
-                /*char buffer[124] = "";
-                strcpy(buffer, audioFolderr);
-                buffer[sizes] = 0;*/
-                audioFolderr[sizes]=0;
+                audioFolderr[sizes] = 0;
 
                 if (UTILS_fileExists(audioFolderr) != -1)
                 {
-                    //IO_write(1, "Existe\n", strlen("Existe\n"));
-
                     Packet pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDRESP), H_AUDRESP, 0, NULL);
                     PACKET_write(pack, fd);
                     PACKET_destroy(&pack);
@@ -154,38 +141,20 @@ void *DSERVER_threadFunc(void *data)
                         PACKET_write(pack, fd);
                     }while(IO_checkEOF(fdfdfd)!=1);
                     */
-                    //PACKET_destroy(&pack);
                 }
                 else
                 {
-                    //IO_write(1, "No existe\n", strlen("No Existe\n"));
                     Packet pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDKO), H_AUDKO, 0, NULL);
                     PACKET_write(pack, fd);
                     PACKET_destroy(&pack);
                 }
                 free(audioFolderr);
             }
-            //free(p.header);
         }
 
-        //free(p.header);
-        /*if(p.data != NULL){
-            char bufff[128];
-            sprintf(bufff, "\nData: %s  Header: %s  Type: %d\n", p.data, p.header, p.type);
-            IO_write(1, bufff,UTILS_sizeOf(bufff));
-        }
-        if(p.type!=6){
-            char bufff[128];
-            sprintf(bufff, "\nDELETE Data: %s  Header: %s  Type: %d\n", p.data, p.header, p.type);
-            IO_write(1, bufff,UTILS_sizeOf(bufff));
-            PACKET_destroy(&p);
-        }*/
-        //if(p.type!=6){
-            PACKET_destroy(&p);
-        //}
-        //IO_write(1,"state 1", sizeof("state 1"));
+        PACKET_destroy(&p);
+
     }
-    IO_write(1,"FORAAA BUCLE, DETACHEAME", sizeof("FORAAA BUCLE, DETACHEAME"));
     pthread_exit(0);
     return (void *)0;
 }
