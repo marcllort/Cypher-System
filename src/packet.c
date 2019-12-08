@@ -3,7 +3,7 @@
 Packet PACKET_read(int fd)
 {
     // Funcio encarregada de la lectura de un paquet
-    Packet pd;
+    Packet pd;//=PACKET_create(0,0,NULL,0,NULL);
 
     int error = read(fd, &pd.type, 1);
     if (pd.type != 0x01 && pd.type != 0x02 && pd.type != 0x03 && pd.type != 0x04 && pd.type != 0x05 && pd.type != 0x06)
@@ -42,6 +42,7 @@ Packet PACKET_read(int fd)
             pd.data=NULL;
             //return PACKET_destroy(&pd);
         }
+        pd.data[pd.length]=0;
     }
     else
     {
@@ -77,9 +78,9 @@ Packet PACKET_destroy(Packet *p)
 
     p->type = 0;
     p->length = 0;
-    
+    p->headerLength = 0;
 
-    if (p->header != NULL && p->headerLength != -1)
+    if (p->header != NULL)
     {
         //strcpy(p->header, " ");
         free(p->header);
@@ -92,7 +93,7 @@ Packet PACKET_destroy(Packet *p)
         free(p->data);
         p->data = NULL;
     }
-    p->headerLength = 0;
+    
     return *p;
 }
 
@@ -107,17 +108,23 @@ Packet PACKET_create(char type, int headerLength, char *header, unsigned short d
 
     if ((pd.header = (char *)malloc(sizeof(char) * headerLength)) == NULL)
     {
+        
         return pd;
     }
-    strcpy(pd.header, header);
+    //memcpy(pd.header, header, (size_t) headerLength);
+            strcpy(pd.header, header);
+
 
     if (pd.length != 0)
     {
         if ((pd.data = (char *)malloc(sizeof(char) * dataLength)) == NULL)
         {
+            free(pd.header);
             return pd;
         }
-        strcpy(pd.data, data);
+        //memcpy(pd.data, data, (size_t) dataLength);
+          strcpy(pd.data, data);
+
     }
     else
     {

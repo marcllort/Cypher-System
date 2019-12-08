@@ -181,7 +181,7 @@ int CLIENT_connectPort(Config config, int connectPort)
             newServer.socketfd = socket_conn;
 
             char buff[128];
-            Packet p = PACKET_create(T_CONNECT, (int)strlen(H_NAME), H_NAME, (int)strlen(config.username), config.username);
+            Packet p = PACKET_create(T_CONNECT, (int)strlen(H_NAME), H_NAME, (int)UTILS_sizeOf(config.username), config.username);
             PACKET_write(p, socket_conn);
 
             Packet j = PACKET_read(socket_conn);
@@ -267,7 +267,7 @@ int CLIENT_showAudios(char *user)
 
             if (strcmp(server.name, user) == 0)
             {
-                Packet p = PACKET_create(T_SHOWAUDIOS, (int)UTILS_sizeOf(H_SHOWAUDIOS), H_SHOWAUDIOS, 0, NULL);
+                Packet p = PACKET_create(T_SHOWAUDIOS, (int)strlen(H_SHOWAUDIOS), H_SHOWAUDIOS, 0, NULL);
                 PACKET_write(p, server.socketfd);
                 PACKET_destroy(&p);
 
@@ -316,7 +316,7 @@ int CLIENT_download(char *user, char *filename)
             if (strcmp(server.name, user) == 0)
             {
                 Packet psend = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDREQ), H_AUDREQ, UTILS_sizeOf(filename), filename);
-
+                //IO_write(1,filename,UTILS_sizeOf(filename));
                 PACKET_write(psend, server.socketfd);
                 PACKET_destroy(&psend);
 

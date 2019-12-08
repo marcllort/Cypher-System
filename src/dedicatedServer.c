@@ -52,7 +52,7 @@ int DSERVER_close(DServer *ds)
     // Al tancar enviem el missatge de OK respecte hem rebut missatge desconnexio
     Packet p = PACKET_create(T_EXIT, (int)strlen(H_CONOK), H_CONOK, 0, NULL);
     PACKET_write(p, ds->fd);
-    //PACKET_destroy(&p);
+    PACKET_destroy(&p);
     ds->state = -1;
     return 0;
 }
@@ -115,20 +115,16 @@ void *DSERVER_threadFunc(void *data)
 
                 char *audioFolderr = (char *)malloc(sizeof(char) * sizes);
                 sprintf(audioFolderr, "%s/%s", audioFolder, p.data);
-
+                IO_write(1,p.data,UTILS_sizeOf(p.data));
+                IO_write(1,"\n",1);
                 audioFolderr[sizes] = 0;
                 if (UTILS_fileExists(audioFolderr) != -1)
                 {
                     Packet packet;
-                    /*pack.type = T_DOWNLOAD;
-                    pack.header = H_AUDRESP;
-                    pack.length = 0;
-                    pack.data = NULL;*/
-                    packet = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDRESP), H_AUDRESP, 0, NULL);
+                    packet = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDRESP), H_AUDRESP, 4, "NULL");
                     PACKET_write(packet, fd);
-                    
-                    //free(p.data);
                     PACKET_destroy(&packet);
+                    //free(packet.data);
                     /*do{
                         pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDRESP), H_AUDRESP, 0, NULL);
                         PACKET_write(pack, fd);
@@ -157,13 +153,13 @@ void *DSERVER_threadFunc(void *data)
                 char *a = DSERVER_showFiles(audioFolder);
                 Packet pack = PACKET_create(T_SHOWAUDIOS, (int)strlen(H_LISTAUDIOS), H_LISTAUDIOS, UTILS_sizeOf(a), a);
                 PACKET_write(pack, fd);
-                // Alliberem memoria
 
+                // Alliberem memoria
                 PACKET_destroy(&pack);
                 free(a);
             }
         }
-        
+
         PACKET_destroy(&p);
     }
     free(audioFolder);
@@ -175,12 +171,11 @@ char *DSERVER_showFiles(char *audioFolder)
 {
 
     char *audiosData = (char *)malloc(sizeof(char));
-    
 
     struct dirent **namelist;
     int n;
 
-    n = scandir("./Audios1", &namelist, NULL, alphasort);
+    n = scandir(audioFolder, &namelist, NULL, alphasort);
     if (n < 0)
         perror("scandir");
     else
@@ -208,42 +203,6 @@ char *DSERVER_showFiles(char *audioFolder)
         }
         free(namelist);
     }
-
-    /*int return_code;
-    DIR *dir;
-    struct dirent entry;
-    struct dirent *result;
-
-    if ((dir = opendir(audioFolder)) == NULL)
-        perror("opendir() error");
-    else
-    {
-        int i = 0;
-        for (return_code = readdir_r(dir, &entry, &result);
-             result != NULL && return_code == 0;
-             return_code = readdir_r(dir, &entry, &result))
-        {
-            if (entry.d_type != DT_DIR)
-            {
-                if (i == 0)
-                {
-                    audiosData = (char *)realloc((void *)audiosData, sizeof(char) * UTILS_sizeOf(entry.d_name) + sizeof(char) * 1);
-                    strcpy(audiosData, entry.d_name);
-                    i++;
-                }
-                else
-                {
-                    audiosData = (char *)realloc((void *)audiosData, sizeof(char) * UTILS_sizeOf(audiosData) + sizeof(char) * UTILS_sizeOf(entry.d_name) + sizeof(char) * 1);
-                    sprintf(audiosData, "%s\n%s", audiosData, entry.d_name);
-                }
-            }
-        }
-
-        if (return_code != 0)
-            perror("readdir_r() error");
-    }
-    
-    closedir(dir);*/
 
     return audiosData;
 }
