@@ -126,17 +126,17 @@ void *DSERVER_threadFunc(void *data)
             {
                 int sizes = UTILS_sizeOf(ds->audios) + p.length + 3;
 
-                char *audioFolderr = (char *)malloc(sizes);
+                char *audioFolderr = (char *)malloc(sizeof(char) * sizes);
                 sprintf(audioFolderr, "./%s/%s", ds->audios, p.data);
 
                 audioFolderr[sizes] = 0;
                 if (UTILS_fileExists(audioFolderr) != -1)
                 {
                     Packet pack;
-                    pack.type=T_DOWNLOAD;
-                    pack.header=H_AUDRESP;
-                    pack.length=0;
-                    pack.data=NULL;
+                    pack.type = T_DOWNLOAD;
+                    pack.header = H_AUDRESP;
+                    pack.length = 0;
+                    pack.data = NULL;
 
                     PACKET_write(pack, fd);
 
@@ -168,40 +168,47 @@ char *DSERVER_showFiles(char *audios)
 {
 
     DIR *dir;
-    struct dirent *ent;
     char *audiosData = (char *)malloc(sizeof(char));
-    char *audioFolder = (char *)malloc(UTILS_sizeOf(audios));
+    char *audioFolder = (char *)malloc(sizeof(char) * UTILS_sizeOf(audios));
 
     sprintf(audioFolder, "./%s", audios);
 
-    if ((dir = opendir(audioFolder)) != NULL)
+    int return_code;
+
+    struct dirent entry;
+    struct dirent *result;
+
+    if ((dir = opendir(audioFolder)) == NULL)
+        perror("opendir() error");
+    else
     {
         int i = 0;
-        while ((ent = readdir(dir)) != NULL)
+        for (return_code = readdir_r(dir, &entry, &result);
+             result != NULL && return_code == 0;
+             return_code = readdir_r(dir, &entry, &result))
         {
-            if (ent->d_type != DT_DIR)
+            if (entry.d_type != DT_DIR)
             {
                 if (i == 0)
                 {
-                    audiosData = (char *)realloc((void *)audiosData, UTILS_sizeOf(ent->d_name) + 1);
-                    strcpy(audiosData, ent->d_name);
+                    audiosData = (char *)realloc((void *)audiosData, sizeof(char) * UTILS_sizeOf(entry.d_name) + sizeof(char) * 1);
+                    strcpy(audiosData, entry.d_name);
                     i++;
                 }
                 else
                 {
-                    audiosData = (char *)realloc((void *)audiosData, UTILS_sizeOf(audiosData) + UTILS_sizeOf(ent->d_name) + 1);
-                    sprintf(audiosData, "%s\n%s", audiosData, ent->d_name);
+                    audiosData = (char *)realloc((void *)audiosData, sizeof(char) * UTILS_sizeOf(audiosData) + sizeof(char) * UTILS_sizeOf(entry.d_name) + sizeof(char) * 1);
+                    sprintf(audiosData, "%s\n%s", audiosData,entry.d_name);
                 }
             }
         }
-
         
+        if (return_code != 0)
+            perror("readdir_r() error");
+
         free(audioFolder);
-        //closedir(dir);
+        closedir(dir);
         return audiosData;
     }
-    else
-    {
-        return "No audios found\n";
-    }
 }
+
