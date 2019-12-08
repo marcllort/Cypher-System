@@ -115,8 +115,7 @@ void *DSERVER_threadFunc(void *data)
 
                 char *audioFolderr = (char *)malloc(sizeof(char) * sizes);
                 sprintf(audioFolderr, "%s/%s", audioFolder, p.data);
-                IO_write(1,p.data,UTILS_sizeOf(p.data));
-                IO_write(1,"\n",1);
+
                 audioFolderr[sizes] = 0;
                 if (UTILS_fileExists(audioFolderr) != -1)
                 {
@@ -124,7 +123,7 @@ void *DSERVER_threadFunc(void *data)
                     packet = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDRESP), H_AUDRESP, 4, "NULL");
                     PACKET_write(packet, fd);
                     PACKET_destroy(&packet);
-                    //free(packet.data);
+
                     /*do{
                         pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDRESP), H_AUDRESP, 0, NULL);
                         PACKET_write(pack, fd);
@@ -177,11 +176,10 @@ char *DSERVER_showFiles(char *audioFolder)
 
     n = scandir(audioFolder, &namelist, NULL, alphasort);
     if (n < 0)
-        perror("scandir");
+        audiosData = "Empty folder!\n";
     else
     {
         int i = 0;
-        //n = 2;
         while (n--)
         {
             if (namelist[n]->d_type != DT_DIR)
@@ -197,7 +195,6 @@ char *DSERVER_showFiles(char *audioFolder)
                     audiosData = (char *)realloc((void *)audiosData, sizeof(char) * UTILS_sizeOf(audiosData) + sizeof(char) * UTILS_sizeOf(namelist[n]->d_name) + sizeof(char) * 1);
                     sprintf(audiosData, "%s\n%s", audiosData, namelist[n]->d_name);
                 }
-                //printf("%s\n", namelist[n]->d_name);
             }
             free(namelist[n]);
         }

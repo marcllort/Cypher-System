@@ -3,7 +3,7 @@
 Packet PACKET_read(int fd)
 {
     // Funcio encarregada de la lectura de un paquet
-    Packet pd;//=PACKET_create(0,0,NULL,0,NULL);
+    Packet pd;
 
     int error = read(fd, &pd.type, 1);
     if (pd.type != 0x01 && pd.type != 0x02 && pd.type != 0x03 && pd.type != 0x04 && pd.type != 0x05 && pd.type != 0x06)
@@ -31,18 +31,16 @@ Packet PACKET_read(int fd)
 
     if (read(fd, &pd.length, sizeof(uint16_t)) <= 0)
     {
-        pd.length=0;
-        //return PACKET_destroy(&pd);
+        pd.length = 0;
     }
     if (pd.length != 0)
     {
         pd.data = (char *)malloc(sizeof(char) * pd.length);
         if (read(fd, pd.data, pd.length) <= 0)
         {
-            pd.data=NULL;
-            //return PACKET_destroy(&pd);
+            pd.data = NULL;
         }
-        pd.data[pd.length]=0;
+        pd.data[pd.length] = 0;
     }
     else
     {
@@ -82,18 +80,16 @@ Packet PACKET_destroy(Packet *p)
 
     if (p->header != NULL)
     {
-        //strcpy(p->header, " ");
         free(p->header);
         p->header = NULL;
     }
 
     if (p->data != NULL && p->headerLength != -1)
     {
-        //strcpy(p->data, " ");
         free(p->data);
         p->data = NULL;
     }
-    
+
     return *p;
 }
 
@@ -108,12 +104,10 @@ Packet PACKET_create(char type, int headerLength, char *header, unsigned short d
 
     if ((pd.header = (char *)malloc(sizeof(char) * headerLength)) == NULL)
     {
-        
+
         return pd;
     }
-    //memcpy(pd.header, header, (size_t) headerLength);
-            strcpy(pd.header, header);
-
+    strcpy(pd.header, header);
 
     if (pd.length != 0)
     {
@@ -122,14 +116,12 @@ Packet PACKET_create(char type, int headerLength, char *header, unsigned short d
             free(pd.header);
             return pd;
         }
-        //memcpy(pd.data, data, (size_t) dataLength);
-          strcpy(pd.data, data);
-
+        strcpy(pd.data, data);
     }
     else
     {
         pd.data = NULL;
-        pd.headerLength=-1;
+        pd.headerLength = -1;
     }
 
     return pd;
