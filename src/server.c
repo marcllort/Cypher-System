@@ -185,7 +185,7 @@ int SERVER_removeAllDS(Server *server)
 
         close(DSERVER_getFd(ds));
         DSERVER_close(ds);
-        pthread_cancel(*DSERVER_getThread(ds));
+        //pthread_cancel(*DSERVER_getThread(ds));
         //pthread_join(*DSERVER_getThread(ds), NULL);
         
 
@@ -217,7 +217,7 @@ void *SERVER_threadFunc(void *data)
     Server *server = (Server *)data;
     if (SERVER_start(server) == 0)
         SERVER_operate(server);
-
+    IO_write(1,"exiit server", sizeof("exiit server"));
     pthread_exit(0);
 
     return (void *)0;

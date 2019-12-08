@@ -54,7 +54,7 @@ int DSERVER_close(DServer *ds)
     PACKET_write(p, ds->fd);
     PACKET_destroy(&p);
     ds->state = -1;
-
+    IO_write(1,"state 1", sizeof("state 1"));
     return 0;
 }
 
@@ -68,13 +68,14 @@ void *DSERVER_threadFunc(void *data)
     ds->state = 1;
 
     // Ens quedem al bucle metre no canvii el estat del server dedicat
-    while (ds->state)
+    while (ds->state==1)
     {
         
         p = PACKET_read(fd);
         if (p.headerLength == -1)
         {
             ds->state = -1;
+            IO_write(1,"state 1", sizeof("state 1"));
             //PACKET_destroy(&p);
         }
         if (p.type == T_MSG)
@@ -182,8 +183,10 @@ void *DSERVER_threadFunc(void *data)
         if(p.type!=6){
             PACKET_destroy(&p);
         }
+        //IO_write(1,"state 1", sizeof("state 1"));
     }
-
+    IO_write(1,"FORAAA BUCLE, DETACHEAME", sizeof("FORAAA BUCLE, DETACHEAME"));
+    pthread_exit(0);
     return (void *)0;
 }
 
