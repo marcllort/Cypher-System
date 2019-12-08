@@ -197,7 +197,7 @@ char *DSERVER_showFiles(char *audios)
 
         
         free(audioFolder);
-        closedir(dir);
+        //closedir(dir);
         return audiosData;
     }
     else
