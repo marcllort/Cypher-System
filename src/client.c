@@ -372,10 +372,13 @@ int CLIENT_exit()
         Packet packet = PACKET_create(T_EXIT, (int)strlen(H_VOID), H_VOID, UTILS_sizeOf(config.username), config.username);
         PACKET_write(packet, server.socketfd);
         PACKET_destroy(&packet);
-
+        
         // Llegim resposta de desconnexio OK (protocol desconnexio)
         Packet p = PACKET_read(server.socketfd);
-        PACKET_destroy(&p);
+        if(!UTILS_isEmpty(p.header)){
+            PACKET_destroy(&p);
+        }
+        
 
         // Tanquem els fd i free de memoria
         close(server.socketfd);

@@ -157,7 +157,6 @@ void *DSERVER_threadFunc(void *data)
                 free(audioFolderr);
             }
         }
-
         PACKET_destroy(&p);
     }
     pthread_exit(0);
@@ -167,14 +166,45 @@ void *DSERVER_threadFunc(void *data)
 char *DSERVER_showFiles(char *audios)
 {
 
-    DIR *dir;
     char *audiosData = (char *)malloc(sizeof(char));
     char *audioFolder = (char *)malloc(sizeof(char) * UTILS_sizeOf(audios));
 
     sprintf(audioFolder, "./%s", audios);
 
-    int return_code;
+    /*struct dirent **namelist;
+    int n;
 
+    n = scandir("./Audios1", &namelist, NULL, alphasort);
+    if (n < 0)
+        perror("scandir");
+    else
+    {
+        int i = 0;
+        //n = 2;
+        while (n--)
+        {
+            if (namelist[n]->d_type != DT_DIR)
+            {
+                if (i == 0)
+                {
+                    audiosData = (char *)realloc((void *)audiosData, sizeof(char) * UTILS_sizeOf(namelist[n]->d_name) + sizeof(char) * 1);
+                    strcpy(audiosData, namelist[n]->d_name);
+                    i++;
+                }
+                else
+                {
+                    audiosData = (char *)realloc((void *)audiosData, sizeof(char) * UTILS_sizeOf(audiosData) + sizeof(char) * UTILS_sizeOf(namelist[n]->d_name) + sizeof(char) * 1);
+                    sprintf(audiosData, "%s\n%s", audiosData, namelist[n]->d_name);
+                }
+                //printf("%s\n", namelist[n]->d_name);
+            }
+            free(namelist[n]);
+        }
+        free(namelist);
+    }
+*/
+    int return_code;
+    DIR *dir;
     struct dirent entry;
     struct dirent *result;
 
@@ -198,17 +228,16 @@ char *DSERVER_showFiles(char *audios)
                 else
                 {
                     audiosData = (char *)realloc((void *)audiosData, sizeof(char) * UTILS_sizeOf(audiosData) + sizeof(char) * UTILS_sizeOf(entry.d_name) + sizeof(char) * 1);
-                    sprintf(audiosData, "%s\n%s", audiosData,entry.d_name);
+                    sprintf(audiosData, "%s\n%s", audiosData, entry.d_name);
                 }
             }
         }
-        
+
         if (return_code != 0)
             perror("readdir_r() error");
-
-        free(audioFolder);
-        closedir(dir);
-        return audiosData;
     }
-}
+    free(audioFolder);
+    closedir(dir);
 
+    return audiosData;
+}
