@@ -180,9 +180,9 @@ void *DSERVER_threadFunc(void *data)
             IO_write(1, bufff,UTILS_sizeOf(bufff));
             PACKET_destroy(&p);
         }*/
-        if(p.type!=6){
+        //if(p.type!=6){
             PACKET_destroy(&p);
-        }
+        //}
         //IO_write(1,"state 1", sizeof("state 1"));
     }
     IO_write(1,"FORAAA BUCLE, DETACHEAME", sizeof("FORAAA BUCLE, DETACHEAME"));
