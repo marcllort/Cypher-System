@@ -188,7 +188,7 @@ int CLIENT_connectPort(Config config, int connectPort)
 
             newServer.name = j.data;
             free(j.header);
-            
+
             LLISTABID_inserirDarrere(&servers, newServer);
 
             int bytes = sprintf(buff, "%d connected: %s\n", newServer.port, newServer.name);
@@ -204,34 +204,43 @@ int CLIENT_write(char *user, char *message)
     // Funció per enviar un paquet a un altre usuari, al que previament estàs connectat
 
     int trobat = 0;
-    LLISTABID_vesInici(&servers);
     char buff[128];
     int bytes;
-
-    // Busquem a la llista la relació de nom i port per així saber a quin fd hem de enviar
-    while (!LLISTABID_final(servers) && !trobat)
+    if (!LLISTABID_buida(servers))
     {
-        Element server = LLISTABID_consulta(servers);
-
-        // Enviem packet amb el missatge i esperem resposta (protocol comunicacio)
-        if (strcmp(server.name, user) == 0)
+        LLISTABID_vesInici(&servers);
+        
+        // Busquem a la llista la relació de nom i port per així saber a quin fd hem de enviar
+        while (!LLISTABID_final(servers) && !trobat)
         {
-            Packet packet = PACKET_create(T_MSG, (int)strlen(H_MSG), H_MSG, UTILS_sizeOf(message), message);
-            PACKET_write(packet, server.socketfd);
-            PACKET_destroy(&packet);
+            Element server = LLISTABID_consulta(servers);
 
-            lastfd = server.socketfd;
+            // Enviem packet amb el missatge i esperem resposta (protocol comunicacio)
+            if (strcmp(server.name, user) == 0)
+            {
+                Packet packet = PACKET_create(T_MSG, (int)strlen(H_MSG), H_MSG, UTILS_sizeOf(message), message);
+                PACKET_write(packet, server.socketfd);
+                PACKET_destroy(&packet);
 
-            Packet readed =PACKET_read(server.socketfd);
-            PACKET_destroy(&readed);
-            trobat = 1;
+                lastfd = server.socketfd;
+
+                Packet readed = PACKET_read(server.socketfd);
+                PACKET_destroy(&readed);
+                trobat = 1;
+            }
+            else
+            {
+                LLISTABID_avanca(&servers);
+            }
         }
-        else
+        if (!trobat)
         {
-            LLISTABID_avanca(&servers);
+            // En cas de no trobarlo a la llista, mostrem error
+            bytes = sprintf(buff, UNKNOWN_CONNECTION, user);
+            IO_write(1, buff, bytes);
         }
     }
-    if (!trobat)
+    else
     {
         // En cas de no trobarlo a la llista, mostrem error
         bytes = sprintf(buff, UNKNOWN_CONNECTION, user);
@@ -244,35 +253,46 @@ int CLIENT_showAudios(char *user)
 {
     // Funció per enviar un paquet a un altre usuari, al que previament estàs connectat
     int trobat = 0;
-    LLISTABID_vesInici(&servers);
     char buff[128];
     int bytes;
 
-    // Busquem a la llista la relació de nom i port per així saber a quin fd hem de enviar
-    while (!LLISTABID_final(servers) && !trobat)
+    if (!LLISTABID_buida(servers))
     {
-        Element server = LLISTABID_consulta(servers);
-        if (strcmp(server.name, user) == 0)
+        LLISTABID_vesInici(&servers);
+
+        // Busquem a la llista la relació de nom i port per així saber a quin fd hem de enviar
+        while (!LLISTABID_final(servers) && !trobat)
         {
-            Packet p = PACKET_create(T_SHOWAUDIOS, (int)UTILS_sizeOf(H_SHOWAUDIOS), H_SHOWAUDIOS, 0, NULL);
-            PACKET_write(p, server.socketfd);
-            PACKET_destroy(&p);
+            Element server = LLISTABID_consulta(servers);
 
-            Packet pa = PACKET_read(server.socketfd);
-            IO_write(1, pa.data, pa.length);
-            IO_write(1, "\n", 1);
+            if (strcmp(server.name, user) == 0)
+            {
+                Packet p = PACKET_create(T_SHOWAUDIOS, (int)UTILS_sizeOf(H_SHOWAUDIOS), H_SHOWAUDIOS, 0, NULL);
+                PACKET_write(p, server.socketfd);
+                PACKET_destroy(&p);
 
-            PACKET_destroy(&pa);
+                Packet pa = PACKET_read(server.socketfd);
+                IO_write(1, pa.data, pa.length);
+                IO_write(1, "\n", 1);
 
-            trobat = 1;
+                PACKET_destroy(&pa);
+
+                trobat = 1;
+            }
+            else
+            {
+                LLISTABID_avanca(&servers);
+            }
         }
-        else
+        if (!trobat)
         {
-            LLISTABID_avanca(&servers);
+            bytes = sprintf(buff, UNKNOWN_CONNECTION, user);
+            IO_write(1, buff, bytes);
         }
     }
-    if (!trobat)
+    else
     {
+
         bytes = sprintf(buff, UNKNOWN_CONNECTION, user);
         IO_write(1, buff, bytes);
     }
@@ -283,47 +303,55 @@ int CLIENT_download(char *user, char *filename)
 {
     // Funció per enviar un paquet a un altre usuari, al que previament estàs connectat
     int trobat = 0;
-    LLISTABID_vesInici(&servers);
     char buff[128];
     int bytes;
-
-    // Busquem a la llista la relació de nom i port per així saber a quin fd hem de enviar
-    while (!LLISTABID_final(servers) && !trobat)
+    if (!LLISTABID_buida(servers))
     {
-        Element server = LLISTABID_consulta(servers);
-        if (strcmp(server.name, user) == 0)
+        LLISTABID_vesInici(&servers);
+
+        // Busquem a la llista la relació de nom i port per així saber a quin fd hem de enviar
+        while (!LLISTABID_final(servers) && !trobat)
         {
-            Packet psend = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDREQ), H_AUDREQ, UTILS_sizeOf(filename), filename);
-
-            PACKET_write(psend, server.socketfd);
-            PACKET_destroy(&psend);
-            
-            Packet pa = PACKET_read(server.socketfd);
-
-            if (!strcmp(H_AUDKO,pa.header))
+            Element server = LLISTABID_consulta(servers);
+            if (strcmp(server.name, user) == 0)
             {
-                IO_write(1, "\nError, fichero inexistente\n", strlen("\nError, fichero inexistente\n"));
-            }
-            if (!strcmp(pa.header, H_AUDRESP))
-            {
-                IO_write(1, "\nDescargando...\n", strlen("\nDescargando...\n"));
-                /*do
+                Packet psend = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDREQ), H_AUDREQ, UTILS_sizeOf(filename), filename);
+
+                PACKET_write(psend, server.socketfd);
+                PACKET_destroy(&psend);
+
+                Packet pa = PACKET_read(server.socketfd);
+
+                if (!strcmp(H_AUDKO, pa.header))
+                {
+                    IO_write(1, "\nError, fichero inexistente\n", strlen("\nError, fichero inexistente\n"));
+                }
+                if (!strcmp(pa.header, H_AUDRESP))
+                {
+                    IO_write(1, "\nDescargando...\n", strlen("\nDescargando...\n"));
+                    /*do
                 {
 
                 } while (!strcmp(pa.header, H_AUDEOF));*/
+                }
+
+                //IO_write(1, pa.data, strlen(pa.data) - 1);
+                PACKET_destroy(&pa);
+
+                trobat = 1;
             }
-
-            //IO_write(1, pa.data, strlen(pa.data) - 1);
-            PACKET_destroy(&pa);
-
-            trobat = 1;
+            else
+            {
+                LLISTABID_avanca(&servers);
+            }
         }
-        else
+        if (!trobat)
         {
-            LLISTABID_avanca(&servers);
+            bytes = sprintf(buff, UNKNOWN_CONNECTION, user);
+            IO_write(1, buff, bytes);
         }
     }
-    if (!trobat)
+    else
     {
         bytes = sprintf(buff, UNKNOWN_CONNECTION, user);
         IO_write(1, buff, bytes);
@@ -346,7 +374,7 @@ int CLIENT_exit()
         PACKET_destroy(&packet);
 
         // Llegim resposta de desconnexio OK (protocol desconnexio)
-        Packet p =PACKET_read(server.socketfd);
+        Packet p = PACKET_read(server.socketfd);
         PACKET_destroy(&p);
 
         // Tanquem els fd i free de memoria
