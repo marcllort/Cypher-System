@@ -31,14 +31,16 @@ Packet PACKET_read(int fd)
 
     if (read(fd, &pd.length, sizeof(uint16_t)) <= 0)
     {
-        return PACKET_destroy(&pd);
+        pd.length=0;
+        //return PACKET_destroy(&pd);
     }
     if (pd.length != 0)
     {
         pd.data = (char *)malloc(sizeof(char) * pd.length);
         if (read(fd, pd.data, pd.length) <= 0)
         {
-            return PACKET_destroy(&pd);
+            pd.data=NULL;
+            //return PACKET_destroy(&pd);
         }
     }
     else
@@ -75,24 +77,22 @@ Packet PACKET_destroy(Packet *p)
 
     p->type = 0;
     p->length = 0;
-    p->headerLength = 0;
+    
 
-    if (p->header != NULL)
+    if (p->header != NULL && p->headerLength != -1)
     {
         //strcpy(p->header, " ");
         free(p->header);
         p->header = NULL;
     }
 
-    if (p->data != NULL)
+    if (p->data != NULL && p->headerLength != -1)
     {
         //strcpy(p->data, " ");
         free(p->data);
         p->data = NULL;
-    }else{
-        p->data = NULL;
     }
-
+    p->headerLength = 0;
     return *p;
 }
 
@@ -122,7 +122,7 @@ Packet PACKET_create(char type, int headerLength, char *header, unsigned short d
     else
     {
         pd.data = NULL;
-        pd.headerLength=-12;
+        pd.headerLength=-1;
     }
 
     return pd;
