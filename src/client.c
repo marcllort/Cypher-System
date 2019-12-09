@@ -342,13 +342,21 @@ int CLIENT_download(char *user, char *filename)
                         
                     } while (strcmp(pa.header, H_AUDEOF));
                     write(1,pa.data,pa.length);
+                    close(fd1);
                 }
-
+                write(1,'\n',1);
                 char* a = UTILS_md5(filename);
                 write(1,a,strlen(a));
-
+                
+                if (!strcmp(pa.data,a))
+                {
+                    write(1,"Tot ben descarregat",strlen("Tot ben descarregat"));
+                }else
+                {
+                    write(1,"Error, fitxer no descarregat correctament",strlen("Error, fitxer no descarregat correctament"));
+                }
+            
                 PACKET_destroy(&pa);
-
                 trobat = 1;
             }
             else

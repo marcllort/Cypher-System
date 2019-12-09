@@ -174,7 +174,6 @@ void *DSERVER_threadFunc(void *data)
 
         PACKET_destroy(&p);
     }
-     write(1,"aaa\n",4);
     //free(audioFolder);
      write(1,"aaa\n",4);
     pthread_exit(0);
