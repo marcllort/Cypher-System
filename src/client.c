@@ -336,16 +336,17 @@ int CLIENT_download(char *user, char *filename)
                     {
                         write (fd1, pa.data, pa.length);
                         //write (1, pa.data, pa.length);
-                        write (1, "aa", 2);
+                        
                         //PACKET_destroy(&pa);
                         pa = PACKET_read(server.socketfd);
-                       write (1, pa.header, strlen(pa.header));
                         
                     } while (strcmp(pa.header, H_AUDEOF));
-                    
+                    write(1,pa.data,pa.length);
                 }
 
-                 write(1,"abc",3);
+                char* a = UTILS_md5(filename);
+                write(1,a,strlen(a));
+
                 PACKET_destroy(&pa);
 
                 trobat = 1;
