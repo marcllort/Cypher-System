@@ -329,13 +329,23 @@ int CLIENT_download(char *user, char *filename)
                 if (!strcmp(pa.header, H_AUDRESP))
                 {
                     IO_write(1, "\nDescargando...\n", strlen("\nDescargando...\n"));
-                    /*do
-                {
-
-                } while (!strcmp(pa.header, H_AUDEOF));*/
+                    int fd1 =open(filename, O_WRONLY | O_CREAT, 0666);
+                    
+                   
+                    do
+                    {
+                        write (fd1, pa.data, pa.length);
+                        //write (1, pa.data, pa.length);
+                        write (1, "aa", 2);
+                        //PACKET_destroy(&pa);
+                        pa = PACKET_read(server.socketfd);
+                       write (1, pa.header, strlen(pa.header));
+                        
+                    } while (strcmp(pa.header, H_AUDEOF));
+                    
                 }
 
-                //IO_write(1, pa.data, strlen(pa.data) - 1);
+                 write(1,"abc",3);
                 PACKET_destroy(&pa);
 
                 trobat = 1;

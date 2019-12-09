@@ -9,12 +9,15 @@
 #include <dirent.h>
 #include <stdio.h>
 #include <signal.h>
+//#include <openssl/md5.h>
+
 
 #include "io.h"
 #include "utils.h"
 #include "packet.h"
 #include "client.h"
 #include "config.h"
+
 
 
 #define CLIENT_SAYS "\n[%s]: "

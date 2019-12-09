@@ -119,16 +119,27 @@ void *DSERVER_threadFunc(void *data)
                 audioFolderr[sizes] = 0;
                 if (UTILS_fileExists(audioFolderr) != -1)
                 {
-                    Packet packet;
-                    packet = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDRESP), H_AUDRESP, 4, "NULL");
-                    PACKET_write(packet, fd);
-                    PACKET_destroy(&packet);
-
-                    /*do{
-                        pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDRESP), H_AUDRESP, 0, NULL);
+                    char buff[FRAGMENT_SIZE];
+                    int counter;
+                    int fd_in = open(audioFolderr, O_RDONLY);
+                    /*MD5_CTX c;
+                    ssize_t bytes;
+                    unsigned char out[MD5_DIGEST_LENGTH];
+                    MD5_Init(&c);*/
+                    do
+                    {
+                        counter = read(fd_in, buff, FRAGMENT_SIZE);
+                        //MD5_Update(&c, buff, bytes);
+                        Packet pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDRESP), H_AUDRESP, counter, buff);
                         PACKET_write(pack, fd);
-                    }while(IO_checkEOF(fdfdfd)!=1);
-                    */
+                        PACKET_destroy(&pack);
+                        
+                    } while (counter == FRAGMENT_SIZE);
+
+                    //MD5_Final(out, &c);
+                    Packet pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDEOF), H_AUDEOF, 1, " ");
+                    PACKET_write(pack, fd);
+                    //write(1,out,strlen(out));
                 }
                 else
                 {
@@ -138,7 +149,7 @@ void *DSERVER_threadFunc(void *data)
                     PACKET_destroy(&pack);
                 }
 
-                free(audioFolderr);
+                //free(audioFolderr);
             }
         }
         else if (p.type == T_SHOWAUDIOS)
@@ -161,7 +172,9 @@ void *DSERVER_threadFunc(void *data)
 
         PACKET_destroy(&p);
     }
-    free(audioFolder);
+     write(1,"aaa\n",4);
+    //free(audioFolder);
+     write(1,"aaa\n",4);
     pthread_exit(0);
     return (void *)0;
 }
@@ -173,7 +186,7 @@ char *DSERVER_showFiles(char *audioFolder)
 
     struct dirent **namelist;
     int n;
-
+    write(1, audioFolder, strlen(audioFolder));
     n = scandir(audioFolder, &namelist, NULL, alphasort);
     if (n < 0)
         audiosData = "Empty folder!\n";
@@ -192,6 +205,7 @@ char *DSERVER_showFiles(char *audioFolder)
                 }
                 else
                 {
+
                     audiosData = (char *)realloc((void *)audiosData, sizeof(char) * UTILS_sizeOf(audiosData) + sizeof(char) * UTILS_sizeOf(namelist[n]->d_name) + sizeof(char) * 1);
                     sprintf(audiosData, "%s\n%s", audiosData, namelist[n]->d_name);
                 }
