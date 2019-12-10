@@ -143,7 +143,7 @@ void *DSERVER_threadFunc(void *data)
                     MD5_Init(&c);*/
                     char *a = UTILS_md5(audioFolderr);
                     IO_write(1, a, strlen(a));
-                    free(a);
+                    
                     do
                     {
                         counter = read(fd_in, buff, FRAGMENT_SIZE);
@@ -158,6 +158,7 @@ void *DSERVER_threadFunc(void *data)
                     Packet pack = PACKET_create(T_DOWNLOAD, H_AUDEOF, strlen(a), a);
                     PACKET_write(pack, fd);
                     PACKET_destroy(&pack);
+                    free(a);
                     //write(1,out,strlen(out));
                 }
                 else

@@ -218,14 +218,19 @@ int CLIENT_write(char *user, char *message)
             if (UTILS_compareCaseInsensitive(server.name, user) == 0)
             {
                 Packet packet = PACKET_create(T_MSG, H_MSG, UTILS_sizeOf(message), message);
-                PACKET_write(packet, server.socketfd);
+                int error =PACKET_write(packet, server.socketfd);
                 PACKET_destroy(&packet);
+                if (error != -1){
+                    
+                    lastfd = server.socketfd;
 
-                lastfd = server.socketfd;
-
-                Packet readed = PACKET_read(server.socketfd);
-                PACKET_destroy(&readed);
-                trobat = 1;
+                    Packet readed = PACKET_read(server.socketfd);
+                    PACKET_destroy(&readed);
+                    trobat = 1;
+                }else{
+                    CLIENT_messageError();
+                }
+                
             }
             else
             {
@@ -387,20 +392,22 @@ int CLIENT_exit()
         Element server = LLISTABID_consulta(servers);
 
         Packet packet = PACKET_create(T_EXIT, H_VOID, UTILS_sizeOf(config.username), config.username);
-        PACKET_write(packet, server.socketfd);
+        int error = PACKET_write(packet, server.socketfd);
         PACKET_destroy(&packet);
-
-        // Llegim resposta de desconnexio OK (protocol desconnexio)
-        Packet p = PACKET_read(server.socketfd);
-        if (strcmp(p.header, H_CONOK) == 0)
-        {
-            PACKET_destroy(&p);
+        if(error != -1){
+            // Llegim resposta de desconnexio OK (protocol desconnexio)
+            Packet p = PACKET_read(server.socketfd);
+                IO_write(1, "DISCON_SERVER_ERR", sizeof("DISCON_SERVER_ERR"));
+            if (strcmp(p.header, H_CONOK) == 0)
+            {
+                IO_write(1, "DISCON_SERVER_ERR", sizeof("DISCON_SERVER_ERR"));
+                PACKET_destroy(&p);
+            }
+            else
+            {
+                IO_write(1, DISCON_SERVER_ERR, sizeof(DISCON_SERVER_ERR));
+            }
         }
-        else
-        {
-            IO_write(1, DISCON_SERVER_ERR, sizeof(DISCON_SERVER_ERR));
-        }
-
         // Tanquem els fd i free de memoria
         close(server.socketfd);
         free(server.name);

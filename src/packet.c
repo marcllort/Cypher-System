@@ -61,7 +61,7 @@ int PACKET_write(Packet pd, int fd)
     int error = write(fd, &pd.length, sizeof(uint16_t));
     if (error < 0)
     {
-        // Error
+        return -1;
     }
     if (pd.length != 0)
     {
