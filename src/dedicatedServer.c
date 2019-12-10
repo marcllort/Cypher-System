@@ -50,7 +50,7 @@ int DSERVER_getFd(DServer *ds)
 int DSERVER_close(DServer *ds)
 {
     // Al tancar enviem el missatge de OK respecte hem rebut missatge desconnexio
-    Packet p = PACKET_create(T_EXIT, (int)strlen(H_CONOK), H_CONOK, 0, NULL);
+    Packet p = PACKET_create(T_EXIT, H_CONOK, 0, NULL);
     PACKET_write(p, ds->fd);
     PACKET_destroy(&p);
     ds->state = -1;
@@ -74,10 +74,7 @@ void *DSERVER_threadFunc(void *data)
     while (ds->state == 1)
     {
         p = PACKET_read(fd);
-        if (p.headerLength == -1)
-        {
-            ds->state = -1;
-        }
+
         if (p.type == T_MSG)
         {
             // En cas de rebre correcatmen un missatge, responem indicant que hem rebut
@@ -96,7 +93,7 @@ void *DSERVER_threadFunc(void *data)
 
             // Printem el nom de la consola
             UTILS_printName(ds->name);
-            Packet pok = PACKET_create(T_MSG, (int)strlen(H_MSGOK), H_MSGOK, 1, " ");
+            Packet pok = PACKET_create(T_MSG, H_MSGOK, 0, NULL);
             PACKET_write(pok, ds->fd);
 
             // Alliberem memoria
@@ -105,6 +102,10 @@ void *DSERVER_threadFunc(void *data)
         else if (p.type == T_EXIT)
         {
             // Tanquem el dedicated server en cas de desconnexio
+            char buff[124];
+            int bytes = sprintf(buff, USER_DISCON, ds->user);
+            IO_write(1, buff, bytes);
+            
             DSERVER_close(ds);
         }
         else if (p.type == T_DOWNLOAD)
@@ -126,27 +127,27 @@ void *DSERVER_threadFunc(void *data)
                     ssize_t bytes;
                     unsigned char out[MD5_DIGEST_LENGTH];
                     MD5_Init(&c);*/
-                    char * a = UTILS_md5(audioFolderr);
-                    write(1,a,strlen(a));
+                    char *a = UTILS_md5(audioFolderr);
+                    IO_write(1, a, strlen(a));
                     do
                     {
                         counter = read(fd_in, buff, FRAGMENT_SIZE);
                         //MD5_Update(&c, buff, bytes);
-                        Packet pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDRESP), H_AUDRESP, counter, buff);
+                        Packet pack = PACKET_create(T_DOWNLOAD, H_AUDRESP, counter, buff);
                         PACKET_write(pack, fd);
                         PACKET_destroy(&pack);
-                        
+
                     } while (counter == FRAGMENT_SIZE);
 
                     //MD5_Final(out, &c);
-                    Packet pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDEOF), H_AUDEOF, strlen(a), a);
+                    Packet pack = PACKET_create(T_DOWNLOAD, H_AUDEOF, strlen(a), a);
                     PACKET_write(pack, fd);
                     //write(1,out,strlen(out));
                 }
                 else
                 {
-                    Packet pack = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDKO), H_AUDKO, 0, NULL);
-                    IO_write(1, pack.header, pack.headerLength);
+                    Packet pack = PACKET_create(T_DOWNLOAD, H_AUDKO, 0, NULL);
+                    IO_write(1, pack.header, strlen(pack.header));
                     PACKET_write(pack, fd);
                     PACKET_destroy(&pack);
                 }
@@ -163,7 +164,7 @@ void *DSERVER_threadFunc(void *data)
             if (!strcmp(p.header, H_SHOWAUDIOS))
             {
                 char *a = DSERVER_showFiles(audioFolder);
-                Packet pack = PACKET_create(T_SHOWAUDIOS, (int)strlen(H_LISTAUDIOS), H_LISTAUDIOS, UTILS_sizeOf(a), a);
+                Packet pack = PACKET_create(T_SHOWAUDIOS, H_LISTAUDIOS, UTILS_sizeOf(a), a);
                 PACKET_write(pack, fd);
 
                 // Alliberem memoria
@@ -175,7 +176,7 @@ void *DSERVER_threadFunc(void *data)
         PACKET_destroy(&p);
     }
     //free(audioFolder);
-     write(1,"aaa\n",4);
+    IO_write(1, "aaa\n", 4);
     pthread_exit(0);
     return (void *)0;
 }
@@ -187,7 +188,7 @@ char *DSERVER_showFiles(char *audioFolder)
 
     struct dirent **namelist;
     int n;
-    write(1, audioFolder, strlen(audioFolder));
+    IO_write(1, audioFolder, strlen(audioFolder));
     n = scandir(audioFolder, &namelist, NULL, alphasort);
     if (n < 0)
         audiosData = "Empty folder!\n";

@@ -25,12 +25,12 @@ int CLIENT_checkPorts(char *buffer, Config inConfig)
 
     if (pipereturn == -1)
     {
-        IO_write(1, "Pipe pum pum", sizeof("Pipe pum pum"));
+        IO_write(1, PIPE_ERR, sizeof(PIPE_ERR));
     }
 
     if ((pid = fork()) < 0)
     {
-        perror("\nError en el fork");
+        IO_write(1, FORK_ERR, sizeof(FORK_ERR));
         exit(-1);
     }
     else if (pid == 0)
@@ -45,7 +45,7 @@ int CLIENT_checkPorts(char *buffer, Config inConfig)
         // Executem script entre X i Y ports rebut per parametres a buffer
         if ((execl("/bin/sh", "/bin/sh", "-c", buffer, (char *)0) < 0))
         {
-            perror("\nError en el execl");
+            IO_write(1, EXECL_ERR, sizeof(EXECL_ERR));
             exit(-1);
         }
         else
@@ -138,7 +138,6 @@ int CLIENT_checkPorts(char *buffer, Config inConfig)
 int CLIENT_connectPort(Config config, int connectPort)
 {
     // Connexio al server, llegim la classe config on tenim la informació necessaria
-
     Element newServer;
     char *ip = config.cypherIP;
     struct sockaddr_in s_addr;
@@ -181,7 +180,7 @@ int CLIENT_connectPort(Config config, int connectPort)
             newServer.socketfd = socket_conn;
 
             char buff[128];
-            Packet p = PACKET_create(T_CONNECT, (int)strlen(H_NAME), H_NAME, (int)UTILS_sizeOf(config.username), config.username);
+            Packet p = PACKET_create(T_CONNECT, H_NAME, UTILS_sizeOf(config.username), config.username);
             PACKET_write(p, socket_conn);
 
             Packet j = PACKET_read(socket_conn);
@@ -191,7 +190,7 @@ int CLIENT_connectPort(Config config, int connectPort)
 
             LLISTABID_inserirDarrere(&servers, newServer);
 
-            int bytes = sprintf(buff, "%d connected: %s\n", newServer.port, newServer.name);
+            int bytes = sprintf(buff, MSG_CONNECTED, newServer.port, newServer.name);
             IO_write(1, buff, bytes);
             PACKET_destroy(&p);
         }
@@ -202,23 +201,23 @@ int CLIENT_connectPort(Config config, int connectPort)
 int CLIENT_write(char *user, char *message)
 {
     // Funció per enviar un paquet a un altre usuari, al que previament estàs connectat
-
     int trobat = 0;
     char buff[128];
     int bytes;
+
     if (!LLISTABID_buida(servers))
     {
         LLISTABID_vesInici(&servers);
-        
+
         // Busquem a la llista la relació de nom i port per així saber a quin fd hem de enviar
         while (!LLISTABID_final(servers) && !trobat)
         {
             Element server = LLISTABID_consulta(servers);
 
             // Enviem packet amb el missatge i esperem resposta (protocol comunicacio)
-            if (strcmp(server.name, user) == 0)
+            if (UTILS_compareCaseInsensitive(server.name, user) == 0)
             {
-                Packet packet = PACKET_create(T_MSG, (int)strlen(H_MSG), H_MSG, UTILS_sizeOf(message), message);
+                Packet packet = PACKET_create(T_MSG, H_MSG, UTILS_sizeOf(message), message);
                 PACKET_write(packet, server.socketfd);
                 PACKET_destroy(&packet);
 
@@ -265,9 +264,9 @@ int CLIENT_showAudios(char *user)
         {
             Element server = LLISTABID_consulta(servers);
 
-            if (strcmp(server.name, user) == 0)
+            if (UTILS_compareCaseInsensitive(server.name, user) == 0)
             {
-                Packet p = PACKET_create(T_SHOWAUDIOS, (int)strlen(H_SHOWAUDIOS), H_SHOWAUDIOS, 0, NULL);
+                Packet p = PACKET_create(T_SHOWAUDIOS, H_SHOWAUDIOS, 0, NULL);
                 PACKET_write(p, server.socketfd);
                 PACKET_destroy(&p);
 
@@ -292,7 +291,6 @@ int CLIENT_showAudios(char *user)
     }
     else
     {
-
         bytes = sprintf(buff, UNKNOWN_CONNECTION, user);
         IO_write(1, buff, bytes);
     }
@@ -313,9 +311,9 @@ int CLIENT_download(char *user, char *filename)
         while (!LLISTABID_final(servers) && !trobat)
         {
             Element server = LLISTABID_consulta(servers);
-            if (strcmp(server.name, user) == 0)
+            if (UTILS_compareCaseInsensitive(server.name, user) == 0)
             {
-                Packet psend = PACKET_create(T_DOWNLOAD, (int)strlen(H_AUDREQ), H_AUDREQ, UTILS_sizeOf(filename), filename);
+                Packet psend = PACKET_create(T_DOWNLOAD, H_AUDREQ, UTILS_sizeOf(filename), filename);
                 //IO_write(1,filename,UTILS_sizeOf(filename));
                 PACKET_write(psend, server.socketfd);
                 PACKET_destroy(&psend);
@@ -324,38 +322,38 @@ int CLIENT_download(char *user, char *filename)
 
                 if (!strcmp(H_AUDKO, pa.header))
                 {
-                    IO_write(1, "\nError, fichero inexistente\n", strlen("\nError, fichero inexistente\n"));
+                    IO_write(1, NOFILE, strlen(NOFILE));
                 }
                 if (!strcmp(pa.header, H_AUDRESP))
                 {
-                    IO_write(1, "\nDescargando...\n", strlen("\nDescargando...\n"));
-                    int fd1 =open(filename, O_WRONLY | O_CREAT, 0666);
-                    
-                   
+                    IO_write(1, DOWNLOADING, strlen(DOWNLOADING));
+                    int fd1 = open(filename, O_WRONLY | O_CREAT, 0666);
+
                     do
                     {
-                        write (fd1, pa.data, pa.length);
+                        IO_write(fd1, pa.data, pa.length);
                         //write (1, pa.data, pa.length);
-                        
+
                         //PACKET_destroy(&pa);
                         pa = PACKET_read(server.socketfd);
-                        
+
                     } while (strcmp(pa.header, H_AUDEOF));
-                    write(1,pa.data,pa.length);
+                    IO_write(1, pa.data, pa.length);
                     close(fd1);
                 }
-                write(1,'\n',1);
-                char* a = UTILS_md5(filename);
-                write(1,a,strlen(a));
-                
-                if (!strcmp(pa.data,a))
+                IO_write(1, "\n", 1);
+                char *a = UTILS_md5(filename);
+                IO_write(1, a, strlen(a));
+
+                if (!strcmp(pa.data, a))
                 {
-                    write(1,"Tot ben descarregat",strlen("Tot ben descarregat"));
-                }else
-                {
-                    write(1,"Error, fitxer no descarregat correctament",strlen("Error, fitxer no descarregat correctament"));
+                    IO_write(1, "Tot ben descarregat", strlen("Tot ben descarregat"));
                 }
-            
+                else
+                {
+                    IO_write(1, "Error, fitxer no descarregat correctament", strlen("Error, fitxer no descarregat correctament"));
+                }
+
                 PACKET_destroy(&pa);
                 trobat = 1;
             }
@@ -388,16 +386,20 @@ int CLIENT_exit()
     {
         Element server = LLISTABID_consulta(servers);
 
-        Packet packet = PACKET_create(T_EXIT, (int)strlen(H_VOID), H_VOID, UTILS_sizeOf(config.username), config.username);
+        Packet packet = PACKET_create(T_EXIT, H_VOID, UTILS_sizeOf(config.username), config.username);
         PACKET_write(packet, server.socketfd);
         PACKET_destroy(&packet);
-        
+
         // Llegim resposta de desconnexio OK (protocol desconnexio)
         Packet p = PACKET_read(server.socketfd);
-        if(!UTILS_isEmpty(p.header)){
+        if (strcmp(p.header, H_CONOK) == 0)
+        {
             PACKET_destroy(&p);
         }
-        
+        else
+        {
+            IO_write(1, DISCON_SERVER_ERR, sizeof(DISCON_SERVER_ERR));
+        }
 
         // Tanquem els fd i free de memoria
         close(server.socketfd);

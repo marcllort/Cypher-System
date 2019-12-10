@@ -20,14 +20,22 @@
 #include "list.h"
 #include "packet.h"
 
-#define MSG_ERR_CONN "Puerto %d Cerrado\n"
+#define MSG_ERR_CONN "Port: %d closed\n"
 #define MSG_AVAIL_CONN "%d connections available\n"
 #define TESTING "Testing...\n"
-#define MSG_ERR_SOCKET "Error durante la creacion del socket\n"
-#define MSG_ERR_PORT "Error! No puedes connectarte a tu propio puerto\n"
+#define MSG_ERR_SOCKET "Error when creating socket\n"
+#define MSG_ERR_PORT "Error! Can't connect to your own port\n"
 #define MSG_CONNECTED "%d connected: %s\n"
 #define UNKNOWN_CONNECTION "Couldn't send message. Unknown connection %s\n"
 #define UNKNOWN_CONNECTION2 "Couldn't send message. Unknown connection\n"
+#define DOWNLOADING "\nDownloading...\n"
+#define NOFILE "\nError, file doesn't exist\n"
+#define PIPE_ERR "PIPE CREATION ERROR\n"
+#define FORK_ERR "FORK CREATION ERROR\n"
+#define EXECL_ERR "EXEC SCRIPT ERROR\n"
+#define DISCON_SERVER_ERR "Didn't receive server CONOK, Server is disconnected\n"
+
+
 
 int CLIENT_checkPorts(char *buffer, Config inConfig);
 int CLIENT_sayMessage(char *user, char *message);

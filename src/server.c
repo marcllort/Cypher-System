@@ -116,24 +116,22 @@ int SERVER_operate(Server *server)
         {
             Packet p = PACKET_read(server->fdserver);
             char name[120];
-            if (p.headerLength != -1)
+
+            if (p.type == T_CONNECT)
             {
-                if (p.type == T_CONNECT)
+                // En cas de voler connectar-se enviem la resposta
+                if (!strcmp(p.header, H_NAME))
                 {
-                    // En cas de voler connectar-se enviem la resposta
-                    if (!strcmp(p.header, H_NAME))
-                    {
-                        sprintf(name, "%s", p.data);
-                        PACKET_destroy(&p);
-                        p = PACKET_create(T_CONNECT, (int)strlen(H_CONOK), H_CONOK, UTILS_sizeOf((*server).name), (*server).name);
-                        PACKET_write(p, server->fdserver);
-                    }
-                    if (!strcmp(p.header, H_CONOK))
-                    {
-                        // Creem el dedicated server si tot ha anat be
-                        SERVER_startDS(server, server->fdserver, server->fd, s_addr, name);
-                        PACKET_destroy(&p);
-                    }
+                    sprintf(name, "%s", p.data);
+                    PACKET_destroy(&p);
+                    p = PACKET_create(T_CONNECT, H_CONOK, UTILS_sizeOf((*server).name), (*server).name);
+                    PACKET_write(p, server->fdserver);
+                }
+                if (!strcmp(p.header, H_CONOK))
+                {
+                    // Creem el dedicated server si tot ha anat be
+                    SERVER_startDS(server, server->fdserver, server->fd, s_addr, name);
+                    PACKET_destroy(&p);
                 }
             }
         }
@@ -187,7 +185,6 @@ int SERVER_removeAllDS(Server *server)
         DSERVER_close(ds);
         pthread_cancel(*DSERVER_getThread(ds));
         pthread_join(*DSERVER_getThread(ds), NULL);
-        
 
         free(ds);
         LLISTADS_avanca(&server->dss);

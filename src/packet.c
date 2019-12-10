@@ -4,30 +4,31 @@ Packet PACKET_read(int fd)
 {
     // Funcio encarregada de la lectura de un paquet
     Packet pd;
+    int headerLength;
 
     int error = read(fd, &pd.type, 1);
     if (pd.type != 0x01 && pd.type != 0x02 && pd.type != 0x03 && pd.type != 0x04 && pd.type != 0x05 && pd.type != 0x06)
     {
-        pd.headerLength = -1;
+        headerLength = -1;
         return pd;
     }
 
     if (error <= 0)
     {
-        pd.headerLength = -1;
+        headerLength = -1;
         return pd;
     }
 
-    pd.headerLength = 0;
+    headerLength = 0;
     pd.header = (char *)malloc(sizeof(char));
     do
     {
-        pd.header = (char *)realloc((void *)pd.header, ++pd.headerLength * sizeof(char));
-        if (read(fd, &pd.header[pd.headerLength - 1], 1) <= 0)
+        pd.header = (char *)realloc((void *)pd.header, ++headerLength * sizeof(char));
+        if (read(fd, &pd.header[headerLength - 1], 1) <= 0)
             return PACKET_destroy(&pd);
-    } while (pd.header[pd.headerLength - 1] != ']');
+    } while (pd.header[headerLength - 1] != ']');
 
-    pd.header[pd.headerLength] = '\0';
+    pd.header[headerLength] = '\0';
 
     if (read(fd, &pd.length, sizeof(uint16_t)) <= 0)
     {
@@ -60,7 +61,7 @@ int PACKET_write(Packet pd, int fd)
     int error = write(fd, &pd.length, sizeof(uint16_t));
     if (error < 0)
     {
-        IO_write(1, " ", strlen(" "));
+        // Error
     }
     if (pd.length != 0)
     {
@@ -76,7 +77,6 @@ Packet PACKET_destroy(Packet *p)
 
     p->type = 0;
     p->length = 0;
-    p->headerLength = 0;
 
     if (p->header != NULL)
     {
@@ -84,7 +84,7 @@ Packet PACKET_destroy(Packet *p)
         p->header = NULL;
     }
 
-    if (p->data != NULL && p->headerLength != -1)
+    if (p->data != NULL)
     {
         free(p->data);
         p->data = NULL;
@@ -93,18 +93,16 @@ Packet PACKET_destroy(Packet *p)
     return *p;
 }
 
-Packet PACKET_create(char type, int headerLength, char *header, unsigned short dataLength, char *data)
+Packet PACKET_create(char type, char *header, unsigned short dataLength, char *data)
 {
     // Creacio de un paquet a partir dels parametres
     Packet pd;
 
     pd.type = type;
-    pd.headerLength = headerLength;
     pd.length = dataLength;
 
-    if ((pd.header = (char *)malloc(sizeof(char) * headerLength)) == NULL)
+    if ((pd.header = (char *)malloc(sizeof(char) * strlen(header))) == NULL)
     {
-
         return pd;
     }
     strcpy(pd.header, header);
@@ -121,7 +119,6 @@ Packet PACKET_create(char type, int headerLength, char *header, unsigned short d
     else
     {
         pd.data = NULL;
-        pd.headerLength = -1;
     }
 
     return pd;

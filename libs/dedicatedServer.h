@@ -9,7 +9,6 @@
 #include <dirent.h>
 #include <stdio.h>
 #include <signal.h>
-//#include <openssl/md5.h>
 
 
 #include "io.h"
@@ -21,6 +20,8 @@
 
 
 #define CLIENT_SAYS "\n[%s]: "
+#define USER_DISCON "[%s]: Disconnected\n"
+
 
 typedef struct
 {
