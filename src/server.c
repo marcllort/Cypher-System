@@ -111,26 +111,10 @@ int SERVER_operate(Server *server)
         // Un cop tenim una connexio, llegim el paquet que ens envia
         if (server->state == 1)
         {
-            Packet p = PACKET_read(server->fdserver);
-            char name[120];
+            SERVER_startDS(server, server->fdserver, server->fd, s_addr, NULL);
 
-            if (p.type == T_CONNECT)
-            {
-                // En cas de voler connectar-se enviem la resposta
-                if (!strcmp(p.header, H_NAME))
-                {
-                    sprintf(name, "%s", p.data);
-                    PACKET_destroy(&p);
-                    p = PACKET_create(T_CONNECT, H_CONOK, UTILS_sizeOf((*server).name), (*server).name);
-                    PACKET_write(p, server->fdserver);
-                }
-                if (!strcmp(p.header, H_CONOK))
-                {
-                    // Creem el dedicated server si tot ha anat be
-                    SERVER_startDS(server, server->fdserver, server->fd, s_addr, name);
-                    PACKET_destroy(&p);
-                }
-            }
+            //Packet p = PACKET_read(server->fdserver);
+            
         }
     }
 

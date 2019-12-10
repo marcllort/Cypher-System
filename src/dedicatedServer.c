@@ -53,6 +53,7 @@ int DSERVER_close(DServer *ds)
     Packet p = PACKET_create(T_EXIT, H_CONOK, 0, NULL);
     PACKET_write(p, ds->fd);
     PACKET_destroy(&p);
+    free(ds->user);
     ds->state = -1;
     return 0;
 }
@@ -65,6 +66,7 @@ void *DSERVER_threadFunc(void *data)
     Packet p;
     int fd = ds->fd;
     ds->state = 1;
+    int showconn = 0;
 
     char *audioFolder = (char *)malloc(sizeof(char) * UTILS_sizeOf(ds->audios));
 
@@ -75,7 +77,19 @@ void *DSERVER_threadFunc(void *data)
     {
         p = PACKET_read(fd);
 
-        if (p.type == T_MSG)
+        if (p.type == T_CONNECT)
+        {
+            // En cas de voler connectar-se enviem la resposta
+            if (!strcmp(p.header, H_NAME))
+            {
+                ds->user = malloc(p.length * sizeof(char));
+                sprintf(ds->user, "%s", p.data);
+                PACKET_destroy(&p);
+                p = PACKET_create(T_CONNECT, H_CONOK, UTILS_sizeOf(ds->name), ds->name);
+                PACKET_write(p, fd);
+            }
+        }
+        else if (p.type == T_MSG)
         {
             // En cas de rebre correcatmen un missatge, responem indicant que hem rebut
 
@@ -105,7 +119,7 @@ void *DSERVER_threadFunc(void *data)
             char buff[124];
             int bytes = sprintf(buff, USER_DISCON, ds->user);
             IO_write(1, buff, bytes);
-            
+
             DSERVER_close(ds);
         }
         else if (p.type == T_DOWNLOAD)
@@ -129,6 +143,7 @@ void *DSERVER_threadFunc(void *data)
                     MD5_Init(&c);*/
                     char *a = UTILS_md5(audioFolderr);
                     IO_write(1, a, strlen(a));
+                    free(a);
                     do
                     {
                         counter = read(fd_in, buff, FRAGMENT_SIZE);
@@ -142,6 +157,7 @@ void *DSERVER_threadFunc(void *data)
                     //MD5_Final(out, &c);
                     Packet pack = PACKET_create(T_DOWNLOAD, H_AUDEOF, strlen(a), a);
                     PACKET_write(pack, fd);
+                    PACKET_destroy(&pack);
                     //write(1,out,strlen(out));
                 }
                 else
@@ -152,7 +168,7 @@ void *DSERVER_threadFunc(void *data)
                     PACKET_destroy(&pack);
                 }
 
-                //free(audioFolderr);
+                free(audioFolderr);
             }
         }
         else if (p.type == T_SHOWAUDIOS)
@@ -172,10 +188,17 @@ void *DSERVER_threadFunc(void *data)
                 free(a);
             }
         }
-
-        PACKET_destroy(&p);
+        else
+        {
+            ds->state = -1;
+            showconn = -1;
+        }
+        if (showconn != -1)
+        {
+            PACKET_destroy(&p);
+        }
     }
-    //free(audioFolder);
+    free(audioFolder);
     IO_write(1, "aaa\n", 4);
     pthread_exit(0);
     return (void *)0;

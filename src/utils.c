@@ -133,7 +133,8 @@ int UTILS_fileExists(char *filename)
 int digits(long num)
 {
     int digits;
-    for (digits = 0; num > 0; num /= 10, digits++);
+    for (digits = 0; num > 0; num /= 10, digits++)
+        ;
     return digits;
 }
 
