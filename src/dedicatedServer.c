@@ -185,7 +185,10 @@ void *DSERVER_threadFunc(void *data)
                 PACKET_write(pack, fd);
 
                 // Alliberem memoria
+                IO_write(1, "aaa\n", 4);
                 PACKET_destroy(&pack);
+                IO_write(1, "aaa\n", 4);
+
                 free(a);
             }
         }
@@ -214,8 +217,10 @@ char *DSERVER_showFiles(char *audioFolder)
     int n;
     IO_write(1, audioFolder, strlen(audioFolder));
     n = scandir(audioFolder, &namelist, NULL, alphasort);
-    if (n < 0)
-        audiosData = "Empty folder!\n";
+    if (n < 0){
+        audiosData = (char *)realloc((void *)audiosData, sizeof(char) * UTILS_sizeOf("Empty folder!\n"));
+        strcpy(audiosData, "Empty folder!\n");
+    }
     else
     {
         int i = 0;
