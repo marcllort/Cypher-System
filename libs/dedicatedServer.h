@@ -20,7 +20,7 @@
 
 
 #define CLIENT_SAYS "\n[%s]: "
-#define USER_DISCON "[%s]: Disconnected\n"
+#define USER_DISCON "\n[%s]: Disconnected\n"
 
 
 typedef struct

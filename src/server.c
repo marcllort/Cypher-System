@@ -103,13 +103,10 @@ int SERVER_operate(Server *server)
         socklen_t len = sizeof(s_addr);
 
         // Esperem una connexio
-        do
+        if ((server->fdserver = accept(server->fd, (struct sockaddr *)&s_addr, &len)) <= 0)
         {
-            if ((server->fdserver = accept(server->fd, (struct sockaddr *)&s_addr, &len)) <= 0)
-            {
-                IO_write(1, ERR_ACCEPT, strlen(ERR_ACCEPT));
-            }
-        } while (server->fdserver <= 0 && server->state == 1);
+            IO_write(1, ERR_ACCEPT, strlen(ERR_ACCEPT));
+        }
 
         // Un cop tenim una connexio, llegim el paquet que ens envia
         if (server->state == 1)
