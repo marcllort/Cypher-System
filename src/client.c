@@ -318,8 +318,9 @@ int CLIENT_download(char *user, char *filename)
             Element server = LLISTABID_consulta(servers);
             if (UTILS_compareCaseInsensitive(server.name, user) == 0)
             {
+                //Enviem el nom del fitxer i esperem la resposta del server
                 Packet psend = PACKET_create(T_DOWNLOAD, H_AUDREQ, UTILS_sizeOf(filename), filename);
-                //IO_write(1,filename,UTILS_sizeOf(filename));
+            
                 PACKET_write(psend, server.socketfd);
                 PACKET_destroy(&psend);
 
@@ -330,37 +331,42 @@ int CLIENT_download(char *user, char *filename)
                     IO_write(1, NOFILE, strlen(NOFILE));
                 }
                 if (!strcmp(pa.header, H_AUDRESP))
-                {
-                    IO_write(1, DOWNLOADING, strlen(DOWNLOADING));
-                    int fd1 = open(filename, O_WRONLY | O_CREAT, 0666);
 
+                {
+                    //En cas de que el server ens dongui el ok per descarregar iniciem la lectura de paquets fins trobar un paquet amb capçalera EOF
+                    IO_write(1, DOWNLOADING, strlen(DOWNLOADING));
+                    int fd1 = open(filename, O_WRONLY |O_TRUNC| O_CREAT | O_EXCL, 0666);
+                    if(fd1<0){
+                        write(1,"JA EXISTEIX", strlen("JA EXISTEIX"));
+                    }else{
                     do
                     {
                         IO_write(fd1, pa.data, pa.length);
-                        //write (1, pa.data, pa.length);
-
-                        //PACKET_destroy(&pa);
+                    
                         pa = PACKET_read(server.socketfd);
 
                     } while (strcmp(pa.header, H_AUDEOF));
-                    IO_write(1, pa.data, pa.length);
+                    //IO_write(1, pa.data, pa.length);
                     close(fd1);
-                }
-                IO_write(1, "\n", 1);
+                
+                
                 char *a = UTILS_md5(filename);
-                IO_write(1, a, strlen(a));
-
+                
+                //Comparem el md5 per saber si la descarrega ha estat correcta
                 if (!strcmp(pa.data, a))
                 {
-                    IO_write(1, "Tot ben descarregat", strlen("Tot ben descarregat"));
+                    char buff[128];
+                int bytes = sprintf(buff, FILE_DOWNLOADED, user, filename);
+                IO_write(1, buff, bytes);
                 }
                 else
                 {
-                    IO_write(1, "Error, fitxer no descarregat correctament", strlen("Error, fitxer no descarregat correctament"));
+                    IO_write(1, FILE_DOWNLOAD_KO, strlen(FILE_DOWNLOAD_KO));
                 }
-
+                }
                 PACKET_destroy(&pa);
                 trobat = 1;
+            }
             }
             else
             {

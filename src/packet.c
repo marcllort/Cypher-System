@@ -124,9 +124,9 @@ Packet PACKET_create(char type, char *header, unsigned short dataLength, char *d
     return pd;
 }
 
-PACKET_sendFile(Packet pd, int fd,char* data){
+int PACKET_sendFile(Packet pd, int fd,char* data){
     
-    // Funcio per enviar un paquet per parts
+    // Funcio per enviar el fitxer, sense el strcpy que fem servir per enviar la resta de paquets
 
     IO_write(fd, &pd.type, 1);
     IO_write(fd, pd.header, UTILS_sizeOf(pd.header));

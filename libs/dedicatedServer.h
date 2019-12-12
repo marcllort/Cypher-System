@@ -20,6 +20,7 @@
 
 
 #define CLIENT_SAYS "\n[%s]: "
+#define USER_CONN "\n[%s]: Connected\n"
 #define USER_DISCON "\n[%s]: Disconnected\n"
 
 

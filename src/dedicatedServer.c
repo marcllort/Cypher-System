@@ -87,6 +87,9 @@ void *DSERVER_threadFunc(void *data)
                 PACKET_destroy(&p);
                 p = PACKET_create(T_CONNECT, H_CONOK, UTILS_sizeOf(ds->name), ds->name);
                 PACKET_write(p, fd);
+                char buff[128];
+                int bytes = sprintf(buff, USER_CONN, ds->user);
+                IO_write(1, buff, bytes);
             }
         }
         else if (p.type == T_MSG)
@@ -124,14 +127,15 @@ void *DSERVER_threadFunc(void *data)
         }
         else if (p.type == T_DOWNLOAD)
         {
+            //En cas de rebre un paquet de tipus download comprovem si es de tipus showaudios o audiorequest
             if (!strcmp(p.header, H_AUDREQ))
             {
                 int sizes = UTILS_sizeOf(ds->audios) + p.length + 3;
 
                 char *audioFolderr = (char *)malloc(sizeof(char) * sizes);
                 sprintf(audioFolderr, "%s/%s", audioFolder, p.data);
-
                 audioFolderr[sizes] = 0;
+                //En cas de que sigui showaudios mirem que el fitxer existeixi
                 if (UTILS_fileExists(audioFolderr) != -1)
                 {
                     char buff[FRAGMENT_SIZE];
@@ -139,7 +143,7 @@ void *DSERVER_threadFunc(void *data)
                     int fd_in = open(audioFolderr, O_RDONLY);
                     char *a = UTILS_md5(audioFolderr);
                     IO_write(1, a, strlen(a));
-                    
+                    //Obrim el fitxer i iterem fins que la mida a escriure sigui menor al buffer, que voldra dir que estem al final del fitxer
                     do
                     {
                         counter = read(fd_in, buff, FRAGMENT_SIZE);
@@ -149,7 +153,7 @@ void *DSERVER_threadFunc(void *data)
                         PACKET_destroy(&pack);
 
                     } while (counter == FRAGMENT_SIZE);
-            
+                    //Un cop hem acabat d'enviar el fitxer enviem el md5 amb aquest ultim paquet
                     Packet pack = PACKET_create(T_DOWNLOAD, H_AUDEOF, strlen(a), a);
                     PACKET_write(pack, fd);
                     PACKET_destroy(&pack);
@@ -158,8 +162,8 @@ void *DSERVER_threadFunc(void *data)
                 }
                 else
                 {
+                    //En cas de que el fitxer no existeixi enviem AUDIOKO
                     Packet pack = PACKET_create(T_DOWNLOAD, H_AUDKO, 0, NULL);
-                    IO_write(1, pack.header, strlen(pack.header));
                     PACKET_write(pack, fd);
                     PACKET_destroy(&pack);
                 }
@@ -175,14 +179,13 @@ void *DSERVER_threadFunc(void *data)
             }
             if (!strcmp(p.header, H_SHOWAUDIOS))
             {
+                //En cas que calgui mostrar els fitxers enviem un paquet amb els diferents fitxers
                 char *a = DSERVER_showFiles(audioFolder);
                 Packet pack = PACKET_create(T_SHOWAUDIOS, H_LISTAUDIOS, UTILS_sizeOf(a), a);
                 PACKET_write(pack, fd);
 
                 // Alliberem memoria
-                IO_write(1, "aaa\n", 4);
                 PACKET_destroy(&pack);
-                IO_write(1, "aaa\n", 4);
 
                 free(a);
             }
@@ -198,7 +201,6 @@ void *DSERVER_threadFunc(void *data)
         }
     }
     free(audioFolder);
-    IO_write(1, "aaa\n", 4);
     pthread_exit(0);
     return (void *)0;
 }
