@@ -137,24 +137,19 @@ void *DSERVER_threadFunc(void *data)
                     char buff[FRAGMENT_SIZE];
                     int counter;
                     int fd_in = open(audioFolderr, O_RDONLY);
-                    /*MD5_CTX c;
-                    ssize_t bytes;
-                    unsigned char out[MD5_DIGEST_LENGTH];
-                    MD5_Init(&c);*/
                     char *a = UTILS_md5(audioFolderr);
                     IO_write(1, a, strlen(a));
                     
                     do
                     {
                         counter = read(fd_in, buff, FRAGMENT_SIZE);
-                        //MD5_Update(&c, buff, bytes);
                         Packet pack = PACKET_create(T_DOWNLOAD, H_AUDRESP, counter, buff);
-                        PACKET_write(pack, fd);
+                        //PACKET_write(pack, fd);
+                        PACKET_sendFile(pack, fd,buff);
                         PACKET_destroy(&pack);
 
                     } while (counter == FRAGMENT_SIZE);
-
-                    //MD5_Final(out, &c);
+            
                     Packet pack = PACKET_create(T_DOWNLOAD, H_AUDEOF, strlen(a), a);
                     PACKET_write(pack, fd);
                     PACKET_destroy(&pack);

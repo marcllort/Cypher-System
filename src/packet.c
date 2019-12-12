@@ -123,3 +123,23 @@ Packet PACKET_create(char type, char *header, unsigned short dataLength, char *d
 
     return pd;
 }
+
+PACKET_sendFile(Packet pd, int fd,char* data){
+    
+    // Funcio per enviar un paquet per parts
+
+    IO_write(fd, &pd.type, 1);
+    IO_write(fd, pd.header, UTILS_sizeOf(pd.header));
+
+    int error = write(fd, &pd.length, sizeof(uint16_t));
+    if (error < 0)
+    {
+        return -1;
+    }
+    if (pd.length != 0)
+    {
+        IO_write(fd, data, pd.length);
+    }
+
+    return 0;
+}
