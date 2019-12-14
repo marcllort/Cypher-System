@@ -141,7 +141,12 @@ void *DSERVER_threadFunc(void *data)
                     char buff[FRAGMENT_SIZE];
                     int counter;
                     int fd_in = open(audioFolderr, O_RDONLY);
-                    char *a = UTILS_md5(audioFolderr);
+
+                    char script [125];
+                    int scriptbytes = sprintf(script,"md5sum %s",audioFolderr);
+                    IO_write(1,script, scriptbytes);
+
+                    char *a = UTILS_md5(script);
                     IO_write(1, a, strlen(a));
                     //Obrim el fitxer i iterem fins que la mida a escriure sigui menor al buffer, que voldra dir que estem al final del fitxer
                     do

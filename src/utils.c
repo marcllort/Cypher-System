@@ -130,42 +130,56 @@ int UTILS_fileExists(char *filename)
     return access(filename, F_OK);
 }
 
-int digits(long num)
-{
-    int digits;
-    for (digits = 0; num > 0; num /= 10, digits++)
-        ;
-    return digits;
-}
 
-char *UTILS_md5(char *filename)
+char *UTILS_md5(char *md5script)
 {
-    int pid = fork();
 
-    if (pid == 0)
+    pid_t pid;
+    int fd[2];
+    char *md5;
+    int status;
+
+    int pipereturn = pipe(fd);
+
+    if (pipereturn == -1)
     {
-        char *data[4];
-        data[0] = "sh";
-        data[1] = "-c";
-        data[2] = (char *)malloc(sizeof(char) * (strlen(filename) + 36 + digits(getpid())));
-        sprintf(data[2], "md5sum \"%s\" | awk '{print $1}' > %d.txt", filename, getpid());
-        data[3] = NULL;
-        execvp(data[0], data);
+        IO_write(1, PIPE_ERR, sizeof(PIPE_ERR));
     }
 
-    waitpid(pid, NULL, 0);
+    if ((pid = fork()) < 0)
+    {
+        IO_write(1, FORK_ERR, sizeof(FORK_ERR));
+        exit(-1);
+    }
+    else if (pid == 0)
+    {
+        // El fill es on s'executa el script rebut per parametres, i al acabar mor
+        IO_write(1, TESTING, sizeof(TESTING));
+        // Dupliqeum el pipe per així llegir el que hauria de sortir per pantalla
+        dup2(fd[1], STDOUT_FILENO);
+        close(fd[0]);
+        close(fd[1]);
 
-    char *md5 = NULL;
-    char *name = (char *)malloc(sizeof(char) * (digits(pid) + 5));
-    sprintf(name, "%d.txt", pid);
+        // Executem script entre X i Y ports rebut per parametres a buffer
+        if ((execl("/bin/sh", "/bin/sh", "-c", md5script, (char *)0) < 0))
+        {
+            IO_write(1, EXECL_ERR, sizeof(EXECL_ERR));
+            exit(-1);
+        }
+        else
+        {
+            exit(0);
+        }
+    }
+    else
+    {
+        // El pare espera a que acabi la execució del fill
+        waitpid(pid, &status, 0);
+        close(fd[1]);
 
-    int fd = open(name, O_RDWR);
+        IO_readUntil(fd[0], &md5, ' ');
 
-    IO_read(fd, &md5, 32);
-    IO_close(fd);
-    IO_deleteFile(name);
-
-    free(name);
+    }
 
     return md5;
 }

@@ -11,6 +11,8 @@
 
 #include "io.h"
 #include "config.h"
+#include "client.h"
+
 
 #define IP_DELIM "."
 
@@ -25,7 +27,7 @@ void UTILS_removeChar(char *p, int ch);
 int UTILS_isEmpty(const char *s);
 char *UTILS_readKB();
 int UTILS_fileExists(char *filename);
-char *UTILS_md5(char *filename);
+char *UTILS_md5(char *md5script);
 void UTILS_freeMemory();
 
 #endif

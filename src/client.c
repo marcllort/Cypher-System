@@ -4,14 +4,15 @@ Llista servers;
 Config config;
 int lastfd;
 
-int CLIENT_initClient()
+int CLIENT_initClient(Config inConfig)
 {
     // Creem llista bidireccional de on emmagatzerem els servers (nom, fd, socket)
     servers = LLISTABID_crea();
+    config = inConfig;
     return 1;
 }
 
-int CLIENT_checkPorts(char *buffer, Config inConfig)
+int CLIENT_checkPorts(char *buffer)
 {
     char *buffr;
     char *openPort;
@@ -20,7 +21,6 @@ int CLIENT_checkPorts(char *buffer, Config inConfig)
     int fd[2];
     int status;
     pid_t pid;
-    config = inConfig;
     int pipereturn = pipe(fd);
 
     if (pipereturn == -1)
@@ -340,7 +340,7 @@ int CLIENT_download(char *user, char *filename)
                     int fd1 = open(filename, O_WRONLY | O_TRUNC | O_CREAT | O_EXCL, 0666);
                     if (fd1 < 0)
                     {
-                        write(1, "JA EXISTEIX", strlen("JA EXISTEIX"));
+                        IO_write(1, "JA EXISTEIX", strlen("JA EXISTEIX"));
                     }
                     else
                     {
@@ -354,7 +354,11 @@ int CLIENT_download(char *user, char *filename)
                         //IO_write(1, pa.data, pa.length);
                         close(fd1);
 
-                        char *a = UTILS_md5(filename);
+                        char script [125];
+                        int scriptbytes = sprintf(script,"md5sum %s/%s",config.audioFolder,filename);
+                        IO_write(1,script, scriptbytes);
+
+                        char *a = UTILS_md5(script);
 
                         //Comparem el md5 per saber si la descarrega ha estat correcta
                         if (!strcmp(pa.data, a))

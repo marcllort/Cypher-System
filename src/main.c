@@ -23,7 +23,7 @@ int main(int argc, char **argv)
     Config config = CONFIG_load(argv[1]);
     // Pasem config a el Manager
     MANAGER_setConfig(config);
-    CLIENT_initClient();
+    CLIENT_initClient(config);
     NETWORK_init(config);
     // Registrem el signal de ctrl c
     MAIN_registerSignal();

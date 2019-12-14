@@ -40,10 +40,10 @@
 
 
 
-int CLIENT_checkPorts(char *buffer, Config inConfig);
+int CLIENT_checkPorts(char *buffer);
 int CLIENT_sayMessage(char *user, char *message);
 int CLIENT_connectPort(Config config, int connectPort);
-int CLIENT_initClient();
+int CLIENT_initClient(Config inConfig);
 int CLIENT_write(char *user, char *message);
 int CLIENT_exit();
 int CLIENT_freeMemory();
