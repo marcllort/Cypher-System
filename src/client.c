@@ -218,19 +218,21 @@ int CLIENT_write(char *user, char *message)
             if (UTILS_compareCaseInsensitive(server.name, user) == 0)
             {
                 Packet packet = PACKET_create(T_MSG, H_MSG, UTILS_sizeOf(message), message);
-                int error =PACKET_write(packet, server.socketfd);
+                int error = PACKET_write(packet, server.socketfd);
                 PACKET_destroy(&packet);
-                if (error != -1){
-                    
+                if (error != -1)
+                {
+
                     lastfd = server.socketfd;
 
                     Packet readed = PACKET_read(server.socketfd);
                     PACKET_destroy(&readed);
                     trobat = 1;
-                }else{
+                }
+                else
+                {
                     CLIENT_messageError();
                 }
-                
             }
             else
             {
@@ -320,7 +322,7 @@ int CLIENT_download(char *user, char *filename)
             {
                 //Enviem el nom del fitxer i esperem la resposta del server
                 Packet psend = PACKET_create(T_DOWNLOAD, H_AUDREQ, UTILS_sizeOf(filename), filename);
-            
+
                 PACKET_write(psend, server.socketfd);
                 PACKET_destroy(&psend);
 
@@ -335,38 +337,40 @@ int CLIENT_download(char *user, char *filename)
                 {
                     //En cas de que el server ens dongui el ok per descarregar iniciem la lectura de paquets fins trobar un paquet amb capçalera EOF
                     IO_write(1, DOWNLOADING, strlen(DOWNLOADING));
-                    int fd1 = open(filename, O_WRONLY |O_TRUNC| O_CREAT | O_EXCL, 0666);
-                    if(fd1<0){
-                        write(1,"JA EXISTEIX", strlen("JA EXISTEIX"));
-                    }else{
-                    do
+                    int fd1 = open(filename, O_WRONLY | O_TRUNC | O_CREAT | O_EXCL, 0666);
+                    if (fd1 < 0)
                     {
-                        IO_write(fd1, pa.data, pa.length);
-                    
-                        pa = PACKET_read(server.socketfd);
+                        write(1, "JA EXISTEIX", strlen("JA EXISTEIX"));
+                    }
+                    else
+                    {
+                        do
+                        {
+                            IO_write(fd1, pa.data, pa.length);
 
-                    } while (strcmp(pa.header, H_AUDEOF));
-                    //IO_write(1, pa.data, pa.length);
-                    close(fd1);
-                
-                
-                char *a = UTILS_md5(filename);
-                
-                //Comparem el md5 per saber si la descarrega ha estat correcta
-                if (!strcmp(pa.data, a))
-                {
-                    char buff[128];
-                int bytes = sprintf(buff, FILE_DOWNLOADED, user, filename);
-                IO_write(1, buff, bytes);
+                            pa = PACKET_read(server.socketfd);
+
+                        } while (strcmp(pa.header, H_AUDEOF));
+                        //IO_write(1, pa.data, pa.length);
+                        close(fd1);
+
+                        char *a = UTILS_md5(filename);
+
+                        //Comparem el md5 per saber si la descarrega ha estat correcta
+                        if (!strcmp(pa.data, a))
+                        {
+                            char buff[128];
+                            int bytes = sprintf(buff, FILE_DOWNLOADED, user, filename);
+                            IO_write(1, buff, bytes);
+                        }
+                        else
+                        {
+                            IO_write(1, FILE_DOWNLOAD_KO, strlen(FILE_DOWNLOAD_KO));
+                        }
+                    }
+                    PACKET_destroy(&pa);
+                    trobat = 1;
                 }
-                else
-                {
-                    IO_write(1, FILE_DOWNLOAD_KO, strlen(FILE_DOWNLOAD_KO));
-                }
-                }
-                PACKET_destroy(&pa);
-                trobat = 1;
-            }
             }
             else
             {
@@ -400,10 +404,11 @@ int CLIENT_exit()
         Packet packet = PACKET_create(T_EXIT, H_VOID, UTILS_sizeOf(config.username), config.username);
         int error = PACKET_write(packet, server.socketfd);
         PACKET_destroy(&packet);
-        if(error != -1){
+        if (error != -1)
+        {
             // Llegim resposta de desconnexio OK (protocol desconnexio)
             Packet p = PACKET_read(server.socketfd);
-                IO_write(1, "DISCON_SERVER_ERR", sizeof("DISCON_SERVER_ERR"));
+            IO_write(1, "DISCON_SERVER_ERR", sizeof("DISCON_SERVER_ERR"));
             if (strcmp(p.header, H_CONOK) == 0)
             {
                 IO_write(1, "DISCON_SERVER_ERR", sizeof("DISCON_SERVER_ERR"));
