@@ -50,12 +50,9 @@ int DSERVER_getFd(DServer *ds)
 int DSERVER_close(DServer *ds)
 {
     // Al tancar enviem el missatge de OK respecte hem rebut missatge desconnexio
-    IO_write(1, "3", 1);
     Packet p = PACKET_create(T_EXIT, H_CONOK, 0, NULL);
     PACKET_write(p, ds->fd);
-    IO_write(1, "4", 1);
     PACKET_destroy(&p);
-    IO_write(1, "5", 1);
     free(ds->user);
     ds->state = -1;
     return 0;
@@ -79,7 +76,7 @@ void *DSERVER_threadFunc(void *data)
     while (ds->state == 1)
     {
         p = PACKET_read(fd);
-        IO_write(1, p.header, strlen(p.header));
+
         if (p.type == T_CONNECT)
         {
             // En cas de voler connectar-se enviem la resposta
@@ -154,17 +151,16 @@ void *DSERVER_threadFunc(void *data)
                     {
                         counter = read(fd_in, buff, FRAGMENT_SIZE);
                         Packet pack = PACKET_create(T_DOWNLOAD, H_AUDRESP, counter, buff);
-                        //PACKET_write(pack, fd);
                         PACKET_sendFile(pack, fd, buff);
                         PACKET_destroy(&pack);
 
                     } while (counter == FRAGMENT_SIZE);
+                    
                     //Un cop hem acabat d'enviar el fitxer enviem el md5 amb aquest ultim paquet
                     Packet pack = PACKET_create(T_DOWNLOAD, H_AUDEOF, strlen(a), a);
                     PACKET_write(pack, fd);
                     PACKET_destroy(&pack);
                     free(a);
-                    //write(1,out,strlen(out));
                 }
                 else
                 {
@@ -206,9 +202,7 @@ void *DSERVER_threadFunc(void *data)
             PACKET_destroy(&p);
         }
     }
-    IO_write(1, "1", 1);
     free(audioFolder);
-    IO_write(1, "2", 1);
     pthread_exit(0);
     return (void *)0;
 }
@@ -220,7 +214,6 @@ char *DSERVER_showFiles(char *audioFolder)
 
     struct dirent **namelist;
     int n;
-    IO_write(1, audioFolder, strlen(audioFolder));
     n = scandir(audioFolder, &namelist, NULL, alphasort);
     if (n < 0)
     {

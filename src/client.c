@@ -310,6 +310,9 @@ int CLIENT_download(char *user, char *filename)
     int trobat = 0;
     char buff[128];
     int bytes;
+
+    char *file = malloc(strlen(filename));
+    strcpy(file, filename);
     if (!LLISTABID_buida(servers))
     {
         LLISTABID_vesInici(&servers);
@@ -340,23 +343,30 @@ int CLIENT_download(char *user, char *filename)
                     int fd1 = open(filename, O_WRONLY | O_TRUNC | O_CREAT | O_EXCL, 0666);
                     if (fd1 < 0)
                     {
-                        IO_write(1, "JA EXISTEIX", strlen("JA EXISTEIX"));
+                        IO_write(1, "File already exists\n", strlen("File already exists\n"));
+                        do
+                        {
+                            IO_write(fd1, pa.data, pa.length);
+                            PACKET_destroy(&pa);
+                            pa = PACKET_read(server.socketfd);
+
+                        } while (strcmp(pa.header, H_AUDEOF) != 0);
+                        PACKET_destroy(&pa);
                     }
                     else
                     {
                         do
                         {
                             IO_write(fd1, pa.data, pa.length);
-
+                            PACKET_destroy(&pa);
                             pa = PACKET_read(server.socketfd);
 
-                        } while (strcmp(pa.header, H_AUDEOF));
-                        //IO_write(1, pa.data, pa.length);
+                        } while (strcmp(pa.header, H_AUDEOF) != 0);
+
                         close(fd1);
 
-                        char script [125];
-                        int scriptbytes = sprintf(script,"md5sum %s/%s",config.audioFolder,filename);
-                        IO_write(1,script, scriptbytes);
+                        char script[125];
+                        sprintf(script, "md5sum %s/%s", config.audioFolder, file);
 
                         char *a = UTILS_md5(script);
 
@@ -364,14 +374,16 @@ int CLIENT_download(char *user, char *filename)
                         if (!strcmp(pa.data, a))
                         {
                             char buff[128];
-                            int bytes = sprintf(buff, FILE_DOWNLOADED, user, filename);
+                            int bytes = sprintf(buff, FILE_DOWNLOADED, file);
                             IO_write(1, buff, bytes);
                         }
                         else
                         {
                             IO_write(1, FILE_DOWNLOAD_KO, strlen(FILE_DOWNLOAD_KO));
                         }
+                        free(a);
                     }
+
                     PACKET_destroy(&pa);
                     trobat = 1;
                 }
@@ -412,10 +424,8 @@ int CLIENT_exit()
         {
             // Llegim resposta de desconnexio OK (protocol desconnexio)
             Packet p = PACKET_read(server.socketfd);
-            IO_write(1, "DISCON_SERVER_ERR", sizeof("DISCON_SERVER_ERR"));
             if (strcmp(p.header, H_CONOK) == 0)
             {
-                IO_write(1, "DISCON_SERVER_ERR", sizeof("DISCON_SERVER_ERR"));
                 PACKET_destroy(&p);
             }
             else

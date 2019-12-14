@@ -34,7 +34,7 @@
 #define FORK_ERR "FORK CREATION ERROR\n"
 #define EXECL_ERR "EXEC SCRIPT ERROR\n"
 #define DISCON_SERVER_ERR "\nDidn't receive server CONOK, Server is disconnected\n"
-#define FILE_DOWNLOADED "[%s]: %s descarregat\n"
+#define FILE_DOWNLOADED "[%s] downloaded\n"
 #define FILE_DOWNLOAD_KO "Fitxer corrupte, descarrega incorrecte\n"
 
 
