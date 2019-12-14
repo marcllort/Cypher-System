@@ -154,7 +154,6 @@ char *UTILS_md5(char *md5script)
     else if (pid == 0)
     {
         // El fill es on s'executa el script rebut per parametres, i al acabar mor
-        IO_write(1, TESTING, sizeof(TESTING));
         // Dupliqeum el pipe per així llegir el que hauria de sortir per pantalla
         dup2(fd[1], STDOUT_FILENO);
         close(fd[0]);
@@ -178,7 +177,7 @@ char *UTILS_md5(char *md5script)
         close(fd[1]);
 
         IO_readUntil(fd[0], &md5, ' ');
-
+        close(fd[0]);
     }
 
     return md5;

@@ -50,9 +50,12 @@ int DSERVER_getFd(DServer *ds)
 int DSERVER_close(DServer *ds)
 {
     // Al tancar enviem el missatge de OK respecte hem rebut missatge desconnexio
+    IO_write(1, "3", 1);
     Packet p = PACKET_create(T_EXIT, H_CONOK, 0, NULL);
     PACKET_write(p, ds->fd);
+    IO_write(1, "4", 1);
     PACKET_destroy(&p);
+    IO_write(1, "5", 1);
     free(ds->user);
     ds->state = -1;
     return 0;
@@ -76,7 +79,7 @@ void *DSERVER_threadFunc(void *data)
     while (ds->state == 1)
     {
         p = PACKET_read(fd);
-
+        IO_write(1, p.header, strlen(p.header));
         if (p.type == T_CONNECT)
         {
             // En cas de voler connectar-se enviem la resposta
@@ -142,19 +145,17 @@ void *DSERVER_threadFunc(void *data)
                     int counter;
                     int fd_in = open(audioFolderr, O_RDONLY);
 
-                    char script [125];
-                    int scriptbytes = sprintf(script,"md5sum %s",audioFolderr);
-                    IO_write(1,script, scriptbytes);
+                    char script[125];
+                    sprintf(script, "md5sum %s", audioFolderr);
 
                     char *a = UTILS_md5(script);
-                    IO_write(1, a, strlen(a));
                     //Obrim el fitxer i iterem fins que la mida a escriure sigui menor al buffer, que voldra dir que estem al final del fitxer
                     do
                     {
                         counter = read(fd_in, buff, FRAGMENT_SIZE);
                         Packet pack = PACKET_create(T_DOWNLOAD, H_AUDRESP, counter, buff);
                         //PACKET_write(pack, fd);
-                        PACKET_sendFile(pack, fd,buff);
+                        PACKET_sendFile(pack, fd, buff);
                         PACKET_destroy(&pack);
 
                     } while (counter == FRAGMENT_SIZE);
@@ -205,7 +206,9 @@ void *DSERVER_threadFunc(void *data)
             PACKET_destroy(&p);
         }
     }
+    IO_write(1, "1", 1);
     free(audioFolder);
+    IO_write(1, "2", 1);
     pthread_exit(0);
     return (void *)0;
 }
@@ -219,7 +222,8 @@ char *DSERVER_showFiles(char *audioFolder)
     int n;
     IO_write(1, audioFolder, strlen(audioFolder));
     n = scandir(audioFolder, &namelist, NULL, alphasort);
-    if (n < 0){
+    if (n < 0)
+    {
         audiosData = (char *)realloc((void *)audiosData, sizeof(char) * UTILS_sizeOf("Empty folder!\n"));
         strcpy(audiosData, "Empty folder!\n");
     }
