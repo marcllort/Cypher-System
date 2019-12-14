@@ -90,6 +90,7 @@ void *DSERVER_threadFunc(void *data)
                 char buff[128];
                 int bytes = sprintf(buff, USER_CONN, ds->user);
                 IO_write(1, buff, bytes);
+                UTILS_printName(ds->name);
             }
         }
         else if (p.type == T_MSG)
@@ -122,7 +123,7 @@ void *DSERVER_threadFunc(void *data)
             char buff[124];
             int bytes = sprintf(buff, USER_DISCON, ds->user);
             IO_write(1, buff, bytes);
-
+            UTILS_printName(ds->name);
             DSERVER_close(ds);
         }
         else if (p.type == T_DOWNLOAD)
@@ -135,6 +136,7 @@ void *DSERVER_threadFunc(void *data)
                 char *audioFolderr = (char *)malloc(sizeof(char) * sizes);
                 sprintf(audioFolderr, "%s/%s", audioFolder, p.data);
                 audioFolderr[sizes] = 0;
+
                 //En cas de que sigui showaudios mirem que el fitxer existeixi
                 if (UTILS_fileExists(audioFolderr) != -1)
                 {
@@ -142,10 +144,11 @@ void *DSERVER_threadFunc(void *data)
                     int counter;
                     int fd_in = open(audioFolderr, O_RDONLY);
 
-                    char script[125];
+                    char *script = malloc(strlen("md5sum %s")+strlen(audioFolderr));
                     sprintf(script, "md5sum %s", audioFolderr);
 
                     char *a = UTILS_md5(script);
+                    free(script);
                     //Obrim el fitxer i iterem fins que la mida a escriure sigui menor al buffer, que voldra dir que estem al final del fitxer
                     do
                     {
@@ -155,7 +158,7 @@ void *DSERVER_threadFunc(void *data)
                         PACKET_destroy(&pack);
 
                     } while (counter == FRAGMENT_SIZE);
-                    
+
                     //Un cop hem acabat d'enviar el fitxer enviem el md5 amb aquest ultim paquet
                     Packet pack = PACKET_create(T_DOWNLOAD, H_AUDEOF, strlen(a), a);
                     PACKET_write(pack, fd);

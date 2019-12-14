@@ -335,8 +335,7 @@ int CLIENT_download(char *user, char *filename)
                 {
                     IO_write(1, NOFILE, strlen(NOFILE));
                 }
-                if (!strcmp(pa.header, H_AUDRESP))
-
+                else if (!strcmp(pa.header, H_AUDRESP))
                 {
                     //En cas de que el server ens dongui el ok per descarregar iniciem la lectura de paquets fins trobar un paquet amb capçalera EOF
                     IO_write(1, DOWNLOADING, strlen(DOWNLOADING));

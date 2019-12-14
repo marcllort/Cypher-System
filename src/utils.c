@@ -130,7 +130,6 @@ int UTILS_fileExists(char *filename)
     return access(filename, F_OK);
 }
 
-
 char *UTILS_md5(char *md5script)
 {
 
@@ -140,12 +139,10 @@ char *UTILS_md5(char *md5script)
     int status;
 
     int pipereturn = pipe(fd);
-
     if (pipereturn == -1)
     {
         IO_write(1, PIPE_ERR, sizeof(PIPE_ERR));
     }
-
     if ((pid = fork()) < 0)
     {
         IO_write(1, FORK_ERR, sizeof(FORK_ERR));
@@ -158,7 +155,6 @@ char *UTILS_md5(char *md5script)
         dup2(fd[1], STDOUT_FILENO);
         close(fd[0]);
         close(fd[1]);
-
         // Executem script entre X i Y ports rebut per parametres a buffer
         if ((execl("/bin/sh", "/bin/sh", "-c", md5script, (char *)0) < 0))
         {
@@ -175,7 +171,6 @@ char *UTILS_md5(char *md5script)
         // El pare espera a que acabi la execució del fill
         waitpid(pid, &status, 0);
         close(fd[1]);
-
         IO_readUntil(fd[0], &md5, ' ');
         close(fd[0]);
     }
