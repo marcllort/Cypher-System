@@ -10,19 +10,16 @@
 #include <stdio.h>
 #include <signal.h>
 
-
 #include "io.h"
 #include "utils.h"
 #include "packet.h"
 #include "client.h"
 #include "config.h"
 
-
-
 #define CLIENT_SAYS "\n[%s]: "
 #define USER_CONN "\n[%s]: Connected\n"
 #define USER_DISCON "\n[%s]: Disconnected\n"
-
+#define EMPTY_FOLDER "Empty folder!\n"
 
 typedef struct
 {
@@ -58,6 +55,6 @@ int DSERVER_close(DServer *ds);
 pthread_t *DSERVER_getThread(DServer *ds);
 int DSERVER_getFd(DServer *ds);
 void *DSERVER_threadFunc(void *data);
-char* DSERVER_showFiles(char *audios);
+char *DSERVER_showFiles(char *audios);
 
 #endif //DSERVER_H

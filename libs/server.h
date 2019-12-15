@@ -12,7 +12,6 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-
 #include "io.h"
 #include "list.h"
 #include "listds.h"
@@ -50,7 +49,7 @@ int SERVER_operate(Server *server);
 void SERVER_close(Server *server);
 pthread_t *SERVER_getThread(Server *server);
 void SERVER_setFunc(Server *server, void *(*threadFunc)(void *));
-int SERVER_startDS(Server *server, int fd,int fdserver, struct sockaddr_in addr, char *user);
+int SERVER_startDS(Server *server, int fd, int fdserver, struct sockaddr_in addr, char *user);
 int SERVER_addDS(void *server, DServer *ds);
 int SERVER_removeDS(void *data);
 int SERVER_removeAllDS(Server *server);

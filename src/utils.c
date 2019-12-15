@@ -127,17 +127,19 @@ char *UTILS_readKB()
 
 int UTILS_fileExists(char *filename)
 {
+    // Indica si un fitxer existeix o no
     return access(filename, F_OK);
 }
 
 char *UTILS_md5(char *md5script)
 {
-
+    // Executem la funcionalitat md5sum per calcular el md5 tant a server com client
     pid_t pid;
     int fd[2];
     char *md5;
     int status;
 
+    // Fem pipe per llegir el output de pantalla
     int pipereturn = pipe(fd);
     if (pipereturn == -1)
     {
@@ -172,7 +174,6 @@ char *UTILS_md5(char *md5script)
         waitpid(pid, &status, 0);
         close(fd[1]);
         IO_read(fd[0], &md5, 32);
-        //close(fd[0]);
     }
 
     return md5;

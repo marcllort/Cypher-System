@@ -77,11 +77,6 @@ int IO_close(int fd)
     return close(fd);
 }
 
-int IO_deleteFile(const char *filename)
-{
-    return unlink(filename);
-}
-
 inline int IO_checkEOF(int fd)
 {
     // Mirem si hem arribat al final de un fitxer

@@ -21,14 +21,16 @@ int main(int argc, char **argv)
 
     // Carreguem/Llegim la configuració
     Config config = CONFIG_load(argv[1]);
+
     // Pasem config a el Manager
     MANAGER_setConfig(config);
     CLIENT_initClient(config);
     NETWORK_init(config);
+
     // Registrem el signal de ctrl c
     MAIN_registerSignal();
-    char *cadena;
 
+    char *cadena;
     while (1)
     {
         // Mentre no es tanqui el progama, escrivim nom de programa i llegim la comanda

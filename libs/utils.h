@@ -13,7 +13,6 @@
 #include "config.h"
 #include "client.h"
 
-
 #define IP_DELIM "."
 
 int UTILS_compare(const char *str1, const char *str2, int size);

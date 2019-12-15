@@ -61,7 +61,7 @@ int DSERVER_close(DServer *ds)
 void *DSERVER_threadFunc(void *data)
 {
     // Funcio que corre al thread, encarregada de identificar cada paquet rebut i actuar corresponentment
-    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+    //pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
     DServer *ds = (DServer *)data;
     Packet p;
     int fd = ds->fd;
@@ -128,7 +128,7 @@ void *DSERVER_threadFunc(void *data)
         }
         else if (p.type == T_DOWNLOAD)
         {
-            //En cas de rebre un paquet de tipus download comprovem si es de tipus showaudios o audiorequest
+            // En cas de rebre un paquet de tipus download comprovem si es de tipus showaudios o audiorequest
             if (!strcmp(p.header, H_AUDREQ))
             {
                 int sizes = UTILS_sizeOf(ds->audios) + p.length + 3;
@@ -137,35 +137,37 @@ void *DSERVER_threadFunc(void *data)
                 sprintf(audioFolderr, "%s/%s", audioFolder, p.data);
                 audioFolderr[sizes] = 0;
 
-                //En cas de que sigui showaudios mirem que el fitxer existeixi
+                // En cas de que sigui showaudios mirem que el fitxer existeixi
                 if (UTILS_fileExists(audioFolderr) != -1)
                 {
-                    char *buff = malloc(sizeof(char) * FRAGMENT_SIZE);
+                    char *buff; // = malloc(sizeof(char) * FRAGMENT_SIZE);
                     int counter;
                     int fd_in = open(audioFolderr, O_RDONLY);
 
                     char *script = malloc(strlen("md5sum %s") + strlen(audioFolderr));
                     sprintf(script, "md5sum %s", audioFolderr);
 
-                    char *a = UTILS_md5(script);
+                    char *md5 = UTILS_md5(script);
 
                     free(script);
-                    //Obrim el fitxer i iterem fins que la mida a escriure sigui menor al buffer, que voldra dir que estem al final del fitxer
+                    // Obrim el fitxer i iterem fins que la mida a escriure sigui menor al buffer, que voldra dir que estem al final del fitxer
                     do
                     {
+                        buff = malloc(sizeof(char) * FRAGMENT_SIZE);
                         counter = read(fd_in, buff, FRAGMENT_SIZE);
                         Packet pack = PACKET_create(T_DOWNLOAD, H_AUDRESP, counter, buff);
                         PACKET_sendFile(pack, fd, buff);
                         PACKET_destroy(&pack);
+                        free(buff);
 
                     } while (counter == FRAGMENT_SIZE);
 
-                    //Un cop hem acabat d'enviar el fitxer enviem el md5 amb aquest ultim paquet
-                    Packet pack = PACKET_create(T_DOWNLOAD, H_AUDEOF, strlen(a), a);
+                    // Un cop hem acabat d'enviar el fitxer enviem el md5 amb aquest ultim paquet
+                    Packet pack = PACKET_create(T_DOWNLOAD, H_AUDEOF, strlen(md5), md5);
 
                     PACKET_write(pack, fd);
                     PACKET_destroy(&pack);
-                    free(a);
+                    free(md5);
                 }
                 else
                 {
@@ -187,14 +189,14 @@ void *DSERVER_threadFunc(void *data)
             if (!strcmp(p.header, H_SHOWAUDIOS))
             {
                 //En cas que calgui mostrar els fitxers enviem un paquet amb els diferents fitxers
-                char *a = DSERVER_showFiles(audioFolder);
-                Packet pack = PACKET_create(T_SHOWAUDIOS, H_LISTAUDIOS, UTILS_sizeOf(a), a);
+                char *fileList = DSERVER_showFiles(audioFolder);
+                Packet pack = PACKET_create(T_SHOWAUDIOS, H_LISTAUDIOS, UTILS_sizeOf(fileList), fileList);
                 PACKET_write(pack, fd);
 
                 // Alliberem memoria
                 PACKET_destroy(&pack);
 
-                free(a);
+                free(fileList);
             }
         }
         else
@@ -207,26 +209,30 @@ void *DSERVER_threadFunc(void *data)
             PACKET_destroy(&p);
         }
     }
+
     free(audioFolder);
     pthread_exit(0);
+
     return (void *)0;
 }
 
 char *DSERVER_showFiles(char *audioFolder)
 {
-
+    // Funcio que retorna string amb tots els fitxers que hi ha a la audio folder
     char *audiosData = (char *)malloc(sizeof(char));
-
     struct dirent **namelist;
     int n;
+
     n = scandir(audioFolder, &namelist, NULL, alphasort);
     if (n < 0)
     {
-        audiosData = (char *)realloc((void *)audiosData, sizeof(char) * UTILS_sizeOf("Empty folder!\n"));
-        strcpy(audiosData, "Empty folder!\n");
+        // En cas de que la carpeta estigui buida, posem un string indicant el error
+        audiosData = (char *)realloc((void *)audiosData, sizeof(char) * UTILS_sizeOf(EMPTY_FOLDER));
+        strcpy(audiosData, EMPTY_FOLDER);
     }
     else
     {
+        // Iterem sobre els fitxers de la carpeta (no mirem subcarpetes)
         int i = 0;
         while (n--)
         {
@@ -234,13 +240,14 @@ char *DSERVER_showFiles(char *audioFolder)
             {
                 if (i == 0)
                 {
+                    // Realloc del string i copiem el fitxer trobat (aquest cas es nomes per el primer fitxer)
                     audiosData = (char *)realloc((void *)audiosData, sizeof(char) * UTILS_sizeOf(namelist[n]->d_name) + sizeof(char) * 1);
                     strcpy(audiosData, namelist[n]->d_name);
                     i++;
                 }
                 else
                 {
-
+                    // Realloc del string i copiem el fitxer trobat (aquest cas es nomes per la resta de fitxers)
                     audiosData = (char *)realloc((void *)audiosData, sizeof(char) * UTILS_sizeOf(audiosData) + sizeof(char) * UTILS_sizeOf(namelist[n]->d_name) + sizeof(char) * 1);
                     sprintf(audiosData, "%s\n%s", audiosData, namelist[n]->d_name);
                 }

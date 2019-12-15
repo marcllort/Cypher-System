@@ -29,16 +29,14 @@
 #define UNKNOWN_CONNECTION "Couldn't send message. Unknown connection %s\n"
 #define UNKNOWN_CONNECTION2 "Couldn't send message. Unknown connection\n"
 #define DOWNLOADING "\nDownloading...\n"
+#define FILEEXISTS "File already exists\n"
 #define NOFILE "\nError, file doesn't exist\n"
 #define PIPE_ERR "PIPE CREATION ERROR\n"
 #define FORK_ERR "FORK CREATION ERROR\n"
 #define EXECL_ERR "EXEC SCRIPT ERROR\n"
 #define DISCON_SERVER_ERR "\nDidn't receive server CONOK, Server is disconnected\n"
 #define FILE_DOWNLOADED "[%s] downloaded\n"
-#define FILE_DOWNLOAD_KO "Fitxer corrupte, descarrega incorrecte\n"
-
-
-
+#define FILE_DOWNLOAD_KO "Corrupted file, failed download\n"
 
 int CLIENT_checkPorts(char *buffer);
 int CLIENT_sayMessage(char *user, char *message);
@@ -50,6 +48,6 @@ int CLIENT_freeMemory();
 void CLIENT_messageError();
 int CLIENT_borraUser(int fd);
 char *CLIENT_read(int fd, char delimiter);
-int CLIENT_download(char *user, char* filename);
+int CLIENT_download(char *user, char *filename);
 int CLIENT_showAudios(char *user);
 #endif //_CLIENT_H

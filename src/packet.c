@@ -6,6 +6,7 @@ Packet PACKET_read(int fd)
     Packet pd;
     int headerLength;
 
+    // En cas de que sigui un fitxer d'un tipus diferent als que tractem, detectem error
     int error = read(fd, &pd.type, 1);
     if (pd.type != 0x01 && pd.type != 0x02 && pd.type != 0x03 && pd.type != 0x04 && pd.type != 0x05 && pd.type != 0x06)
     {
@@ -21,6 +22,8 @@ Packet PACKET_read(int fd)
 
     headerLength = 0;
     pd.header = (char *)malloc(sizeof(char));
+
+    // Fem un bucle per anar llegint bit a bit el header, ja que la seva longitud es variable
     do
     {
         pd.header = (char *)realloc((void *)pd.header, ++headerLength * sizeof(char));
@@ -30,12 +33,14 @@ Packet PACKET_read(int fd)
 
     pd.header[headerLength] = '\0';
 
+    // Llegim la longitud de el camp data
     if (read(fd, &pd.length, sizeof(uint16_t)) <= 0)
     {
         pd.length = 0;
     }
     if (pd.length != 0)
     {
+        // En cas de que no sigui 0, llegim el camp data amb el lenght llegit anteriorment
         pd.data = (char *)malloc(sizeof(char) * pd.length);
         if (read(fd, pd.data, pd.length) <= 0)
         {
@@ -124,9 +129,11 @@ Packet PACKET_create(char type, char *header, unsigned short dataLength, char *d
     return pd;
 }
 
-int PACKET_sendFile(Packet pd, int fd,char* data){
-    
+int PACKET_sendFile(Packet pd, int fd, char *data)
+{
+
     // Funcio per enviar el fitxer, sense el strcpy que fem servir per enviar la resta de paquets
+    // Donaria error amb strcpy perque mp3 es un fitxer binari
 
     IO_write(fd, &pd.type, 1);
     IO_write(fd, pd.header, UTILS_sizeOf(pd.header));

@@ -58,6 +58,7 @@ int SERVER_start(Server *server)
         memcpy(&s_addr.sin_addr.s_addr, host->h_addr, (size_t)host->h_length);
     }
 
+    // En cas de error al bind del socket o listen, mostrem error
     if (bind(server->fd, (void *)&s_addr, sizeof(s_addr)) < 0)
     {
         IO_write(1, ERR_BIND, strlen(ERR_BIND));
@@ -112,9 +113,6 @@ int SERVER_operate(Server *server)
         if (server->state == 1)
         {
             SERVER_startDS(server, server->fdserver, server->fd, s_addr, NULL);
-
-            //Packet p = PACKET_read(server->fdserver);
-            
         }
     }
 

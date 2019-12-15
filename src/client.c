@@ -23,6 +23,7 @@ int CLIENT_checkPorts(char *buffer)
     pid_t pid;
     int pipereturn = pipe(fd);
 
+    // Creem pipe per capturar el output que hauria de sortir per pantalla
     if (pipereturn == -1)
     {
         IO_write(1, PIPE_ERR, sizeof(PIPE_ERR));
@@ -222,7 +223,6 @@ int CLIENT_write(char *user, char *message)
                 PACKET_destroy(&packet);
                 if (error != -1)
                 {
-
                     lastfd = server.socketfd;
 
                     Packet readed = PACKET_read(server.socketfd);
@@ -273,6 +273,8 @@ int CLIENT_showAudios(char *user)
 
             if (UTILS_compareCaseInsensitive(server.name, user) == 0)
             {
+                // Enviem el request de llista de audios i llegim la llista que ens retorna
+
                 Packet p = PACKET_create(T_SHOWAUDIOS, H_SHOWAUDIOS, 0, NULL);
                 PACKET_write(p, server.socketfd);
                 PACKET_destroy(&p);
@@ -282,7 +284,6 @@ int CLIENT_showAudios(char *user)
                 IO_write(1, "\n", 1);
 
                 PACKET_destroy(&pa);
-
                 trobat = 1;
             }
             else
@@ -337,12 +338,12 @@ int CLIENT_download(char *user, char *filename)
                 }
                 else if (!strcmp(pa.header, H_AUDRESP))
                 {
-                    //En cas de que el server ens dongui el ok per descarregar iniciem la lectura de paquets fins trobar un paquet amb capçalera EOF
+                    // En cas de que el server ens dongui el ok per descarregar iniciem la lectura de paquets fins trobar un paquet amb capçalera EOF
                     IO_write(1, DOWNLOADING, strlen(DOWNLOADING));
                     int fd1 = open(filename, O_WRONLY | O_TRUNC | O_CREAT | O_EXCL, 0666);
                     if (fd1 < 0)
                     {
-                        IO_write(1, "File already exists\n", strlen("File already exists\n"));
+                        IO_write(1, FILEEXISTS, strlen(FILEEXISTS));
                         do
                         {
                             IO_write(fd1, pa.data, pa.length);
@@ -354,6 +355,7 @@ int CLIENT_download(char *user, char *filename)
                     }
                     else
                     {
+                        // Fem un bucle de lectura per anar "muntant" el fixer
                         do
                         {
                             IO_write(fd1, pa.data, pa.length);
@@ -363,14 +365,14 @@ int CLIENT_download(char *user, char *filename)
                         } while (strcmp(pa.header, H_AUDEOF) != 0);
 
                         close(fd1);
-
-                        char script[125];
+                        char *script = malloc(sizeof(char) * (7 + strlen(config.audioFolder) + strlen(file)));
                         sprintf(script, "md5sum %s/%s", config.audioFolder, file);
 
-                        char *a = UTILS_md5(script);
+                        char *md5 = UTILS_md5(script);
+                        free(script);
 
-                        //Comparem el md5 per saber si la descarrega ha estat correcta
-                        if (!strcmp(pa.data, a))
+                        // Comparem el md5 per saber si la descarrega ha estat correcta
+                        if (!strcmp(pa.data, md5))
                         {
                             char buff[128];
                             int bytes = sprintf(buff, FILE_DOWNLOADED, file);
@@ -380,7 +382,7 @@ int CLIENT_download(char *user, char *filename)
                         {
                             IO_write(1, FILE_DOWNLOAD_KO, strlen(FILE_DOWNLOAD_KO));
                         }
-                        free(a);
+                        free(md5);
                     }
 
                     PACKET_destroy(&pa);
@@ -453,7 +455,6 @@ int CLIENT_borraUser(int fd)
     while (!LLISTABID_final(servers) && !trobat)
     {
         Element server = LLISTABID_consulta(servers);
-
         if (server.socketfd == fd)
         {
             LLISTABID_elimina(&servers);
