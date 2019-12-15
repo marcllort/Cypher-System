@@ -93,7 +93,7 @@ void *DSERVER_threadFunc(void *data)
                 UTILS_printName(ds->name);
             }
         }
-        else if (p.type == T_MSG)
+        else if (p.type == T_MSG || p.type == T_BROADCAST)
         {
             // En cas de rebre correcatmen un missatge, responem indicant que hem rebut
 

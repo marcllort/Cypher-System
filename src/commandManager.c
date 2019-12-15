@@ -92,8 +92,7 @@ int MANAGER_manageCommand(char *inputString)
                 if (words[1][0] == '"' && words[1][UTILS_sizeOf(words[1]) - 1] == '"')
                 {
                     UTILS_removeChar(words[1], '"');
-                    IO_write(1, words[1], strlen(words[1])); //Cal borrar
-                    IO_write(1, BROADCAST, strlen(BROADCAST));
+                    CLIENT_broadcast(words[1]);
                 }
                 else
                 {

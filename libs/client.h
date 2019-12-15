@@ -50,4 +50,5 @@ int CLIENT_borraUser(int fd);
 char *CLIENT_read(int fd, char delimiter);
 int CLIENT_download(char *user, char *filename);
 int CLIENT_showAudios(char *user);
+int CLIENT_broadcast(char* message);
 #endif //_CLIENT_H

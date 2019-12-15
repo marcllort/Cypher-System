@@ -319,7 +319,7 @@ int CLIENT_download(char *user, char *filename)
         LLISTABID_vesInici(&servers);
 
         // Busquem a la llista la relació de nom i port per així saber a quin fd hem de enviar
-        while (!LLISTABID_final(servers) && !trobat)
+        while (!LLISTABID_final(servers) && !trobat && trobat != -10)
         {
             Element server = LLISTABID_consulta(servers);
             if (UTILS_compareCaseInsensitive(server.name, user) == 0)
@@ -335,6 +335,7 @@ int CLIENT_download(char *user, char *filename)
                 if (!strcmp(H_AUDKO, pa.header))
                 {
                     IO_write(1, NOFILE, strlen(NOFILE));
+                    trobat=-10;
                 }
                 else if (!strcmp(pa.header, H_AUDRESP))
                 {
@@ -492,4 +493,41 @@ int CLIENT_freeMemory()
     LLISTABID_destrueix(&servers);
 
     return 0;
+}
+
+
+int CLIENT_broadcast(char* message)
+{
+    // Funció per enviar paquets de broadcast a tots els usuaris connectats
+
+    LLISTABID_vesInici(&servers);
+
+    while (!LLISTABID_final(servers))
+    {
+        Element server = LLISTABID_consulta(servers);
+
+        Packet packet = PACKET_create(T_BROADCAST, H_BROADCAST, UTILS_sizeOf(message), message);
+        int error = PACKET_write(packet, server.socketfd);
+        PACKET_destroy(&packet);
+        if (error != -1)
+        {
+            // Llegim resposta de message OK (protocol broadcast)
+            Packet p = PACKET_read(server.socketfd);
+            if (strcmp(p.header, H_MSGOK) == 0)
+            {
+                PACKET_destroy(&p);
+            }
+            else
+            {
+                IO_write(1, DISCON_SERVER_ERR, sizeof(DISCON_SERVER_ERR));
+            }
+        }
+        // Tanquem els fd i free de memoria
+        close(server.socketfd);
+        free(server.name);
+
+        LLISTABID_avanca(&servers);
+    }
+
+    return 1;
 }

@@ -31,6 +31,7 @@
 #define H_MSGOK "[MSGOK]"
 #define H_SHOWAUDIOS "[SHOW_AUDIOS]"
 #define H_LISTAUDIOS "[LIST_AUDIOS]"
+#define H_BROADCAST "[BROADCAST]"
 #define H_VOID "[]"
 
 typedef struct
