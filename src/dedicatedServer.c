@@ -140,14 +140,15 @@ void *DSERVER_threadFunc(void *data)
                 //En cas de que sigui showaudios mirem que el fitxer existeixi
                 if (UTILS_fileExists(audioFolderr) != -1)
                 {
-                    char buff[FRAGMENT_SIZE];
+                    char *buff = malloc(sizeof(char) * FRAGMENT_SIZE);
                     int counter;
                     int fd_in = open(audioFolderr, O_RDONLY);
 
-                    char *script = malloc(strlen("md5sum %s")+strlen(audioFolderr));
+                    char *script = malloc(strlen("md5sum %s") + strlen(audioFolderr));
                     sprintf(script, "md5sum %s", audioFolderr);
 
                     char *a = UTILS_md5(script);
+
                     free(script);
                     //Obrim el fitxer i iterem fins que la mida a escriure sigui menor al buffer, que voldra dir que estem al final del fitxer
                     do
@@ -161,6 +162,7 @@ void *DSERVER_threadFunc(void *data)
 
                     //Un cop hem acabat d'enviar el fitxer enviem el md5 amb aquest ultim paquet
                     Packet pack = PACKET_create(T_DOWNLOAD, H_AUDEOF, strlen(a), a);
+
                     PACKET_write(pack, fd);
                     PACKET_destroy(&pack);
                     free(a);

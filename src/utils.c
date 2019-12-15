@@ -171,8 +171,8 @@ char *UTILS_md5(char *md5script)
         // El pare espera a que acabi la execució del fill
         waitpid(pid, &status, 0);
         close(fd[1]);
-        IO_readUntil(fd[0], &md5, ' ');
-        close(fd[0]);
+        IO_read(fd[0], &md5, 32);
+        //close(fd[0]);
     }
 
     return md5;

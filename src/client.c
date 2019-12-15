@@ -403,6 +403,7 @@ int CLIENT_download(char *user, char *filename)
         bytes = sprintf(buff, UNKNOWN_CONNECTION, user);
         IO_write(1, buff, bytes);
     }
+    free(file);
     return 1;
 }
 
