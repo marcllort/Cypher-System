@@ -111,7 +111,13 @@ void *DSERVER_threadFunc(void *data)
 
             // Printem el nom de la consola
             UTILS_printName(ds->name);
-            Packet pok = PACKET_create(T_MSG, H_MSGOK, 0, NULL);
+            Packet pok;
+            if(p.type == T_MSG){
+                pok = PACKET_create(T_MSG, H_MSGOK, 0, NULL);
+            }else{
+                pok = PACKET_create(T_BROADCAST, H_MSGOK, 0, NULL);
+            }
+            
             PACKET_write(pok, ds->fd);
 
             // Alliberem memoria
