@@ -1,32 +1,35 @@
 #include "../libs/network.h"
 #include <stdio.h>
 
+int NETWORK_init(Config config)
+{
+    int port = CONFIG_getMyPort(config);
+    char *ip = CONFIG_getMyIP(config);
+    char *name = CONFIG_getUsername(config);
+    char *audios = CONFIG_getAudioFolder(config);
+    audios[strlen(audios) - 1] = 0;
 
-int NETWORK_init(char *filename) {
+    trinity = SERVER_init(ip, port, name, audios);
+    SERVER_setFunc(&trinity, SERVER_threadFunc);
 
-    Config config = CONFIG_load(filename);
-
-   
-    //Provant si funciona la lectura
-    char aux[100];
-
-    //printf("%s",CONFIG_getAudioFolder(config));//Perq funcioni amb CLion
-
-    int n = sprintf(aux, "%s \n",CONFIG_getAudioFolder(config));
-    write(1, aux, n);
-
-    if (CONFIG_getState(config) != 0) return -1;
-
-    //coses de server, threads
+    // Creem el thread del server principal, encarregat de gestionar les connexions entrants
+    if (pthread_create(SERVER_getThread(&trinity), NULL, SERVER_threadFunc, &trinity) != 0)
+    {
+        // Detach perquè s'alliberi la memoria al tancar el thread
+        pthread_detach(*SERVER_getThread(&trinity));
+    }
 
     return 0;
 }
 
-int NETWORK_close() {
-
-    //tancar server i threads i forks
-
+int NETWORK_close()
+{
+    // Tancar server, threads i alliberar memoria de configuracio
+    trinity.state = -1;
     CONFIG_close(&config);
+    SERVER_close(&trinity);
+    pthread_cancel(*SERVER_getThread(&trinity));
+    pthread_join(*SERVER_getThread(&trinity), NULL);
 
     return 0;
 }
