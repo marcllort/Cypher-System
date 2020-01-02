@@ -111,7 +111,16 @@ void *DSERVER_threadFunc(void *data)
 
             // Printem el nom de la consola
             UTILS_printName(ds->name);
-            Packet pok = PACKET_create(T_MSG, H_MSGOK, 0, NULL);
+            Packet pok;
+            if (p.type == T_MSG)
+            {
+                pok = PACKET_create(T_MSG, H_MSGOK, 0, NULL);
+            }
+            else
+            {
+                pok = PACKET_create(T_BROADCAST, H_MSGOK, 0, NULL);
+            }
+
             PACKET_write(pok, ds->fd);
 
             // Alliberem memoria
@@ -151,6 +160,8 @@ void *DSERVER_threadFunc(void *data)
 
                     free(script);
                     // Obrim el fitxer i iterem fins que la mida a escriure sigui menor al buffer, que voldra dir que estem al final del fitxer
+                    IO_write(1, SENDING_FILE, strlen(SENDING_FILE));
+                    UTILS_printName(ds->name);
                     do
                     {
                         buff = malloc(sizeof(char) * FRAGMENT_SIZE);
@@ -161,7 +172,8 @@ void *DSERVER_threadFunc(void *data)
                         free(buff);
 
                     } while (counter == FRAGMENT_SIZE);
-
+                    IO_write(1, SENT_FILE, strlen(SENT_FILE));
+                    UTILS_printName(ds->name);
                     // Un cop hem acabat d'enviar el fitxer enviem el md5 amb aquest ultim paquet
                     Packet pack = PACKET_create(T_DOWNLOAD, H_AUDEOF, strlen(md5), md5);
 

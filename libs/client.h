@@ -29,7 +29,7 @@
 #define UNKNOWN_CONNECTION "Couldn't send message. Unknown connection %s\n"
 #define UNKNOWN_CONNECTION2 "Couldn't send message. Unknown connection\n"
 #define DOWNLOADING "\nDownloading...\n"
-#define FILEEXISTS "File already exists\n"
+#define FILEEXISTS "File already exists, overwriting it...\n"
 #define NOFILE "\nError, file doesn't exist\n"
 #define PIPE_ERR "PIPE CREATION ERROR\n"
 #define FORK_ERR "FORK CREATION ERROR\n"

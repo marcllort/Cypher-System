@@ -335,16 +335,20 @@ int CLIENT_download(char *user, char *filename)
                 if (!strcmp(H_AUDKO, pa.header))
                 {
                     IO_write(1, NOFILE, strlen(NOFILE));
-                    trobat=-10;
+                    trobat = -10;
                 }
                 else if (!strcmp(pa.header, H_AUDRESP))
                 {
                     // En cas de que el server ens dongui el ok per descarregar iniciem la lectura de paquets fins trobar un paquet amb capçalera EOF
                     IO_write(1, DOWNLOADING, strlen(DOWNLOADING));
-                    int fd1 = open(filename, O_WRONLY | O_TRUNC | O_CREAT | O_EXCL, 0666);
+
+                    // Guardem el fitxer a la carpeta de audios
+                    char *path = malloc(strlen(filename) + strlen(CONFIG_getAudioFolder(config) + 1));
+                    sprintf(path, "%s/%s", CONFIG_getAudioFolder(config), filename);
+
+                    int fd1 = open(path, O_WRONLY | O_TRUNC | O_CREAT , 0666);
                     if (fd1 < 0)
                     {
-                        IO_write(1, FILEEXISTS, strlen(FILEEXISTS));
                         do
                         {
                             IO_write(fd1, pa.data, pa.length);
@@ -366,10 +370,12 @@ int CLIENT_download(char *user, char *filename)
                         } while (strcmp(pa.header, H_AUDEOF) != 0);
 
                         close(fd1);
-                        char *script = malloc(sizeof(char) * (7 + strlen(config.audioFolder) + strlen(file)));
-                        sprintf(script, "md5sum %s/%s", config.audioFolder, file);
+                        char *script = malloc(sizeof(char) * (7 + strlen(path)));
+                        sprintf(script, "md5sum %s", path);
+                        free(path);
 
                         char *md5 = UTILS_md5(script);
+                        md5[32]=0;
                         free(script);
 
                         // Comparem el md5 per saber si la descarrega ha estat correcta
@@ -495,8 +501,7 @@ int CLIENT_freeMemory()
     return 0;
 }
 
-
-int CLIENT_broadcast(char* message)
+int CLIENT_broadcast(char *message)
 {
     // Funció per enviar paquets de broadcast a tots els usuaris connectats
 

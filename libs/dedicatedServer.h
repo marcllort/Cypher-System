@@ -20,6 +20,10 @@
 #define USER_CONN "\n[%s]: Connected\n"
 #define USER_DISCON "\n[%s]: Disconnected\n"
 #define EMPTY_FOLDER "Empty folder!\n"
+#define SENDING_FILE "\n[Thread]: Sending audio file...\n"
+#define SENT_FILE "\n[Thread]: Audio file sent!\n"
+
+
 
 typedef struct
 {

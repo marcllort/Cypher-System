@@ -26,10 +26,10 @@ Config CONFIG_load(char *filename)
         return config;
     }
 
-    IO_readUntil(fd, &(config.username), '\n');
+    IO_readUntilv2(fd, &(config.username), '\n');
 
     IO_readUntilv2(fd, &(config.audioFolder), '\n');
-
+    
     IO_readUntilv2(fd, &(config.myIP), '\n');
 
     IO_readUntilv2(fd, &temp, '\n');
@@ -38,7 +38,7 @@ Config CONFIG_load(char *filename)
 
     // Caldra borrar per entrega FINAL, serveix per saber quin port executem
     char buff[100];
-    int bytes = sprintf(buff, "PORT : %d \n", config.myPort);
+    int bytes = sprintf(buff, "PORT: %d \n", config.myPort);
     IO_write(1, buff, bytes);
 
     IO_readUntilv2(fd, &(config.cypherIP), '\n');
