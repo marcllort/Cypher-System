@@ -66,6 +66,7 @@ void *DSERVER_threadFunc(void *data)
     Packet p;
     int fd = ds->fd;
     ds->state = 1;
+    int showconn = 0;
 
     char *audioFolder = (char *)malloc(sizeof(char) * UTILS_sizeOf(ds->audios));
 
@@ -74,8 +75,9 @@ void *DSERVER_threadFunc(void *data)
     // Ens quedem al bucle metre no canvii el estat del server dedicat
     while (ds->state == 1)
     {
+        showconn=0;
         p = PACKET_read(fd);
-
+        
         if (p.type == T_CONNECT)
         {
             // En cas de voler connectar-se enviem la resposta
@@ -210,8 +212,14 @@ void *DSERVER_threadFunc(void *data)
                 free(fileList);
             }
         }
-
-        PACKET_destroy(&p);
+        else
+        {
+            showconn = -1;
+        }
+        if (showconn != -1)
+        {
+            PACKET_destroy(&p);
+        }
     }
     free(audioFolder);
     pthread_exit(0);
