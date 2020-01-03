@@ -39,6 +39,7 @@
 #define FILE_DOWNLOAD_KO "Corrupted file, failed download\n"
 
 int CLIENT_checkPorts(char *buffer);
+int CLIENT_checkConnections();
 int CLIENT_sayMessage(char *user, char *message);
 int CLIENT_connectPort(Config config, int connectPort);
 int CLIENT_initClient(Config inConfig);

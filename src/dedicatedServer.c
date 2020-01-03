@@ -76,7 +76,7 @@ void *DSERVER_threadFunc(void *data)
     while (ds->state == 1)
     {
         p = PACKET_read(fd);
-
+        
         if (p.type == T_CONNECT)
         {
             // En cas de voler connectar-se enviem la resposta
@@ -213,7 +213,6 @@ void *DSERVER_threadFunc(void *data)
         }
         else
         {
-            ds->state = -1;
             showconn = -1;
         }
         if (showconn != -1)
@@ -221,7 +220,6 @@ void *DSERVER_threadFunc(void *data)
             PACKET_destroy(&p);
         }
     }
-
     free(audioFolder);
     pthread_exit(0);
 

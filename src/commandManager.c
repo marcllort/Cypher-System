@@ -20,6 +20,9 @@ int MANAGER_manageCommand(char *inputString)
         // Separem la comanda per espais per anar analitzantla pas a pas
         words[0] = strtok(inputString, " ");
 
+        CLIENT_checkConnections();
+        
+
         if (UTILS_compareCaseInsensitive(EXIT, words[0]) == 0)
         {
             // Alliberem memoria i sortim
@@ -37,6 +40,7 @@ int MANAGER_manageCommand(char *inputString)
 
                 // Cridem a la funcio de connectarnos passant la nostra configuracio i el seu port
                 CLIENT_connectPort(config, port);
+                
             }
             else
             {

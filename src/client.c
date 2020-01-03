@@ -136,6 +136,27 @@ int CLIENT_checkPorts(char *buffer)
     return 0;
 }
 
+int CLIENT_checkConnections()
+{
+    if (!LLISTABID_buida(servers))
+    {
+        LLISTABID_vesInici(&servers);
+
+        while (!LLISTABID_final(servers))
+        {
+            Element server = LLISTABID_consulta(servers);
+            int error = write(server.socketfd, " ", 1);
+            if (error == -1)
+            {
+                lastfd = server.socketfd;
+                CLIENT_borraUser(lastfd);
+            }
+            LLISTABID_avanca(&servers);
+        }
+    }
+    return 1;
+}
+
 int CLIENT_connectPort(Config config, int connectPort)
 {
     // Connexio al server, llegim la classe config on tenim la informació necessaria
@@ -231,7 +252,8 @@ int CLIENT_write(char *user, char *message)
                 }
                 else
                 {
-                    CLIENT_messageError();
+                    lastfd = server.socketfd;
+                    CLIENT_borraUser(lastfd);
                 }
             }
             else
@@ -276,15 +298,23 @@ int CLIENT_showAudios(char *user)
                 // Enviem el request de llista de audios i llegim la llista que ens retorna
 
                 Packet p = PACKET_create(T_SHOWAUDIOS, H_SHOWAUDIOS, 0, NULL);
-                PACKET_write(p, server.socketfd);
+                int error = PACKET_write(p, server.socketfd);
                 PACKET_destroy(&p);
+                if (error != -1)
+                {
+                    lastfd = server.socketfd;
+                    Packet pa = PACKET_read(server.socketfd);
+                    IO_write(1, pa.data, pa.length);
+                    IO_write(1, "\n", 1);
 
-                Packet pa = PACKET_read(server.socketfd);
-                IO_write(1, pa.data, pa.length);
-                IO_write(1, "\n", 1);
-
-                PACKET_destroy(&pa);
-                trobat = 1;
+                    PACKET_destroy(&pa);
+                    trobat = 1;
+                }
+                else
+                {
+                    lastfd = server.socketfd;
+                    CLIENT_borraUser(lastfd);
+                }
             }
             else
             {
@@ -327,73 +357,81 @@ int CLIENT_download(char *user, char *filename)
                 //Enviem el nom del fitxer i esperem la resposta del server
                 Packet psend = PACKET_create(T_DOWNLOAD, H_AUDREQ, UTILS_sizeOf(filename), filename);
 
-                PACKET_write(psend, server.socketfd);
+                int error = PACKET_write(psend, server.socketfd);
                 PACKET_destroy(&psend);
-
-                Packet pa = PACKET_read(server.socketfd);
-
-                if (!strcmp(H_AUDKO, pa.header))
+                if (error != -1)
                 {
-                    IO_write(1, NOFILE, strlen(NOFILE));
-                    trobat = -10;
-                }
-                else if (!strcmp(pa.header, H_AUDRESP))
-                {
-                    // En cas de que el server ens dongui el ok per descarregar iniciem la lectura de paquets fins trobar un paquet amb capçalera EOF
-                    IO_write(1, DOWNLOADING, strlen(DOWNLOADING));
+                    lastfd = server.socketfd;
+                    Packet pa = PACKET_read(server.socketfd);
 
-                    // Guardem el fitxer a la carpeta de audios
-                    char *path = malloc(strlen(filename) + strlen(CONFIG_getAudioFolder(config) + 1));
-                    sprintf(path, "%s/%s", CONFIG_getAudioFolder(config), filename);
-
-                    int fd1 = open(path, O_WRONLY | O_TRUNC | O_CREAT , 0666);
-                    if (fd1 < 0)
+                    if (!strcmp(H_AUDKO, pa.header))
                     {
-                        do
-                        {
-                            IO_write(fd1, pa.data, pa.length);
-                            PACKET_destroy(&pa);
-                            pa = PACKET_read(server.socketfd);
-
-                        } while (strcmp(pa.header, H_AUDEOF) != 0);
-                        PACKET_destroy(&pa);
+                        IO_write(1, NOFILE, strlen(NOFILE));
+                        trobat = -10;
                     }
-                    else
+                    else if (!strcmp(pa.header, H_AUDRESP))
                     {
-                        // Fem un bucle de lectura per anar "muntant" el fixer
-                        do
+                        // En cas de que el server ens dongui el ok per descarregar iniciem la lectura de paquets fins trobar un paquet amb capçalera EOF
+                        IO_write(1, DOWNLOADING, strlen(DOWNLOADING));
+
+                        // Guardem el fitxer a la carpeta de audios
+                        char *path = malloc(strlen(filename) + strlen(CONFIG_getAudioFolder(config) + 1));
+                        sprintf(path, "%s/%s", CONFIG_getAudioFolder(config), filename);
+
+                        int fd1 = open(path, O_WRONLY | O_TRUNC | O_CREAT, 0666);
+                        if (fd1 < 0)
                         {
-                            IO_write(fd1, pa.data, pa.length);
+                            do
+                            {
+                                IO_write(fd1, pa.data, pa.length);
+                                PACKET_destroy(&pa);
+                                pa = PACKET_read(server.socketfd);
+
+                            } while (strcmp(pa.header, H_AUDEOF) != 0);
                             PACKET_destroy(&pa);
-                            pa = PACKET_read(server.socketfd);
-
-                        } while (strcmp(pa.header, H_AUDEOF) != 0);
-
-                        close(fd1);
-                        char *script = malloc(sizeof(char) * (7 + strlen(path)));
-                        sprintf(script, "md5sum %s", path);
-                        free(path);
-
-                        char *md5 = UTILS_md5(script);
-                        md5[32]=0;
-                        free(script);
-
-                        // Comparem el md5 per saber si la descarrega ha estat correcta
-                        if (!strcmp(pa.data, md5))
-                        {
-                            char buff[128];
-                            int bytes = sprintf(buff, FILE_DOWNLOADED, file);
-                            IO_write(1, buff, bytes);
                         }
                         else
                         {
-                            IO_write(1, FILE_DOWNLOAD_KO, strlen(FILE_DOWNLOAD_KO));
-                        }
-                        free(md5);
-                    }
+                            // Fem un bucle de lectura per anar "muntant" el fixer
+                            do
+                            {
+                                IO_write(fd1, pa.data, pa.length);
+                                PACKET_destroy(&pa);
+                                pa = PACKET_read(server.socketfd);
 
-                    PACKET_destroy(&pa);
-                    trobat = 1;
+                            } while (strcmp(pa.header, H_AUDEOF) != 0);
+
+                            close(fd1);
+                            char *script = malloc(sizeof(char) * (7 + strlen(path)));
+                            sprintf(script, "md5sum %s", path);
+                            free(path);
+
+                            char *md5 = UTILS_md5(script);
+                            md5[32] = 0;
+                            free(script);
+
+                            // Comparem el md5 per saber si la descarrega ha estat correcta
+                            if (UTILS_compare(pa.data, md5, 32) == 0)
+                            {
+                                char buff[128];
+                                int bytes = sprintf(buff, FILE_DOWNLOADED, file);
+                                IO_write(1, buff, bytes);
+                            }
+                            else
+                            {
+                                IO_write(1, FILE_DOWNLOAD_KO, strlen(FILE_DOWNLOAD_KO));
+                            }
+                            free(md5);
+                        }
+
+                        PACKET_destroy(&pa);
+                        trobat = 1;
+                    }
+                }
+                else
+                {
+                    lastfd = server.socketfd;
+                    CLIENT_borraUser(lastfd);
                 }
             }
             else
@@ -504,35 +542,38 @@ int CLIENT_freeMemory()
 int CLIENT_broadcast(char *message)
 {
     // Funció per enviar paquets de broadcast a tots els usuaris connectats
-
-    LLISTABID_vesInici(&servers);
-
-    while (!LLISTABID_final(servers))
+    if (!LLISTABID_buida(servers))
     {
-        Element server = LLISTABID_consulta(servers);
+        LLISTABID_vesInici(&servers);
 
-        Packet packet = PACKET_create(T_BROADCAST, H_BROADCAST, UTILS_sizeOf(message), message);
-        int error = PACKET_write(packet, server.socketfd);
-        PACKET_destroy(&packet);
-        if (error != -1)
+        while (!LLISTABID_final(servers))
         {
-            // Llegim resposta de message OK (protocol broadcast)
-            Packet p = PACKET_read(server.socketfd);
-            if (strcmp(p.header, H_MSGOK) == 0)
+            Element server = LLISTABID_consulta(servers);
+
+            Packet packet = PACKET_create(T_BROADCAST, H_BROADCAST, UTILS_sizeOf(message), message);
+            int error = PACKET_write(packet, server.socketfd);
+            PACKET_destroy(&packet);
+            if (error != -1)
             {
-                PACKET_destroy(&p);
+                // Llegim resposta de message OK (protocol broadcast)
+                Packet p = PACKET_read(server.socketfd);
+                if (strcmp(p.header, H_MSGOK) == 0)
+                {
+                    PACKET_destroy(&p);
+                }
+                else
+                {
+                    IO_write(1, DISCON_SERVER_ERR, sizeof(DISCON_SERVER_ERR));
+                }
             }
             else
             {
-                IO_write(1, DISCON_SERVER_ERR, sizeof(DISCON_SERVER_ERR));
+                lastfd = server.socketfd;
+                CLIENT_borraUser(lastfd);
             }
+
+            LLISTABID_avanca(&servers);
         }
-        // Tanquem els fd i free de memoria
-        close(server.socketfd);
-        free(server.name);
-
-        LLISTABID_avanca(&servers);
     }
-
     return 1;
 }
