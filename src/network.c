@@ -3,6 +3,7 @@
 
 int NETWORK_init(Config config)
 {
+    //Llegim tota la info de config
     int port = CONFIG_getMyPort(config);
     char *ip = CONFIG_getMyIP(config);
     char *name = CONFIG_getUsername(config);

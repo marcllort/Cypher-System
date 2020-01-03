@@ -135,7 +135,7 @@ int CLIENT_checkPorts(char *buffer)
 
     return 0;
 }
-
+//Funcio que comproba que tots els servers que hi ha a la llista segueixen disponibles
 int CLIENT_checkConnections()
 {
     if (!LLISTABID_buida(servers))
@@ -144,6 +144,7 @@ int CLIENT_checkConnections()
 
         while (!LLISTABID_final(servers))
         {
+            //Prova d'enviar alguna cosa a tots els servers i en cas que no pugui enviar, l'esborra de la llista
             Element server = LLISTABID_consulta(servers);
             int error = write(server.socketfd, " ", 1);
             if (error == -1)
@@ -204,12 +205,12 @@ int CLIENT_connectPort(Config config, int connectPort)
             char buff[128];
             Packet p = PACKET_create(T_CONNECT, H_NAME, UTILS_sizeOf(config.username), config.username);
             PACKET_write(p, socket_conn);
-
+            //Esperem la resposta del server
             Packet j = PACKET_read(socket_conn);
 
             newServer.name = j.data;
             free(j.header);
-
+            //L'afegim a la llista de servers disponibles
             LLISTABID_inserirDarrere(&servers, newServer);
 
             int bytes = sprintf(buff, MSG_CONNECTED, newServer.port, newServer.name);
@@ -279,7 +280,7 @@ int CLIENT_write(char *user, char *message)
 
 int CLIENT_showAudios(char *user)
 {
-    // Funció per enviar un paquet a un altre usuari, al que previament estàs connectat
+    // Funció per enviar un paquet a un altre usuari, i que aquest et retorni els seus audios disponibles
     int trobat = 0;
     char buff[128];
     int bytes;
@@ -337,7 +338,7 @@ int CLIENT_showAudios(char *user)
 
 int CLIENT_download(char *user, char *filename)
 {
-    // Funció per enviar un paquet a un altre usuari, al que previament estàs connectat
+    // Funció per enviar un paquet per solicitar la descarrega d'un audio a un servidor i guardar l'arxiu a la carpeta d'audios del client
     int trobat = 0;
     char buff[128];
     int bytes;
@@ -383,6 +384,7 @@ int CLIENT_download(char *user, char *filename)
                         {
                             do
                             {
+                                //Llegim el que ens envii pero no fem res amb aixo
                                 IO_write(fd1, pa.data, pa.length);
                                 PACKET_destroy(&pa);
                                 pa = PACKET_read(server.socketfd);

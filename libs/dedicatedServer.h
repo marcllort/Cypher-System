@@ -37,7 +37,6 @@ typedef struct
     void *server;
     void *list_node;
     void *(*operate)(void *);
-    int (*remove)(void *);
     char *user;
     char *audios;
 } DServer;
@@ -51,7 +50,6 @@ DServer *DSERVER_init(
     struct sockaddr_in addr,
     void *server,
     char *name,
-    int (*remove)(void *),
     char *user,
     char *audios);
 

@@ -9,7 +9,6 @@ DServer *DSERVER_init(
     struct sockaddr_in addr,
     void *server,
     char *name,
-    int (*remove)(void *),
     char *user,
     char *audios)
 {
@@ -28,7 +27,6 @@ DServer *DSERVER_init(
         ds->addr = addr;
         ds->server = server;
         ds->list_node = NULL;
-        ds->remove = remove;
         ds->user = user;
         ds->audios = audios;
     }

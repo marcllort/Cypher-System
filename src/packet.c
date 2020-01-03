@@ -58,7 +58,7 @@ Packet PACKET_read(int fd)
 
 int PACKET_write(Packet pd, int fd)
 {
-    // Funcio per enviar un paquet per parts
+    // Funcio per enviar un paquet camp a camp
 
     IO_write(fd, &pd.type, 1);
     IO_write(fd, pd.header, UTILS_sizeOf(pd.header));

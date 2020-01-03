@@ -10,7 +10,7 @@ int IO_openFile(const char *filename)
 
 long IO_readUntil(int fd, char **data, char delimiter)
 {
-    //Llegim de un fd fins un cert delimitador
+    //Llegim de un fd fins un cert delimitador, posem /0 a size-2
     size_t size = 0;
     ssize_t bytes;
     *data = NULL;
@@ -33,7 +33,7 @@ long IO_readUntil(int fd, char **data, char delimiter)
 
 long IO_readUntilv2(int fd, char **data, char delimiter)
 {
-    //Llegim de un fd fins un cert delimitador
+    //Llegim de un fd fins un cert delimitador, posem /0 a size-1
     size_t size = 0;
     ssize_t bytes;
     *data = NULL;
@@ -56,6 +56,7 @@ long IO_readUntilv2(int fd, char **data, char delimiter)
 
 long IO_read(int fd, char **data, long size)
 {
+    //Llegim size bits de un fd
     *data = (char *)malloc(sizeof(char) * size);
     return read(fd, *data, size);
 }
