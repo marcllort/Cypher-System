@@ -37,6 +37,8 @@
 #define DISCON_SERVER_ERR "\nDidn't receive server CONOK, Server is disconnected\n"
 #define FILE_DOWNLOADED "[%s] downloaded\n"
 #define FILE_DOWNLOAD_KO "Corrupted file, failed download\n"
+#define CLIENT_ALREADY_CONNECTED "Error, you can't connect to a client you are already connected to\n"
+
 
 int CLIENT_checkPorts(char *buffer);
 int CLIENT_checkConnections();

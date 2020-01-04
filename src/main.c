@@ -46,6 +46,7 @@ void MAIN_registerSignal()
 {
     // En cas de ctrl+c, cridarem freeMemory
     signal(SIGINT, MAIN_freeMemory);
+    //En cas de que intentem enviar un missatge a algun client que ja no esta connectat l'esborrem de la llista
     signal(SIGPIPE, CLIENT_messageError);
 }
 

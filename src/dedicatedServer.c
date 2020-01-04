@@ -75,7 +75,6 @@ void *DSERVER_threadFunc(void *data)
     {
         showconn=0;
         p = PACKET_read(fd);
-        
         if (p.type == T_CONNECT)
         {
             // En cas de voler connectar-se enviem la resposta

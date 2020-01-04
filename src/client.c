@@ -154,6 +154,9 @@ int CLIENT_checkConnections()
             }
             LLISTABID_avanca(&servers);
         }
+    }else{
+        LLISTABID_destrueix(&servers);
+        servers = LLISTABID_crea();
     }
     return 1;
 }
@@ -166,6 +169,20 @@ int CLIENT_connectPort(Config config, int connectPort)
     struct sockaddr_in s_addr;
     int socket_conn = -1;
 
+ if (!LLISTABID_buida(servers))
+    {
+        LLISTABID_vesInici(&servers);
+
+        while (!LLISTABID_final(servers))
+        {
+            Element server = LLISTABID_consulta(servers);
+
+            if(connectPort == server.port){
+                IO_write(1,CLIENT_ALREADY_CONNECTED, strlen(CLIENT_ALREADY_CONNECTED));
+                return 0;
+            }
+        }
+    }
     if (connectPort == config.myPort)
     {
         IO_write(1, MSG_ERR_PORT, sizeof(MSG_ERR_PORT));
@@ -211,6 +228,9 @@ int CLIENT_connectPort(Config config, int connectPort)
             newServer.name = j.data;
             free(j.header);
             //L'afegim a la llista de servers disponibles
+            if(!LLISTABID_buida(servers)){
+                LLISTABID_vesInici(&servers);
+            }
             LLISTABID_inserirDarrere(&servers, newServer);
 
             int bytes = sprintf(buff, MSG_CONNECTED, newServer.port, newServer.name);
@@ -485,19 +505,22 @@ int CLIENT_borraUser(int fd)
     int trobat = 0;
 
     // Iterem per tota la llista fins trobarlo i borrarlo
-    LLISTABID_vesInici(&servers);
-    while (!LLISTABID_final(servers) && !trobat)
-    {
-        Element server = LLISTABID_consulta(servers);
-        if (server.socketfd == fd)
+    if(!LLISTABID_buida(servers)){
+        LLISTABID_vesInici(&servers);
+        while (!LLISTABID_final(servers) && !trobat)
         {
-            LLISTABID_elimina(&servers);
-            trobat = 1;
-        }
-        else
-        {
-            LLISTABID_avanca(&servers);
-        }
+            Element server = LLISTABID_consulta(servers);
+            if (server.socketfd == fd)
+            {
+                free(server.name);
+                LLISTABID_elimina(&servers);
+                trobat = 1;
+            }
+            else
+            {
+                LLISTABID_avanca(&servers);
+            }
+    }
     }
     if (!trobat)
     {
@@ -507,17 +530,18 @@ int CLIENT_borraUser(int fd)
     {
         return 0;
     }
+
 }
 
 void CLIENT_messageError()
 {
     // Borrem el usuari amb el que no hem pogut connectar
-    int i = CLIENT_borraUser(lastfd);
+    /*int i = CLIENT_borraUser(lastfd);
     // En cas de que retorni 0, vol dir que s'ha pogut borrar
     if (i == 0)
     {
         IO_write(1, UNKNOWN_CONNECTION2, sizeof(UNKNOWN_CONNECTION2));
-    }
+    }*/
 }
 
 int CLIENT_freeMemory()
