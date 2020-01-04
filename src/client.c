@@ -380,20 +380,7 @@ int CLIENT_download(char *user, char *filename)
                         sprintf(path, "%s/%s", CONFIG_getAudioFolder(config), filename);
 
                         int fd1 = open(path, O_WRONLY | O_TRUNC | O_CREAT, 0666);
-                        if (fd1 < 0)
-                        {
-                            do
-                            {
-                                //Llegim el que ens envii pero no fem res amb aixo
-                                IO_write(fd1, pa.data, pa.length);
-                                PACKET_destroy(&pa);
-                                pa = PACKET_read(server.socketfd);
-
-                            } while (strcmp(pa.header, H_AUDEOF) != 0);
-                            PACKET_destroy(&pa);
-                        }
-                        else
-                        {
+                        
                             // Fem un bucle de lectura per anar "muntant" el fixer
                             do
                             {
@@ -428,7 +415,7 @@ int CLIENT_download(char *user, char *filename)
 
                         PACKET_destroy(&pa);
                         trobat = 1;
-                    }
+                    
                 }
                 else
                 {

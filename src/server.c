@@ -77,7 +77,7 @@ int SERVER_startDS(Server *server, int fd, int fdserver, struct sockaddr_in addr
 {
     // Inicialitzacio de server dedicat
 
-    DServer *ds = DSERVER_init(server->ids++, fd, fdserver, 0, 0, addr, server, server->name, SERVER_removeDS, user, server->audios);
+    DServer *ds = DSERVER_init(server->ids++, fd, fdserver, 0, 0, addr, server, server->name, user, server->audios);
 
     // Afegim el ds a la llista de servers dedicats
     SERVER_addDS(server, ds);
