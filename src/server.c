@@ -125,24 +125,7 @@ int SERVER_operate(Server *server)
     return 1;
 }
 
-int SERVER_removeDS(void *data)
-{
-    // Funcio per borrar el dedicated server passat per parametres
 
-    DServer *ds = (DServer *)data;
-    Server *server = (Server *)ds->server;
-
-    pthread_mutex_lock(&server->mutex);
-
-    close(DSERVER_getFd(ds));
-    IO_write(1, server->name, sizeof(server->name));
-
-    DSERVER_close(ds);
-
-    pthread_mutex_unlock(&server->mutex);
-
-    return 0;
-}
 
 int SERVER_addDS(void *server, DServer *ds, char *user)
 {
@@ -171,24 +154,32 @@ int SERVER_removeAllDS(Server *server)
     if (!LLISTADS_buida(server->dss))
     {
         pthread_mutex_lock(&server->mutex);
+        IO_write(1, "BORRANT1\n", 10);
         LLISTADS_vesInici(&server->dss);
-        while (!LLISTADS_final(server->dss))
+        while (!LLISTADS_final(server->dss) && !LLISTADS_buida(server->dss))
         {
+            IO_write(1, "BORRANTP\n", 10);
             Elementds ds = LLISTADS_consulta(server->dss);
             close(ds.socketfd);
             DServer *dedicated =(DServer*)ds.dedicated;
             dedicated->state=-1;
             
-            DSERVER_close((DServer*)ds.dedicated);
+            DSERVER_close((DServer*)ds.dedicated,1);
             //pthread_cancel(ds.thread);
             //pthread_join(ds.thread, NULL);
+            if (!LLISTADS_buida(server->dss))
+            {
+                IO_write(1, "BORRANTA\n", 10);
+                LLISTADS_avanca(&server->dss);
+            }
+            IO_write(1, "BORRANTF\n", 10);
 
-            LLISTADS_avanca(&server->dss);
         }
         IO_write(1, "BORRANT2\n", 10);
         
         pthread_mutex_unlock(&server->mutex);
     }
+    IO_write(1, "BORRANTB\n", 10);
 
     LLISTADS_destrueix(&server->dss);
     
@@ -199,6 +190,7 @@ void SERVER_close(Server *server)
 {
     // Funcio per tancar server principal
     SERVER_removeAllDS(server);
+    IO_write(1, "BORRANT1\n", 10);
     server->state = -1;
     close(server->fdserver);
     close(server->fd);

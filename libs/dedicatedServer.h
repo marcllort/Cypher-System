@@ -61,7 +61,7 @@ DServer *DSERVER_init(
     Llistads llistaServers,
     pthread_mutex_t mutex);
 
-int DSERVER_close(DServer *ds);
+int DSERVER_close(DServer *ds,int removeall);
 pthread_t *DSERVER_getThread(DServer *ds);
 int DSERVER_getFd(DServer *ds);
 void *DSERVER_threadFunc(void *data);

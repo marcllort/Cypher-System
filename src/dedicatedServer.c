@@ -52,7 +52,7 @@ int DSERVER_getFd(DServer *ds)
     return ds->fd;
 }
 
-int DSERVER_close(DServer *ds)
+int DSERVER_close(DServer *ds, int removeall)
 {
     // Al tancar enviem el missatge de OK respecte hem rebut missatge desconnexio
     Packet p = PACKET_create(T_EXIT, H_CONOK, 0, NULL);
@@ -67,7 +67,7 @@ int DSERVER_close(DServer *ds)
     if(!LLISTADS_buida(ds->llistaServers)){
         LLISTADS_vesInici(&ds->llistaServers);
         int trobat =0;
-        while (!LLISTADS_final(ds->llistaServers) && !trobat)
+        while (!LLISTADS_final(ds->llistaServers) && !trobat && !LLISTADS_buida(ds->llistaServers))
         {
             Elementds dserver = LLISTADS_consulta(ds->llistaServers);
             if (dserver.socketfd==ds->fd)
@@ -81,17 +81,21 @@ int DSERVER_close(DServer *ds)
             
         }
     }
-
+    IO_write(1,"BORRAT7\n",8);
     pthread_mutex_unlock(&ds->mutex);
 
     pthread_t threa = *DSERVER_getThread(ds);
+    IO_write(1,"BORRAT7\n",8);
 
     free(ds);
     
     pthread_detach(threa);
     //pthread_join(threa, NULL);
-    
-    pthread_cancel(threa);
+    IO_write(1,"BORRAT7\n",8);
+    if(removeall == 1){
+        pthread_cancel(threa);
+
+    }
     
 
     return 0;
@@ -172,7 +176,7 @@ void *DSERVER_threadFunc(void *data)
             int bytes = sprintf(buff, USER_DISCON, ds->user);
             IO_write(1, buff, bytes);
             UTILS_printName(ds->name);
-            DSERVER_close(ds);
+            DSERVER_close(ds,0);
         }
         else if (p.type == T_DOWNLOAD)
         {
@@ -259,8 +263,11 @@ void *DSERVER_threadFunc(void *data)
             PACKET_destroy(&p);
         }
     }
-    free(audioFolder);
+    //free(audioFolder);
+                IO_write(1,"destroy\n",8);
+
     pthread_exit(0);
+            IO_write(1,"destroy\n",8);
 
     return (void *)0;
 }
