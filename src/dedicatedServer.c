@@ -1,5 +1,7 @@
 #include "../libs/dedicatedServer.h"
 
+char *audioFolder;
+
 DServer *DSERVER_init(
     int id,
     int fd,
@@ -10,7 +12,9 @@ DServer *DSERVER_init(
     void *server,
     char *name,
     char *user,
-    char *audios)
+    char *audios,
+    Llistads llistaServers,
+    pthread_mutex_t mutex)
 {
     // Inicialitzacio de la variable DServer
 
@@ -29,9 +33,12 @@ DServer *DSERVER_init(
         ds->list_node = NULL;
         ds->user = user;
         ds->audios = audios;
+        ds->llistaServers = llistaServers;
+        ds->mutex= mutex;
     }
     return ds;
 }
+
 
 // Getters
 
@@ -53,20 +60,52 @@ int DSERVER_close(DServer *ds)
     PACKET_destroy(&p);
     free(ds->user);
     ds->state = -1;
+
+    pthread_mutex_lock(&ds->mutex);
+
+    if(!LLISTADS_buida(ds->llistaServers)){
+        LLISTADS_vesInici(&ds->llistaServers);
+        int trobat =0;
+        while (!LLISTADS_final(ds->llistaServers) && !trobat)
+        {
+            Elementds dserver = LLISTADS_consulta(ds->llistaServers);
+            if (dserver.socketfd==ds->fd)
+            {
+                trobat=1;
+                LLISTADS_elimina(&ds->llistaServers);
+                IO_write(1,"BORRAT\n",8);
+            }else{
+                LLISTADS_avanca(&ds->llistaServers);
+            }
+            
+        }
+    }
+
+    pthread_mutex_unlock(&ds->mutex);
+
+    pthread_t threa = *DSERVER_getThread(ds);
+
+    free(ds);
+    free(audioFolder);
+    IO_write(1,"BORRAT\n",8);
+    //pthread_join(threa, NULL);
+    //pthread_cancel(threa);
+    
+
     return 0;
 }
 
 void *DSERVER_threadFunc(void *data)
 {
     // Funcio que corre al thread, encarregada de identificar cada paquet rebut i actuar corresponentment
-    //pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+
     DServer *ds = (DServer *)data;
     Packet p;
     int fd = ds->fd;
     ds->state = 1;
     int showconn = 0;
 
-    char *audioFolder = (char *)malloc(sizeof(char) * UTILS_sizeOf(ds->audios));
+    audioFolder = (char *)malloc(sizeof(char) * UTILS_sizeOf(ds->audios));
 
     sprintf(audioFolder, "./%s", ds->audios);
 

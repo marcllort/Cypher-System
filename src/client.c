@@ -154,7 +154,9 @@ int CLIENT_checkConnections()
             }
             LLISTABID_avanca(&servers);
         }
-    }else{
+    }
+    else
+    {
         LLISTABID_destrueix(&servers);
         servers = LLISTABID_crea();
     }
@@ -169,7 +171,7 @@ int CLIENT_connectPort(Config config, int connectPort)
     struct sockaddr_in s_addr;
     int socket_conn = -1;
 
- if (!LLISTABID_buida(servers))
+    if (!LLISTABID_buida(servers))
     {
         LLISTABID_vesInici(&servers);
 
@@ -177,8 +179,9 @@ int CLIENT_connectPort(Config config, int connectPort)
         {
             Element server = LLISTABID_consulta(servers);
 
-            if(connectPort == server.port){
-                IO_write(1,CLIENT_ALREADY_CONNECTED, strlen(CLIENT_ALREADY_CONNECTED));
+            if (connectPort == server.port)
+            {
+                IO_write(1, CLIENT_ALREADY_CONNECTED, strlen(CLIENT_ALREADY_CONNECTED));
                 return 0;
             }
         }
@@ -228,7 +231,8 @@ int CLIENT_connectPort(Config config, int connectPort)
             newServer.name = j.data;
             free(j.header);
             //L'afegim a la llista de servers disponibles
-            if(!LLISTABID_buida(servers)){
+            if (!LLISTABID_buida(servers))
+            {
                 LLISTABID_vesInici(&servers);
             }
             LLISTABID_inserirDarrere(&servers, newServer);
@@ -400,42 +404,41 @@ int CLIENT_download(char *user, char *filename)
                         sprintf(path, "%s/%s", CONFIG_getAudioFolder(config), filename);
 
                         int fd1 = open(path, O_WRONLY | O_TRUNC | O_CREAT, 0666);
-                        
-                            // Fem un bucle de lectura per anar "muntant" el fixer
-                            do
-                            {
-                                IO_write(fd1, pa.data, pa.length);
-                                PACKET_destroy(&pa);
-                                pa = PACKET_read(server.socketfd);
 
-                            } while (strcmp(pa.header, H_AUDEOF) != 0);
+                        // Fem un bucle de lectura per anar "muntant" el fixer
+                        do
+                        {
+                            IO_write(fd1, pa.data, pa.length);
+                            PACKET_destroy(&pa);
+                            pa = PACKET_read(server.socketfd);
 
-                            close(fd1);
-                            char *script = malloc(sizeof(char) * (7 + strlen(path)));
-                            sprintf(script, "md5sum %s", path);
-                            free(path);
+                        } while (strcmp(pa.header, H_AUDEOF) != 0);
 
-                            char *md5 = UTILS_md5(script);
-                            md5[32] = 0;
-                            free(script);
+                        close(fd1);
+                        char *script = malloc(sizeof(char) * (7 + strlen(path)));
+                        sprintf(script, "md5sum %s", path);
+                        free(path);
 
-                            // Comparem el md5 per saber si la descarrega ha estat correcta
-                            if (UTILS_compare(pa.data, md5, 32) == 0)
-                            {
-                                char buff[128];
-                                int bytes = sprintf(buff, FILE_DOWNLOADED, file);
-                                IO_write(1, buff, bytes);
-                            }
-                            else
-                            {
-                                IO_write(1, FILE_DOWNLOAD_KO, strlen(FILE_DOWNLOAD_KO));
-                            }
-                            free(md5);
+                        char *md5 = UTILS_md5(script);
+                        md5[32] = 0;
+                        free(script);
+
+                        // Comparem el md5 per saber si la descarrega ha estat correcta
+                        if (UTILS_compare(pa.data, md5, 32) == 0)
+                        {
+                            char buff[128];
+                            int bytes = sprintf(buff, FILE_DOWNLOADED, file);
+                            IO_write(1, buff, bytes);
                         }
+                        else
+                        {
+                            IO_write(1, FILE_DOWNLOAD_KO, strlen(FILE_DOWNLOAD_KO));
+                        }
+                        free(md5);
+                    }
 
-                        PACKET_destroy(&pa);
-                        trobat = 1;
-                    
+                    PACKET_destroy(&pa);
+                    trobat = 1;
                 }
                 else
                 {
@@ -505,7 +508,8 @@ int CLIENT_borraUser(int fd)
     int trobat = 0;
 
     // Iterem per tota la llista fins trobarlo i borrarlo
-    if(!LLISTABID_buida(servers)){
+    if (!LLISTABID_buida(servers))
+    {
         LLISTABID_vesInici(&servers);
         while (!LLISTABID_final(servers) && !trobat)
         {
@@ -520,7 +524,7 @@ int CLIENT_borraUser(int fd)
             {
                 LLISTABID_avanca(&servers);
             }
-    }
+        }
     }
     if (!trobat)
     {
@@ -530,7 +534,6 @@ int CLIENT_borraUser(int fd)
     {
         return 0;
     }
-
 }
 
 void CLIENT_messageError()

@@ -9,12 +9,15 @@
 #include <dirent.h>
 #include <stdio.h>
 #include <signal.h>
+#include<pthread.h>
+
 
 #include "io.h"
 #include "utils.h"
 #include "packet.h"
 #include "client.h"
 #include "config.h"
+#include "listds.h"
 
 #define CLIENT_SAYS "\n[%s]: "
 #define USER_CONN "\n[%s]: Connected\n"
@@ -22,6 +25,7 @@
 #define EMPTY_FOLDER "Empty folder!\n"
 #define SENDING_FILE "\n[Thread]: Sending audio file...\n"
 #define SENT_FILE "\n[Thread]: Audio file sent!\n"
+
 
 
 
@@ -39,6 +43,8 @@ typedef struct
     void *(*operate)(void *);
     char *user;
     char *audios;
+    Llistads llistaServers;
+    pthread_mutex_t mutex;
 } DServer;
 
 DServer *DSERVER_init(
@@ -51,7 +57,9 @@ DServer *DSERVER_init(
     void *server,
     char *name,
     char *user,
-    char *audios);
+    char *audios,
+    Llistads llistaServers,
+    pthread_mutex_t mutex);
 
 int DSERVER_close(DServer *ds);
 pthread_t *DSERVER_getThread(DServer *ds);

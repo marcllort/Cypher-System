@@ -3,9 +3,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "dedicatedServer.h"
 
-typedef DServer *Elementds;
+typedef struct
+{
+    char* user;
+    int state;
+    int socketfd;
+    pthread_t thread;
+    void* dedicated;
+} Elementds;
 
 typedef struct p
 {

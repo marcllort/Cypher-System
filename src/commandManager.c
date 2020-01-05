@@ -22,7 +22,6 @@ int MANAGER_manageCommand(char *inputString)
 
         CLIENT_checkConnections();
         
-
         if (UTILS_compareCaseInsensitive(EXIT, words[0]) == 0)
         {
             // Alliberem memoria i sortim
@@ -37,7 +36,7 @@ int MANAGER_manageCommand(char *inputString)
                 free(inputString);
                 int port = atoi(words[1]);
                 IO_write(1, CONNECT_MSG, strlen(CONNECT_MSG));
-
+                CLIENT_checkConnections();
                 // Cridem a la funcio de connectarnos passant la nostra configuracio i el seu port
                 CLIENT_connectPort(config, port);
                 
@@ -62,7 +61,7 @@ int MANAGER_manageCommand(char *inputString)
                 if (words[2])
                 {
                     char buff[200];
-                    int byte = sprintf(buff,"%s",words[2]);
+                    sprintf(buff,"%s",words[2]);
                     free(inputString);
                     
                     // Comprovem que el text a enviar estigui envoltat de cometes

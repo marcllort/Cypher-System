@@ -64,7 +64,6 @@ int LLISTADS_inserirDavant(Llistads *l, Elementds e)
 
     if (l->pdi == l->pri)
     {
-        IO_write(1, "DS CREATED", sizeof("DS CREATED"));
         return 0;
     }
     n = (Nodeds *)malloc(sizeof(Nodeds));
@@ -87,7 +86,7 @@ int LLISTADS_inserirDavant(Llistads *l, Elementds e)
 Elementds LLISTADS_consulta(Llistads l)
 {
 
-    Elementds e = NULL;
+    Elementds e;
     if (l.pdi->ant != NULL && l.pdi->seg != NULL)
     {
         e = l.pdi->e;

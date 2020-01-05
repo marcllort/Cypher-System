@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <pthread.h>
 
 #include "io.h"
 #include "list.h"
@@ -24,6 +25,7 @@
 #define ERR_LISTEN "Error listening socket\n"
 #define ERR_ACCEPT "Error accepting client\n"
 #define GOODBYE "\nDisconnecting Trinity...\n"
+#define ERR_MUTEX "Error creating mutex\n"
 #define MAX_CONN 10
 
 typedef struct
@@ -50,7 +52,7 @@ void SERVER_close(Server *server);
 pthread_t *SERVER_getThread(Server *server);
 void SERVER_setFunc(Server *server, void *(*threadFunc)(void *));
 int SERVER_startDS(Server *server, int fd, int fdserver, struct sockaddr_in addr, char *user);
-int SERVER_addDS(void *server, DServer *ds);
+int SERVER_addDS(void *server, DServer *ds, char *user);
 int SERVER_removeDS(void *data);
 int SERVER_removeAllDS(Server *server);
 void *SERVER_threadFunc(void *ds);
