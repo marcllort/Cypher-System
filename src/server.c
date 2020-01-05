@@ -154,11 +154,9 @@ int SERVER_removeAllDS(Server *server)
     if (!LLISTADS_buida(server->dss))
     {
         pthread_mutex_lock(&server->mutex);
-        IO_write(1, "BORRANT1\n", 10);
         LLISTADS_vesInici(&server->dss);
         while (!LLISTADS_final(server->dss) && !LLISTADS_buida(server->dss))
         {
-            IO_write(1, "BORRANTP\n", 10);
             Elementds ds = LLISTADS_consulta(server->dss);
             close(ds.socketfd);
             DServer *dedicated =(DServer*)ds.dedicated;
@@ -169,17 +167,13 @@ int SERVER_removeAllDS(Server *server)
             //pthread_join(ds.thread, NULL);
             if (!LLISTADS_buida(server->dss))
             {
-                IO_write(1, "BORRANTA\n", 10);
                 LLISTADS_avanca(&server->dss);
             }
-            IO_write(1, "BORRANTF\n", 10);
 
         }
-        IO_write(1, "BORRANT2\n", 10);
         
         pthread_mutex_unlock(&server->mutex);
     }
-    IO_write(1, "BORRANTB\n", 10);
 
     LLISTADS_destrueix(&server->dss);
     
@@ -190,7 +184,6 @@ void SERVER_close(Server *server)
 {
     // Funcio per tancar server principal
     SERVER_removeAllDS(server);
-    IO_write(1, "BORRANT1\n", 10);
     server->state = -1;
     close(server->fdserver);
     close(server->fd);

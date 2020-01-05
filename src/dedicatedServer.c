@@ -74,24 +74,20 @@ int DSERVER_close(DServer *ds, int removeall)
             {
                 trobat=1;
                 LLISTADS_elimina(&ds->llistaServers);
-                IO_write(1,"BORRAT6\n",8);
             }else{
                 LLISTADS_avanca(&ds->llistaServers);
             }
             
         }
     }
-    IO_write(1,"BORRAT7\n",8);
     pthread_mutex_unlock(&ds->mutex);
 
     pthread_t threa = *DSERVER_getThread(ds);
-    IO_write(1,"BORRAT7\n",8);
 
     free(ds);
     
     pthread_detach(threa);
     //pthread_join(threa, NULL);
-    IO_write(1,"BORRAT7\n",8);
     if(removeall == 1){
         pthread_cancel(threa);
 
@@ -263,11 +259,7 @@ void *DSERVER_threadFunc(void *data)
             PACKET_destroy(&p);
         }
     }
-    //free(audioFolder);
-                IO_write(1,"destroy\n",8);
-
     pthread_exit(0);
-            IO_write(1,"destroy\n",8);
 
     return (void *)0;
 }
