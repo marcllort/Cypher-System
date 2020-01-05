@@ -52,23 +52,26 @@ int MANAGER_manageCommand(char *inputString)
         {
             words[1] = strtok(0, " ");
 
-            char user[128];
+            char* user = malloc(strlen(words[1]));
             sprintf(user, "%s", words[1]);
 
             // Fem les comprovacions necessaries per saber que la comanda esta ben formada, sino mostrem error
             if (words[1])
-            {
-                words[2] = strtok(0, "\n");
+            {                
+                words[2] = strtok(0, " ");
                 if (words[2])
                 {
+                    char buff[200];
+                    int byte = sprintf(buff,"%s",words[2]);
                     free(inputString);
-
+                    
                     // Comprovem que el text a enviar estigui envoltat de cometes
-                    if (words[2][0] == '"' && words[2][UTILS_sizeOf(words[2]) - 1] == '"')
+                    if (buff[0] == '"' && buff[UTILS_sizeOf(buff) - 1] == '"')
                     {
                         UTILS_removeChar(words[2], '"');
 
                         CLIENT_write(user, words[2]);
+                        free(user);
                     }
                     else
                     {
@@ -146,7 +149,7 @@ int MANAGER_manageCommand(char *inputString)
                 free(inputString);
                 // Muntem la comanda que caldra executar el CLIENT_checkPorts
                 char *buffer = (char *)malloc(50 * sizeof(char));
-                sprintf(buffer, "./show_connections.sh %d %d", config.cypherStartPort, config.cypherEndPort);
+                sprintf(buffer, "./show_connections_v2.sh %d %d 127.0.0.1", config.cypherStartPort, config.cypherEndPort);
                 // Executem checkports
                 CLIENT_checkPorts(buffer);
                 free(buffer);
