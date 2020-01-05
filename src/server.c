@@ -92,7 +92,7 @@ int SERVER_startDS(Server *server, int fd, int fdserver, struct sockaddr_in addr
     if (pthread_create(DSERVER_getThread(ds), NULL, DSERVER_threadFunc, ds) != 0)
     {
         // Detach perquè s'alliberi la memoria al tancar el thread
-        pthread_detach(*DSERVER_getThread(ds));
+        //pthread_detach(*DSERVER_getThread(ds));
     }
 
     return 0;
@@ -178,10 +178,10 @@ int SERVER_removeAllDS(Server *server)
             close(ds.socketfd);
             DServer *dedicated =(DServer*)ds.dedicated;
             dedicated->state=-1;
-            free(ds.user);
+            
             DSERVER_close((DServer*)ds.dedicated);
-            pthread_cancel(ds.thread);
-            pthread_join(ds.thread, NULL);
+            //pthread_cancel(ds.thread);
+            //pthread_join(ds.thread, NULL);
 
             LLISTADS_avanca(&server->dss);
         }
