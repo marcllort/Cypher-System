@@ -12,6 +12,7 @@ void MAIN_freeMemory();
 int main(int argc, char **argv)
 {
 
+    IO_initMutex();
     if (argc != NUM_ARGS)
     {
         // Comprovem el correcte nombre de arguments
