@@ -155,7 +155,7 @@ int CLIENT_checkConnections()
             LLISTABID_avanca(&servers);
         }
     }
-    else
+    if (LLISTABID_buida(servers))
     {
         LLISTABID_destrueix(&servers);
         servers = LLISTABID_crea();
