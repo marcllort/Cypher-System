@@ -367,6 +367,11 @@ int CLIENT_download(char *user, char *filename)
     char buff[128];
     int bytes;
 
+
+    char userbuff =  malloc(strlen(user));
+    int byte = sprintf(userbuff, "%s",user);
+    
+
     char *file = malloc(strlen(filename));
     strcpy(file, filename);
     if (!LLISTABID_buida(servers))
@@ -377,7 +382,8 @@ int CLIENT_download(char *user, char *filename)
         while (!LLISTABID_final(servers) && !trobat && trobat != -10)
         {
             Element server = LLISTABID_consulta(servers);
-            if (UTILS_compareCaseInsensitive(server.name, user) == 0)
+
+            if (UTILS_compareCaseInsensitive(server.name, userbuff) == 0)
             {
                 //Enviem el nom del fitxer i esperem la resposta del server
                 Packet psend = PACKET_create(T_DOWNLOAD, H_AUDREQ, UTILS_sizeOf(filename), filename);
@@ -463,6 +469,7 @@ int CLIENT_download(char *user, char *filename)
         IO_write(1, buff, bytes);
     }
     free(file);
+    free(userbuff);
     return 1;
 }
 

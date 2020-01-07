@@ -38,6 +38,9 @@ int UTILS_compareCaseInsensitive(const char *str1, const char *str2)
     int size = (size1 < size2) ? size1 : size2;
     if (size1!=size2)
     {
+        char buff[123];
+        int byte = sprintf(buff, "Server: %s / %d - user: %s / %d", str1, strlen(str1), str2, strlen(str2));
+        IO_write(1, buff, byte);
         return 1;
     }
     
