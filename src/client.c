@@ -396,14 +396,16 @@ int CLIENT_download(char *user, char *filename)
                     }
                     else if (!strcmp(pa.header, H_AUDRESP))
                     {
-                        // En cas de que el server ens dongui el ok per descarregar iniciem la lectura de paquets fins trobar un paquet amb capçalera EOF
-                        IO_write(1, DOWNLOADING, strlen(DOWNLOADING));
+                        
 
                         // Guardem el fitxer a la carpeta de audios
                         char *path = malloc(strlen(filename) + strlen(CONFIG_getAudioFolder(config) + 1));
                         sprintf(path, "%s/%s", CONFIG_getAudioFolder(config), filename);
 
                         int fd1 = open(path, O_WRONLY | O_TRUNC | O_CREAT, 0666);
+
+                        // En cas de que el server ens dongui el ok per descarregar iniciem la lectura de paquets fins trobar un paquet amb capçalera EOF
+                        IO_write(1, DOWNLOADING, strlen(DOWNLOADING));
 
                         // Fem un bucle de lectura per anar "muntant" el fixer
                         do

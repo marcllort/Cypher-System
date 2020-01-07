@@ -199,18 +199,20 @@ void *DSERVER_threadFunc(void *data)
                     // Obrim el fitxer i iterem fins que la mida a escriure sigui menor al buffer, que voldra dir que estem al final del fitxer
                     IO_write(1, SENDING_FILE, strlen(SENDING_FILE));
                     UTILS_printName(ds->name);
+                    char* test = malloc(sizeof(char));
                     do
                     {
-                        buff = malloc(sizeof(char) * FRAGMENT_SIZE);
+                        //buff = malloc(sizeof(char) * FRAGMENT_SIZE);
                         counter = read(fd_in, buff, FRAGMENT_SIZE);
-                        buff = realloc(buff,counter);
-                        Packet pack = PACKET_create(T_DOWNLOAD, H_AUDRESP, counter, buff);
+                        //buff = realloc(buff,counter);
+                        Packet pack = PACKET_create(T_DOWNLOAD, H_AUDRESP, counter, test);
                         PACKET_sendFile(pack, fd, buff);
                         PACKET_destroy(&pack);
-                        //if (counter == FRAGMENT_SIZE)
-                        //{
-                            free(buff);
-                      //  }
+                        if (counter == FRAGMENT_SIZE)
+                        {
+                            //free(test);
+                        }
+                     
 
                     } while (counter == FRAGMENT_SIZE);
                     //free(buff);
