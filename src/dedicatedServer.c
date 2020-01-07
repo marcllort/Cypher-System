@@ -186,7 +186,7 @@ void *DSERVER_threadFunc(void *data)
                 // En cas de que sigui showaudios mirem que el fitxer existeixi
                 if (UTILS_fileExists(audioFolderr) != -1)
                 {
-                    char *buff; // = malloc(sizeof(char) * FRAGMENT_SIZE);
+                    char buff[FRAGMENT_SIZE]; // = malloc(sizeof(char) * FRAGMENT_SIZE);
                     int counter;
                     int fd_in = open(audioFolderr, O_RDONLY);
 
@@ -203,12 +203,17 @@ void *DSERVER_threadFunc(void *data)
                     {
                         buff = malloc(sizeof(char) * FRAGMENT_SIZE);
                         counter = read(fd_in, buff, FRAGMENT_SIZE);
+                        buff = realloc(buff,counter);
                         Packet pack = PACKET_create(T_DOWNLOAD, H_AUDRESP, counter, buff);
                         PACKET_sendFile(pack, fd, buff);
                         PACKET_destroy(&pack);
-                        free(buff);
+                        //if (counter == FRAGMENT_SIZE)
+                        //{
+                            free(buff);
+                      //  }
 
                     } while (counter == FRAGMENT_SIZE);
+                    //free(buff);
                     IO_write(1, SENT_FILE, strlen(SENT_FILE));
                     UTILS_printName(ds->name);
                     // Un cop hem acabat d'enviar el fitxer enviem el md5 amb aquest ultim paquet

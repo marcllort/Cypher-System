@@ -408,7 +408,7 @@ int CLIENT_download(char *user, char *filename)
                         // Fem un bucle de lectura per anar "muntant" el fixer
                         do
                         {
-                            IO_write(fd1, pa.data, pa.length);
+                            int er =write(fd1, pa.data, pa.length);
                             PACKET_destroy(&pa);
                             pa = PACKET_read(server.socketfd);
 
