@@ -31,7 +31,6 @@
 
 typedef struct
 {
-    int id;
     int fd;
     int fdserver;
     int state;
@@ -47,7 +46,6 @@ typedef struct
 } DServer;
 
 DServer *DSERVER_init(
-    int id,
     int fd,
     int fdserver,
     int state,

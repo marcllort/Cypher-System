@@ -3,7 +3,6 @@
 char *audioFolder;
 
 DServer *DSERVER_init(
-    int id,
     int fd,
     int fdserver,
     int state,
@@ -22,7 +21,6 @@ DServer *DSERVER_init(
 
     if (ds != NULL)
     {
-        ds->id = id;
         ds->fd = fd;
         ds->fdserver = fdserver;
         ds->state = state;

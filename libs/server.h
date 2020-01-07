@@ -40,7 +40,6 @@ typedef struct
     pthread_t thread;
     void *(*threadFunc)(void *);
     Llistads dss;
-    int ids;
     pthread_mutex_t mutex;
 } Server;
 
