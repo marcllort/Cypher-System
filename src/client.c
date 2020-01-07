@@ -225,12 +225,12 @@ int CLIENT_connectPort(Config config, int connectPort)
             char buff[128];
             Packet p = PACKET_create(T_CONNECT, H_NAME, UTILS_sizeOf(config.username), config.username);
             PACKET_write(p, socket_conn);
-            //Esperem la resposta del server
+            // Esperem la resposta del server
             Packet j = PACKET_read(socket_conn);
 
             newServer.name = j.data;
             free(j.header);
-            //L'afegim a la llista de servers disponibles
+            // L'afegim a la llista de servers disponibles
             if (!LLISTABID_buida(servers))
             {
                 LLISTABID_vesInici(&servers);
@@ -321,7 +321,6 @@ int CLIENT_showAudios(char *user)
             if (UTILS_compareCaseInsensitive(server.name, user) == 0)
             {
                 // Enviem el request de llista de audios i llegim la llista que ens retorna
-
                 Packet p = PACKET_create(T_SHOWAUDIOS, H_SHOWAUDIOS, 0, NULL);
                 int error = PACKET_write(p, server.socketfd);
                 PACKET_destroy(&p);
@@ -396,7 +395,6 @@ int CLIENT_download(char *user, char *filename)
                     }
                     else if (!strcmp(pa.header, H_AUDRESP))
                     {
-                        
 
                         // Guardem el fitxer a la carpeta de audios
                         char *path = malloc(strlen(filename) + strlen(CONFIG_getAudioFolder(config) + 1));
@@ -410,7 +408,7 @@ int CLIENT_download(char *user, char *filename)
                         // Fem un bucle de lectura per anar "muntant" el fixer
                         do
                         {
-                            int er =write(fd1, pa.data, pa.length);
+                            IO_write(fd1, pa.data, pa.length);
                             PACKET_destroy(&pa);
                             pa = PACKET_read(server.socketfd);
 
@@ -471,7 +469,6 @@ int CLIENT_download(char *user, char *filename)
 int CLIENT_exit()
 {
     // Funció per enviar paquets de desconnexio a tots els usuaris connectats
-
     LLISTABID_vesInici(&servers);
 
     while (!LLISTABID_final(servers))
@@ -540,13 +537,7 @@ int CLIENT_borraUser(int fd)
 
 void CLIENT_messageError()
 {
-    // Borrem el usuari amb el que no hem pogut connectar
-    /*int i = CLIENT_borraUser(lastfd);
-    // En cas de que retorni 0, vol dir que s'ha pogut borrar
-    if (i == 0)
-    {
-        IO_write(1, UNKNOWN_CONNECTION2, sizeof(UNKNOWN_CONNECTION2));
-    }*/
+    
 }
 
 int CLIENT_freeMemory()

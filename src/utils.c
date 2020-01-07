@@ -36,11 +36,11 @@ int UTILS_compareCaseInsensitive(const char *str1, const char *str2)
     int size1 = strlen(str1);
     int size2 = strlen(str2);
     int size = (size1 < size2) ? size1 : size2;
-    if (size1!=size2)
+    if (size1 != size2)
     {
         return 1;
     }
-    
+
     int i;
     size1 = 0;
     for (i = 0; i < size; i++)

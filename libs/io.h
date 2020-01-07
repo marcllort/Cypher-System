@@ -8,10 +8,8 @@
 #include <string.h>
 #include <pthread.h>
 
-
 #define FRAGMENT_SIZE 8192
 #define ERR_MUTEX "Error creating mutex\n"
-
 
 int IO_openFile(const char *filename);
 long IO_readUntil(int fd, char **data, char delimiter);

@@ -29,7 +29,7 @@ Config CONFIG_load(char *filename)
     IO_readUntilv2(fd, &(config.username), '\n');
 
     IO_readUntilv2(fd, &(config.audioFolder), '\n');
-    
+
     IO_readUntilv2(fd, &(config.myIP), '\n');
 
     IO_readUntilv2(fd, &temp, '\n');

@@ -9,8 +9,7 @@
 #include <dirent.h>
 #include <stdio.h>
 #include <signal.h>
-#include<pthread.h>
-
+#include <pthread.h>
 
 #include "io.h"
 #include "utils.h"
@@ -25,9 +24,6 @@
 #define EMPTY_FOLDER "Empty folder!\n"
 #define SENDING_FILE "\n[Thread]: Sending audio file...\n"
 #define SENT_FILE "\n[Thread]: Audio file sent!\n"
-
-
-
 
 typedef struct
 {
@@ -58,7 +54,7 @@ DServer *DSERVER_init(
     Llistads llistaServers,
     pthread_mutex_t mutex);
 
-int DSERVER_close(DServer *ds,int removeall);
+int DSERVER_close(DServer *ds, int removeall);
 pthread_t *DSERVER_getThread(DServer *ds);
 int DSERVER_getFd(DServer *ds);
 void *DSERVER_threadFunc(void *data);

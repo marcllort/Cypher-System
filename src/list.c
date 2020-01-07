@@ -37,8 +37,6 @@ Llista LLISTABID_crea()
 //Funció per inserir un nou node darrere/dreta del PDI amb el contingut element.
 int LLISTABID_inserirDarrere(Llista *l, Element e)
 {
-            IO_write(1,"Afegeix\n" ,8 );
-
     Node *n;
     if (l->pdi == l->ult)
         return 0;
@@ -62,8 +60,6 @@ int LLISTABID_inserirDarrere(Llista *l, Element e)
 //Funció per inserir un nou node davant/esquerra del PDI amb el contingut element.
 int LLISTABID_inserirDavant(Llista *l, Element e)
 {
-        IO_write(1,"Afegeix\n" ,8 );
-
     Node *n;
 
     if (l->pdi == l->pri)
@@ -88,12 +84,11 @@ int LLISTABID_inserirDavant(Llista *l, Element e)
 //Funció per consultar la element situat sobre el PDI de la nostre llista.
 Element LLISTABID_consulta(Llista l)
 {
-    
+
     Element e;
     if (l.pdi->ant != NULL && l.pdi->seg != NULL)
     {
         e = l.pdi->e;
-        IO_write(1,e.name,strlen(e.name));
     }
 
     return e;
@@ -102,7 +97,6 @@ Element LLISTABID_consulta(Llista l)
 //Funció per eliminar un node de la nostre llista.
 int LLISTABID_elimina(Llista *l)
 {
-    IO_write(1,"Borra\n" ,6 );
     Node *aux;
 
     if (l->pdi == l->pri || l->pdi == l->ult)

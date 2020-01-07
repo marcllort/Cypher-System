@@ -16,7 +16,6 @@ DServer *DSERVER_init(
     pthread_mutex_t mutex)
 {
     // Inicialitzacio de la variable DServer
-
     DServer *ds = (DServer *)malloc(sizeof(DServer));
 
     if (ds != NULL)
@@ -32,11 +31,10 @@ DServer *DSERVER_init(
         ds->user = user;
         ds->audios = audios;
         ds->llistaServers = llistaServers;
-        ds->mutex= mutex;
+        ds->mutex = mutex;
     }
     return ds;
 }
-
 
 // Getters
 
@@ -62,20 +60,22 @@ int DSERVER_close(DServer *ds, int removeall)
 
     pthread_mutex_lock(&ds->mutex);
 
-    if(!LLISTADS_buida(ds->llistaServers)){
+    if (!LLISTADS_buida(ds->llistaServers))
+    {
         LLISTADS_vesInici(&ds->llistaServers);
-        int trobat =0;
+        int trobat = 0;
         while (!LLISTADS_final(ds->llistaServers) && !trobat && !LLISTADS_buida(ds->llistaServers))
         {
             Elementds dserver = LLISTADS_consulta(ds->llistaServers);
-            if (dserver.socketfd==ds->fd)
+            if (dserver.socketfd == ds->fd)
             {
-                trobat=1;
+                trobat = 1;
                 LLISTADS_elimina(&ds->llistaServers);
-            }else{
+            }
+            else
+            {
                 LLISTADS_avanca(&ds->llistaServers);
             }
-            
         }
     }
     pthread_mutex_unlock(&ds->mutex);
@@ -83,14 +83,13 @@ int DSERVER_close(DServer *ds, int removeall)
     pthread_t threa = *DSERVER_getThread(ds);
 
     free(ds);
-    
-    pthread_detach(threa);
-    //pthread_join(threa, NULL);
-    if(removeall == 1){
-        pthread_cancel(threa);
 
+    pthread_detach(threa);
+
+    if (removeall == 1)
+    {
+        pthread_cancel(threa);
     }
-    
 
     return 0;
 }
@@ -112,7 +111,7 @@ void *DSERVER_threadFunc(void *data)
     // Ens quedem al bucle metre no canvii el estat del server dedicat
     while (ds->state == 1)
     {
-        showconn=0;
+        showconn = 0;
         p = PACKET_read(fd);
         if (p.type == T_CONNECT)
         {
@@ -170,7 +169,7 @@ void *DSERVER_threadFunc(void *data)
             int bytes = sprintf(buff, USER_DISCON, ds->user);
             IO_write(1, buff, bytes);
             UTILS_printName(ds->name);
-            DSERVER_close(ds,0);
+            DSERVER_close(ds, 0);
         }
         else if (p.type == T_DOWNLOAD)
         {
@@ -192,30 +191,26 @@ void *DSERVER_threadFunc(void *data)
 
                     char *script = malloc(strlen("md5sum %s") + strlen(audioFolderr));
                     sprintf(script, "md5sum %s", audioFolderr);
-
                     char *md5 = UTILS_md5(script);
-
                     free(script);
+
                     // Obrim el fitxer i iterem fins que la mida a escriure sigui menor al buffer, que voldra dir que estem al final del fitxer
                     IO_write(1, SENDING_FILE, strlen(SENDING_FILE));
                     UTILS_printName(ds->name);
-                    char* test = malloc(sizeof(char));
+                    char *test = malloc(sizeof(char));
                     do
                     {
-                        //buff = malloc(sizeof(char) * FRAGMENT_SIZE);
                         counter = read(fd_in, buff, FRAGMENT_SIZE);
-                        //buff = realloc(buff,counter);
                         Packet pack = PACKET_create(T_DOWNLOAD, H_AUDRESP, counter, test);
                         PACKET_sendFile(pack, fd, buff);
                         PACKET_destroy(&pack);
                         if (counter == FRAGMENT_SIZE)
                         {
-                            //free(test);
+                            
                         }
-                     
 
                     } while (counter == FRAGMENT_SIZE);
-                    //free(buff);
+                    free(test);
                     IO_write(1, SENT_FILE, strlen(SENT_FILE));
                     UTILS_printName(ds->name);
                     // Un cop hem acabat d'enviar el fitxer enviem el md5 amb aquest ultim paquet
@@ -227,7 +222,7 @@ void *DSERVER_threadFunc(void *data)
                 }
                 else
                 {
-                    //En cas de que el fitxer no existeixi enviem AUDIOKO
+                    // En cas de que el fitxer no existeixi enviem AUDIOKO
                     Packet pack = PACKET_create(T_DOWNLOAD, H_AUDKO, 0, NULL);
                     PACKET_write(pack, fd);
                     PACKET_destroy(&pack);
@@ -244,7 +239,7 @@ void *DSERVER_threadFunc(void *data)
             }
             if (!strcmp(p.header, H_SHOWAUDIOS))
             {
-                //En cas que calgui mostrar els fitxers enviem un paquet amb els diferents fitxers
+                // En cas que calgui mostrar els fitxers enviem un paquet amb els diferents fitxers
                 char *fileList = DSERVER_showFiles(audioFolder);
                 Packet pack = PACKET_create(T_SHOWAUDIOS, H_LISTAUDIOS, UTILS_sizeOf(fileList), fileList);
                 PACKET_write(pack, fd);

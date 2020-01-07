@@ -10,7 +10,6 @@ int IO_openFile(const char *filename)
     return open(filename, O_RDWR);
 }
 
-
 long IO_readUntil(int fd, char **data, char delimiter)
 {
     //Llegim de un fd fins un cert delimitador, posem /0 a size-2
@@ -65,20 +64,21 @@ long IO_read(int fd, char **data, long size)
 }
 
 //Funcio per inicialitzar el semàfor que controla l'esciptura per pantalla
-int IO_initMutex(){
+int IO_initMutex()
+{
     if (pthread_mutex_init(&mutex, NULL) != 0)
     {
         IO_write(1, ERR_MUTEX, strlen(ERR_MUTEX));
         return 1;
     }
     return 0;
-
 }
 
 long IO_write(int fd, char *data, long size)
 {
-    if(fd == 1){
-    pthread_mutex_lock(&mutex);
+    if (fd == 1)
+    {
+        pthread_mutex_lock(&mutex);
     }
     // Escrivim  a un fd
     int curr = lseek(fd, 0, SEEK_CUR);
@@ -86,7 +86,8 @@ long IO_write(int fd, char *data, long size)
 
     long status = write(fd, data, size);
     lseek(fd, curr, SEEK_SET);
-    if(fd == 1){
+    if (fd == 1)
+    {
         pthread_mutex_unlock(&mutex);
     }
     return status;

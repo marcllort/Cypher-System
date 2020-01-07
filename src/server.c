@@ -83,7 +83,7 @@ int SERVER_startDS(Server *server, int fd, int fdserver, struct sockaddr_in addr
 {
     // Inicialitzacio de server dedicat
 
-    DServer *ds = DSERVER_init( fd, fdserver, 0, 0, addr, server, server->name, user, server->audios, server->dss, server->mutex);
+    DServer *ds = DSERVER_init(fd, fdserver, 0, 0, addr, server, server->name, user, server->audios, server->dss, server->mutex);
 
     // Afegim el ds a la llista de servers dedicats
     SERVER_addDS(server, ds, user);
@@ -125,8 +125,6 @@ int SERVER_operate(Server *server)
     return 1;
 }
 
-
-
 int SERVER_addDS(void *server, DServer *ds, char *user)
 {
     // Funcio per afegir server dedicat a la llista
@@ -138,7 +136,7 @@ int SERVER_addDS(void *server, DServer *ds, char *user)
     element.user = user;
     element.socketfd = DSERVER_getFd(ds);
     element.thread = *DSERVER_getThread(ds);
-    element.dedicated=ds;
+    element.dedicated = ds;
 
     int i = LLISTADS_inserirDavant(&s->dss, element);
 
@@ -159,24 +157,23 @@ int SERVER_removeAllDS(Server *server)
         {
             Elementds ds = LLISTADS_consulta(server->dss);
             close(ds.socketfd);
-            DServer *dedicated =(DServer*)ds.dedicated;
-            dedicated->state=-1;
-            
-            DSERVER_close((DServer*)ds.dedicated,1);
+            DServer *dedicated = (DServer *)ds.dedicated;
+            dedicated->state = -1;
+
+            DSERVER_close((DServer *)ds.dedicated, 1);
             //pthread_cancel(ds.thread);
             //pthread_join(ds.thread, NULL);
             if (!LLISTADS_buida(server->dss))
             {
                 LLISTADS_avanca(&server->dss);
             }
-
         }
-        
+
         pthread_mutex_unlock(&server->mutex);
     }
 
     LLISTADS_destrueix(&server->dss);
-    
+
     return 0;
 }
 

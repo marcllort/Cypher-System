@@ -21,7 +21,7 @@ int MANAGER_manageCommand(char *inputString)
         words[0] = strtok(inputString, " ");
 
         CLIENT_checkConnections();
-        
+
         if (UTILS_compareCaseInsensitive(EXIT, words[0]) == 0)
         {
             // Alliberem memoria i sortim
@@ -37,9 +37,9 @@ int MANAGER_manageCommand(char *inputString)
                 int port = atoi(words[1]);
                 IO_write(1, CONNECT_MSG, strlen(CONNECT_MSG));
                 CLIENT_checkConnections();
+                
                 // Cridem a la funcio de connectarnos passant la nostra configuracio i el seu port
                 CLIENT_connectPort(config, port);
-                
             }
             else
             {
@@ -51,19 +51,19 @@ int MANAGER_manageCommand(char *inputString)
         {
             words[1] = strtok(0, " ");
 
-            char* user = malloc(strlen(words[1]));
+            char *user = malloc(strlen(words[1]));
             sprintf(user, "%s", words[1]);
 
             // Fem les comprovacions necessaries per saber que la comanda esta ben formada, sino mostrem error
             if (words[1])
-            {                
+            {
                 words[2] = strtok(0, " ");
                 if (words[2])
                 {
                     char buff[200];
-                    sprintf(buff,"%s",words[2]);
+                    sprintf(buff, "%s", words[2]);
                     free(inputString);
-                    
+
                     // Comprovem que el text a enviar estigui envoltat de cometes
                     if (buff[0] == '"' && buff[UTILS_sizeOf(buff) - 1] == '"')
                     {

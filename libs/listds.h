@@ -6,11 +6,11 @@
 
 typedef struct
 {
-    char* user;
+    char *user;
     int state;
     int socketfd;
     pthread_t thread;
-    void* dedicated;
+    void *dedicated;
 } Elementds;
 
 typedef struct p
