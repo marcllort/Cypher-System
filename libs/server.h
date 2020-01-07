@@ -31,7 +31,6 @@
 typedef struct
 {
     char *name;
-    void *config;
     char *ip;
     char *audios;
     int port;

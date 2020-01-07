@@ -40,7 +40,6 @@ typedef struct
     struct sockaddr_in addr;
     void *server;
     void *list_node;
-    void *(*operate)(void *);
     char *user;
     char *audios;
     Llistads llistaServers;
