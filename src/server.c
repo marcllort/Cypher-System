@@ -83,17 +83,10 @@ int SERVER_startDS(Server *server, int fd, int fdserver, struct sockaddr_in addr
 {
     // Inicialitzacio de server dedicat
 
-    DServer *ds = DSERVER_init( fd, fdserver, 0, 0, addr, server, server->name, user, server->audios, server->dss, server->mutex);
-
-    // Afegim el ds a la llista de servers dedicats
-    SERVER_addDS(server, ds, user);
+    DServer *ds = DSERVER_init(fd, fdserver, 0, 0, addr, server, server->name, user, server->audios, server->dss, server->mutex);
 
     // Creem el thread on ha de correr el dedicated server
-    if (pthread_create(DSERVER_getThread(ds), NULL, DSERVER_threadFunc, ds) != 0)
-    {
-        // Detach perquè s'alliberi la memoria al tancar el thread
-        //pthread_detach(*DSERVER_getThread(ds));
-    }
+    pthread_create(DSERVER_getThread(ds), NULL, DSERVER_threadFunc, ds);
 
     return 0;
 }
@@ -125,29 +118,6 @@ int SERVER_operate(Server *server)
     return 1;
 }
 
-
-
-int SERVER_addDS(void *server, DServer *ds, char *user)
-{
-    // Funcio per afegir server dedicat a la llista
-    Server *serverr = (Server *)ds->server;
-    pthread_mutex_lock(&serverr->mutex);
-    Server *s = (Server *)server;
-
-    Elementds element;
-    element.user = user;
-    element.socketfd = DSERVER_getFd(ds);
-    element.thread = *DSERVER_getThread(ds);
-    element.dedicated=ds;
-
-    int i = LLISTADS_inserirDavant(&s->dss, element);
-
-    ds->state = 1;
-    pthread_mutex_unlock(&serverr->mutex);
-
-    return i;
-}
-
 int SERVER_removeAllDS(Server *server)
 {
     // Funcio per borrar tots els dedicated servers
@@ -158,25 +128,26 @@ int SERVER_removeAllDS(Server *server)
         while (!LLISTADS_final(server->dss) && !LLISTADS_buida(server->dss))
         {
             Elementds ds = LLISTADS_consulta(server->dss);
+            IO_write(1, ds.user, strlen(ds.user));
+
             close(ds.socketfd);
-            DServer *dedicated =(DServer*)ds.dedicated;
-            dedicated->state=-1;
-            
-            DSERVER_close((DServer*)ds.dedicated,1);
+            DServer *dedicated = (DServer *)ds.dedicated;
+            dedicated->state = -1;
+
+            DSERVER_close((DServer *)ds.dedicated, 1);
             //pthread_cancel(ds.thread);
             //pthread_join(ds.thread, NULL);
             if (!LLISTADS_buida(server->dss))
             {
                 LLISTADS_avanca(&server->dss);
             }
-
         }
-        
+
         pthread_mutex_unlock(&server->mutex);
     }
 
     LLISTADS_destrueix(&server->dss);
-    
+
     return 0;
 }
 
