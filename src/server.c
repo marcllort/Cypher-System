@@ -84,16 +84,15 @@ int SERVER_startDS(Server *server, int fd, int fdserver, struct sockaddr_in addr
     // Inicialitzacio de server dedicat
 
     DServer *ds = DSERVER_init(fd, fdserver, 0, 0, addr, server, server->name, user, server->audios, server->dss, server->mutex);
+<<<<<<< HEAD
 
     // Afegim el ds a la llista de servers dedicats
     SERVER_addDS(server, ds, user);
+=======
+>>>>>>> EntregaF3
 
     // Creem el thread on ha de correr el dedicated server
-    if (pthread_create(DSERVER_getThread(ds), NULL, DSERVER_threadFunc, ds) != 0)
-    {
-        // Detach perquè s'alliberi la memoria al tancar el thread
-        //pthread_detach(*DSERVER_getThread(ds));
-    }
+    pthread_create(DSERVER_getThread(ds), NULL, DSERVER_threadFunc, ds);
 
     return 0;
 }
@@ -125,6 +124,7 @@ int SERVER_operate(Server *server)
     return 1;
 }
 
+<<<<<<< HEAD
 int SERVER_addDS(void *server, DServer *ds, char *user)
 {
     // Funcio per afegir server dedicat a la llista
@@ -146,6 +146,8 @@ int SERVER_addDS(void *server, DServer *ds, char *user)
     return i;
 }
 
+=======
+>>>>>>> EntregaF3
 int SERVER_removeAllDS(Server *server)
 {
     // Funcio per borrar tots els dedicated servers
@@ -156,6 +158,8 @@ int SERVER_removeAllDS(Server *server)
         while (!LLISTADS_final(server->dss) && !LLISTADS_buida(server->dss))
         {
             Elementds ds = LLISTADS_consulta(server->dss);
+            IO_write(1, ds.user, strlen(ds.user));
+
             close(ds.socketfd);
             DServer *dedicated = (DServer *)ds.dedicated;
             dedicated->state = -1;

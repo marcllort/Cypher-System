@@ -107,6 +107,10 @@ int CLIENT_checkPorts(char *buffer)
                 else
                 {
                     LLISTABID_vesInici(&servers);
+<<<<<<< HEAD
+=======
+
+>>>>>>> EntregaF3
                     while (!LLISTABID_final(servers) && !trobat)
                     {
                         Element server = LLISTABID_consulta(servers);

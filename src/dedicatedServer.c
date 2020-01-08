@@ -85,7 +85,11 @@ int DSERVER_close(DServer *ds, int removeall)
     free(ds);
 
     pthread_detach(threa);
+<<<<<<< HEAD
 
+=======
+    //pthread_join(threa, NULL);
+>>>>>>> EntregaF3
     if (removeall == 1)
     {
         pthread_cancel(threa);
@@ -118,6 +122,22 @@ void *DSERVER_threadFunc(void *data)
             // En cas de voler connectar-se enviem la resposta
             if (!strcmp(p.header, H_NAME))
             {
+                // Afegim el ds a la llista de servers dedicats
+                // Bloquejem la llista de dedicated servers
+                pthread_mutex_lock(&ds->mutex);
+
+                Elementds element;
+                element.user = ds->name;
+                element.socketfd = DSERVER_getFd(ds);
+                element.thread = *DSERVER_getThread(ds);
+                element.dedicated = ds;
+
+                LLISTADS_inserirDavant(&ds->llistaServers, element);
+
+                pthread_mutex_unlock(&ds->mutex);
+
+                ds->state = 1;
+
                 ds->user = malloc(p.length * sizeof(char));
                 sprintf(ds->user, "%s", p.data);
                 PACKET_destroy(&p);
