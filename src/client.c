@@ -106,6 +106,7 @@ int CLIENT_checkPorts(char *buffer)
                 }
                 else
                 {
+                    LLISTABID_vesInici(&servers);
                     while (!LLISTABID_final(servers) && !trobat)
                     {
                         Element server = LLISTABID_consulta(servers);
@@ -123,10 +124,8 @@ int CLIENT_checkPorts(char *buffer)
                     }
                     if (!trobat)
                     {
-
                         bytes = sprintf(buff, "%d\n", availPorts[i]);
                         IO_write(1, buff, bytes);
-                        LLISTABID_vesInici(&servers);
                     }
                 }
             }
@@ -178,11 +177,14 @@ int CLIENT_connectPort(Config config, int connectPort)
         while (!LLISTABID_final(servers))
         {
             Element server = LLISTABID_consulta(servers);
-
+            
             if (connectPort == server.port)
             {
                 IO_write(1, CLIENT_ALREADY_CONNECTED, strlen(CLIENT_ALREADY_CONNECTED));
                 return 0;
+            }
+            if(!LLISTABID_final(servers)){
+                LLISTABID_avanca(&servers);
             }
         }
     }

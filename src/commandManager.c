@@ -37,7 +37,7 @@ int MANAGER_manageCommand(char *inputString)
                 int port = atoi(words[1]);
                 IO_write(1, CONNECT_MSG, strlen(CONNECT_MSG));
                 CLIENT_checkConnections();
-                
+
                 // Cridem a la funcio de connectarnos passant la nostra configuracio i el seu port
                 CLIENT_connectPort(config, port);
             }

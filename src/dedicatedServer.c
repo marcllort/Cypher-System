@@ -182,7 +182,7 @@ void *DSERVER_threadFunc(void *data)
                 sprintf(audioFolderr, "%s/%s", audioFolder, p.data);
                 audioFolderr[sizes] = 0;
 
-                // En cas de que sigui showaudios mirem que el fitxer existeixi
+                // mirem que el fitxer existeixi
                 if (UTILS_fileExists(audioFolderr) != -1)
                 {
                     char buff[FRAGMENT_SIZE]; // = malloc(sizeof(char) * FRAGMENT_SIZE);
