@@ -57,15 +57,13 @@ int MANAGER_manageCommand(char *inputString)
             // Fem les comprovacions necessaries per saber que la comanda esta ben formada, sino mostrem error
             if (words[1])
             {
-                words[2] = strtok(0, " ");
+                words[2] = strtok(0, "\n");
                 if (words[2])
                 {
-                    char buff[200];
-                    sprintf(buff, "%s", words[2]);
                     free(inputString);
 
                     // Comprovem que el text a enviar estigui envoltat de cometes
-                    if (buff[0] == '"' && buff[UTILS_sizeOf(buff) - 1] == '"')
+                    if (words[2][0] == '"' && words[2][UTILS_sizeOf(words[2]) - 1] == '"')
                     {
                         UTILS_removeChar(words[2], '"');
 
