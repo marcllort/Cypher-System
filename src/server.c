@@ -125,25 +125,27 @@ int SERVER_removeAllDS(Server *server)
     {
         pthread_mutex_lock(&server->mutex);
         LLISTADS_vesInici(&server->dss);
-        while (!LLISTADS_final(server->dss) && !LLISTADS_buida(server->dss))
+        while (!LLISTADS_buida(server->dss))
         {
             Elementds ds = LLISTADS_consulta(server->dss);
-
-            close(ds.socketfd);
+            IO_write(1,"consulta\n",10);
             DServer *dedicated = (DServer *)ds.dedicated;
+            IO_write(1,"cast\n",5);
             dedicated->state = -1;
 
             DSERVER_close((DServer *)ds.dedicated, 1);
+            close(ds.socketfd);
 
             if (!LLISTADS_buida(server->dss))
             {
-                LLISTADS_avanca(&server->dss);
+                IO_write(1,"avanca\n",8);
+                LLISTADS_vesInici(&server->dss);
             }
         }
 
         pthread_mutex_unlock(&server->mutex);
     }
-
+    IO_write(1,"closed\n",8);
     LLISTADS_destrueix(&server->dss);
 
     return 0;
