@@ -107,10 +107,6 @@ int CLIENT_checkPorts(char *buffer)
                 else
                 {
                     LLISTABID_vesInici(&servers);
-<<<<<<< HEAD
-=======
-
->>>>>>> EntregaF3
                     while (!LLISTABID_final(servers) && !trobat)
                     {
                         Element server = LLISTABID_consulta(servers);
@@ -138,6 +134,7 @@ int CLIENT_checkPorts(char *buffer)
 
     return 0;
 }
+
 //Funcio que comproba que tots els servers que hi ha a la llista segueixen disponibles
 int CLIENT_checkConnections()
 {
@@ -181,19 +178,22 @@ int CLIENT_connectPort(Config config, int connectPort)
         while (!LLISTABID_final(servers))
         {
             Element server = LLISTABID_consulta(servers);
-            
+
+            // Comprovem si ja estem connectats al port al que esta intentant connectarse el usuari
             if (connectPort == server.port)
             {
                 IO_write(1, CLIENT_ALREADY_CONNECTED, strlen(CLIENT_ALREADY_CONNECTED));
                 return 0;
             }
-            if(!LLISTABID_final(servers)){
+            if (!LLISTABID_final(servers))
+            {
                 LLISTABID_avanca(&servers);
             }
         }
     }
     if (connectPort == config.myPort)
     {
+        // Comprovem si s'intenta connectar al propi port
         IO_write(1, MSG_ERR_PORT, sizeof(MSG_ERR_PORT));
     }
     else
@@ -543,7 +543,6 @@ int CLIENT_borraUser(int fd)
 
 void CLIENT_messageError()
 {
-    
 }
 
 int CLIENT_freeMemory()

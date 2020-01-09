@@ -58,8 +58,10 @@ int DSERVER_close(DServer *ds, int removeall)
     free(audioFolder);
     ds->state = -1;
 
+    // Bloquejem amb semafor
     pthread_mutex_lock(&ds->mutex);
 
+    // Busquem el user a la llista per borrarlo
     if (!LLISTADS_buida(ds->llistaServers))
     {
         LLISTADS_vesInici(&ds->llistaServers);
@@ -85,11 +87,7 @@ int DSERVER_close(DServer *ds, int removeall)
     free(ds);
 
     pthread_detach(threa);
-<<<<<<< HEAD
 
-=======
-    //pthread_join(threa, NULL);
->>>>>>> EntregaF3
     if (removeall == 1)
     {
         pthread_cancel(threa);
@@ -226,8 +224,7 @@ void *DSERVER_threadFunc(void *data)
                         PACKET_destroy(&pack);
                         if (counter == FRAGMENT_SIZE)
                         {
-                            
-                        }
+                                                }
 
                     } while (counter == FRAGMENT_SIZE);
                     free(test);
